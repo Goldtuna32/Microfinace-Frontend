@@ -1,0 +1,146 @@
+<div class="container mt-5">
+  <div class="card shadow-lg border-0">
+      <div class="card-header bg-primary text-white py-3">
+          <h4 class="mb-0 fw-bold">Create Customer Information File (CIF)</h4>
+      </div>
+      <div class="card-body p-4">
+          <form [formGroup]="cifForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
+              <!-- Personal Information Section -->
+              <div class="row g-3 mb-4">
+                  <div class="col-md-6">
+                      <label class="form-label fw-semibold">Full Name</label>
+                      <input type="text" class="form-control rounded-3" formControlName="name" 
+                             placeholder="Enter full name" required>
+                  </div>
+                  
+                  <div class="col-md-3">
+                      <label class="form-label fw-semibold">NRC Prefix</label>
+                      <select class="form-select rounded-3" formControlName="nrcPrefix" 
+                              (change)="onNrcPrefixChange($event)" required>
+                          <option value="" disabled>Select NRC</option>
+                          <option *ngFor="let nrc of nrcFormats" [value]="nrc.nrc_code + '/' + nrc.name_en + '(N)'">
+                              {{ nrc.nrc_code }} / {{ nrc.name_en }}
+                          </option>
+                      </select>
+                  </div>
+                  
+                  <div class="col-md-3">
+                      <label class="form-label fw-semibold">NRC Number</label>
+                      <input type="text" class="form-control rounded-3" formControlName="nrcNumber" 
+                             placeholder="6-digit number" required>
+                  </div>
+              </div>
+
+              <!-- Date and Gender -->
+              <div class="row g-3 mb-4">
+                  <div class="col-md-6">
+                      <label class="form-label fw-semibold">Date of Birth</label>
+                      <input type="date" class="form-control rounded-3" formControlName="dob" 
+                             (change)="checkAge()" required>
+                      <div *ngIf="cifForm.get('dob')?.errors?.['underage']" class="text-danger mt-1">
+                          <small>❌ Must be at least 18 years old</small>
+                      </div>
+                  </div>
+                  
+                  <div class="col-md-6">
+                      <label class="form-label fw-semibold">Gender</label>
+                      <select class="form-select rounded-3" formControlName="gender" required>
+                          <option value="" disabled selected>Select Gender</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                      </select>
+                  </div>
+              </div>
+
+              <!-- Contact Information -->
+              <div class="row g-3 mb-4">
+                  <div class="col-md-4">
+                      <label class="form-label fw-semibold">Phone Number</label>
+                      <input type="tel" class="form-control rounded-3" formControlName="phoneNumber" 
+                             placeholder="Enter phone number">
+                  </div>
+                  
+                  <div class="col-md-8">
+                      <label class="form-label fw-semibold">Email</label>
+                      <input type="email" class="form-control rounded-3" formControlName="email" 
+                             placeholder="Enter email address">
+                  </div>
+              </div>
+
+              <!-- Additional Information -->
+              <div class="row g-3 mb-4">
+                  <div class="col-md-6">
+                      <label class="form-label fw-semibold">Address</label>
+                      <input type="text" class="form-control rounded-3" formControlName="address" 
+                             placeholder="Enter full address">
+                  </div>
+                  
+                  <div class="col-md-6">
+                      <label class="form-label fw-semibold">Occupation</label>
+                      <input type="text" class="form-control rounded-3" formControlName="occupation" 
+                             placeholder="Enter occupation">
+                  </div>
+              </div>
+
+              <div class="row g-3 mb-4">
+                  <div class="col-md-6">
+                      <label class="form-label fw-semibold">Marital Status</label>
+                      <select class="form-select rounded-3" formControlName="maritalStatus" required>
+                          <option value="" disabled selected>Select Marital Status</option>
+                          <option value="Single">Single</option>
+                          <option value="Married">Married</option>
+                      </select>
+                  </div>
+                  
+                  <div class="col-md-6">
+                      <label class="form-label fw-semibold">Income Source</label>
+                      <input type="text" class="form-control rounded-3" formControlName="incomeSource" 
+                             placeholder="Enter income source">
+                  </div>
+              </div>
+
+              <!-- Branch Selection -->
+              <div class="mb-4">
+                  <label class="form-label fw-semibold">Branch</label>
+                  <select class="form-select rounded-3" formControlName="branchId" required>
+                      <option value="" disabled selected>Select Branch</option>
+                      <option *ngFor="let branch of branches" [value]="branch.id">
+                          {{ branch.branchName }}
+                      </option>
+                  </select>
+              </div>
+
+              <!-- NRC Uploads with Preview -->
+              <div class="row g-3 mb-4">
+                  <div class="col-md-6">
+                      <label class="form-label fw-semibold">Front NRC</label>
+                      <input type="file" class="form-control rounded-3" 
+                             (change)="onFileChange($event, 'front')" accept="image/*">
+                      <div class="mt-2" *ngIf="frontNrcPreview">
+                          <img [src]="frontNrcPreview" class="img-fluid rounded shadow-sm" 
+                               style="max-height: 200px; width: auto;" alt="Front NRC Preview">
+                      </div>
+                  </div>
+                  
+                  <div class="col-md-6">
+                      <label class="form-label fw-semibold">Back NRC</label>
+                      <input type="file" class="form-control rounded-3" 
+                             (change)="onFileChange($event, 'back')" accept="image/*">
+                      <div class="mt-2" *ngIf="backNrcPreview">
+                          <img [src]="backNrcPreview" class="img-fluid rounded shadow-sm" 
+                               style="max-height: 200px; width: auto;" alt="Back NRC Preview">
+                      </div>
+                  </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="text-end">
+                  <button type="submit" class="btn btn-primary px-4 py-2 rounded-3" 
+                          [disabled]="!isFormValid()">
+                      Create CIF
+                  </button>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>

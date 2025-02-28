@@ -1,0 +1,9 @@
+.custom-dialog-container {
+  .mat-dialog-container {
+    padding: 0; // Remove default padding
+    border-radius: 0.5rem; // Match rounded-lg
+    overflow: hidden; // Ensure content doesn’t spill
+    background: transparent; // Let the component’s bg-white take over
+    box-shadow: none; // Remove default shadow
+  }
+}

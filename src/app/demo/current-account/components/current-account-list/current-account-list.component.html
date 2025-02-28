@@ -1,0 +1,87 @@
+<div class="container mx-auto mt-6 p-6 bg-white shadow-lg rounded-lg">
+  <h2 class="text-2xl font-semibold text-gray-700 mb-4">Current Account List</h2>
+
+  <!-- Show loading spinner -->
+  <div *ngIf="loading" class="flex justify-center my-6">
+    <mat-spinner color="primary"></mat-spinner>
+  </div>
+
+  <!-- Show error message if loading fails -->
+  <div *ngIf="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Search Input -->
+  <div class="mb-4">
+    <input 
+      type="text" 
+      class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" 
+      placeholder="Search..." 
+      (keyup)="applyFilter($event)">
+  </div>
+
+  <!-- Angular Material Data Table -->
+  <div class="overflow-x-auto">
+    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 w-full border border-gray-200 shadow-md">
+      
+      <!-- ID Column -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="py-2 px-4">ID</th>
+        <td mat-cell *matCellDef="let row" class="py-2 px-4">{{ row.id }}</td>
+      </ng-container>
+
+      <!-- Account Number Column -->
+      <ng-container matColumnDef="accountNumber">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="py-2 px-4">Account Number</th>
+        <td mat-cell *matCellDef="let row" class="py-2 px-4">{{ row.accountNumber }}</td>
+      </ng-container>
+
+      <!-- Balance Column -->
+      <ng-container matColumnDef="balance">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="py-2 px-4">Balance</th>
+        <td mat-cell *matCellDef="let row" class="py-2 px-4">{{ row.balance | currency }}</td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="py-2 px-4">Status</th>
+        <td mat-cell *matCellDef="let row" class="py-2 px-4">
+          <span class="px-2 py-1 rounded text-white" 
+                [ngClass]="row.status === 1 ? 'bg-green-500' : 'bg-red-500'">
+            {{ row.status === 1 ? 'Active' : 'Inactive' }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Date Created Column -->
+      <ng-container matColumnDef="dateCreated">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="py-2 px-4">Date Created</th>
+        <td mat-cell *matCellDef="let row" class="py-2 px-4">{{ row.dateCreated | date: 'shortDate' }}</td>
+      </ng-container>
+
+      <!-- CIF ID Column -->
+      <ng-container matColumnDef="cifId">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header class="py-2 px-4">CIF ID</th>
+        <td mat-cell *matCellDef="let row" class="py-2 px-4">{{ row.cifId }}</td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="py-2 px-4 text-center">Actions</th>
+        <td mat-cell *matCellDef="let row" class="py-2 px-4 text-center">
+          <button class="px-4 py-1 bg-red-500 text-white rounded hover:bg-red-600" 
+                  (click)="deleteCurrentAccount(row.id)">
+            Delete
+          </button>
+        </td>
+      </ng-container>
+
+      <!-- Header and Row Definitions -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-gray-100"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+
+  <!-- Paginator -->
+  <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+</div>

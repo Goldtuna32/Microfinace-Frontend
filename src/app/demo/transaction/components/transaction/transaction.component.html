@@ -1,0 +1,94 @@
+<div class="container mt-4">
+    <div class="card shadow-lg">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Create Transaction</h4>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="transactionForm" (ngSubmit)="submitTransaction()">
+          <!-- Add these alert messages at the top of the form -->
+          <div *ngIf="successMessage()" class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ successMessage() }}
+            <button type="button" class="btn-close" (click)="successMessage.set(null)" aria-label="Close"></button>
+          </div>
+          
+          <div *ngIf="error()" class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ error() }}
+            <button type="button" class="btn-close" (click)="error.set(null)" aria-label="Close"></button>
+          </div>
+    
+          <!-- Current Account -->
+          <div class="mb-3">
+            <label class="form-label">Current Account <span class="text-danger">*</span></label>
+            <select class="form-select" formControlName="account">
+              <option value="" disabled selected>Select Account</option>
+              <ng-container *ngIf="!loading()">
+                <option *ngFor="let account of currentAccounts()" [value]="account.id">
+                  {{ account.accountNumber }} - {{ account.name }}
+                </option>
+              </ng-container>
+            </select>
+            <div *ngIf="loading()" class="text-muted mt-2">
+              Loading accounts...
+            </div>
+            <div *ngIf="error()" class="text-danger mt-2">
+              {{ error() }}
+            </div>
+            <div *ngIf="transactionForm.get('account')?.touched && transactionForm.get('account')?.invalid"
+                 class="text-danger">
+              Account selection is required
+            </div>
+          </div>
+    
+          <!-- Amount -->
+          <div class="mb-3">
+            <label class="form-label">Amount <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" formControlName="amount" placeholder="Enter amount">
+            <div *ngIf="transactionForm.get('amount')?.touched && transactionForm.get('amount')?.invalid"
+                 class="text-danger">
+              <div *ngIf="transactionForm.get('amount')?.errors?.['required']">Amount is required</div>
+              <div *ngIf="transactionForm.get('amount')?.errors?.['min']">Amount must be greater than 0</div>
+            </div>
+          </div>
+    
+          <!-- Debit / Credit -->
+          <div class="mb-3">
+            <label class="form-label">Transaction Type <span class="text-danger">*</span></label>
+            <div class="d-flex">
+              <div class="form-check me-3">
+                <input class="form-check-input" type="radio" formControlName="type" value="debit">
+                <label class="form-check-label">Debit</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" formControlName="type" value="credit">
+                <label class="form-check-label">Credit</label>
+              </div>
+            </div>
+            <div *ngIf="transactionForm.get('type')?.touched && transactionForm.get('type')?.invalid"
+                 class="text-danger">
+              Transaction type is required
+            </div>
+          </div>
+    
+          <!-- Description -->
+          <div class="mb-3">
+            <label class="form-label">Description <span class="text-danger">*</span></label>
+            <textarea class="form-control" formControlName="description" placeholder="Enter description"></textarea>
+            <div *ngIf="transactionForm.get('description')?.touched && transactionForm.get('description')?.invalid"
+                 class="text-danger">
+              Description is required
+            </div>
+          </div>
+    
+          <!-- Submit Button -->
+          <div class="text-end">
+            <button type="submit" 
+                    class="btn btn-primary" 
+                    [disabled]="transactionForm.invalid || loading()">
+              {{ loading() ? 'Submitting...' : 'Submit Transaction' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  

@@ -1,0 +1,97 @@
+<div class="bg-white rounded-lg shadow-lg max-w-2xl w-full mx-auto p-6 max-h-[90vh] overflow-y-auto">
+  <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Edit CIF</h2>
+  
+  <div class="space-y-6">
+    <form [formGroup]="editForm" class="space-y-4">
+      <!-- Name -->
+      <div class="form-group">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+        <input class="w-full px-4 py-2 border rounded-lg" type="text" formControlName="name" placeholder="Enter full name">
+      </div>
+
+      <!-- NRC Number -->
+      <div class="form-group">
+        <label class="block text-sm font-medium text-gray-700 mb-1">NRC Number</label>
+        <input class="w-full px-4 py-2 border rounded-lg" type="text" formControlName="nrcNumber" placeholder="Enter NRC number">
+      </div>
+
+      <!-- Date of Birth -->
+      <div class="form-group">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+        <input class="w-full px-4 py-2 border rounded-lg" type="date" formControlName="dob">
+      </div>
+
+      <!-- Gender -->
+      <div class="form-group">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+        <select class="w-full px-4 py-2 border rounded-lg" formControlName="gender">
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
+      </div>
+
+      <!-- Phone Number -->
+      <div class="form-group">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+        <input class="w-full px-4 py-2 border rounded-lg" type="tel" formControlName="phoneNumber" placeholder="Enter phone number">
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <input class="w-full px-4 py-2 border rounded-lg" type="email" formControlName="email" placeholder="Enter email address">
+      </div>
+
+      <!-- Address -->
+      <div class="form-group">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+        <textarea class="w-full px-4 py-2 border rounded-lg" formControlName="address" placeholder="Enter address"></textarea>
+      </div>
+
+      <!-- Marital Status -->
+      <div class="form-group">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Marital Status</label>
+        <select class="w-full px-4 py-2 border rounded-lg" formControlName="maritalStatus">
+          <option value="Single">Single</option>
+          <option value="Married">Married</option>
+        </select>
+      </div>
+
+      <!-- Occupation -->
+      <div class="form-group">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Occupation</label>
+        <input class="w-full px-4 py-2 border rounded-lg" type="text" formControlName="occupation" placeholder="Enter occupation">
+      </div>
+
+      <!-- Income Source -->
+      <div class="form-group">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Income Source</label>
+        <input class="w-full px-4 py-2 border rounded-lg" type="text" formControlName="incomeSource" placeholder="Enter income source">
+      </div>
+
+      <!-- Branch ID -->
+      <div class="form-group">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Branch ID</label>
+        <input class="w-full px-4 py-2 border rounded-lg" type="number" formControlName="branchId" placeholder="Enter branch ID">
+      </div>
+
+      <!-- Front NRC Photo -->
+      <div>
+    <label>Front NRC Photo</label>
+    <input type="file" (change)="onFrontNrcFileChange($event)" accept="image/*" />
+    <span *ngIf="originalCif.fNrcPhotoUrl && !frontNrcFile">{{ originalCif.fNrcPhotoUrl }}</span>
+  </div>
+
+  <div>
+    <label>Back NRC Photo</label>
+    <input type="file" (change)="onBackNrcFileChange($event)" accept="image/*" />
+    <span *ngIf="originalCif.bNrcPhotoUrl && !backNrcFile">{{ originalCif.bNrcPhotoUrl }}</span>
+  </div>
+    </form>
+  </div>
+  <!-- Action Buttons -->
+  <div class="flex justify-end space-x-4 mt-8 pt-4 border-t">
+    <button class="px-6 py-2 rounded-lg text-gray-600 hover:bg-gray-100" (click)="close()">Cancel</button>
+    <button class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" (click)="save()" [disabled]="editForm.invalid">Save Changes</button>
+  </div>
+</div>

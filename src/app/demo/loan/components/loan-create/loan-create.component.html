@@ -1,0 +1,75 @@
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Create Loan</h4>
+        </div>
+        <div class="card-body">
+            <form [formGroup]="loanForm" (ngSubmit)="onSubmit()">
+                <!-- Loan Amount -->
+                <div class="mb-4">
+                    <label class="form-label">Loan Amount <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" formControlName="loanAmount" placeholder="Enter loan amount">
+                    <div *ngIf="loanForm.controls['loanAmount'].touched && loanForm.controls['loanAmount'].invalid" class="text-danger">
+                        Loan amount is required and must be at least 1000.
+                    </div>
+                </div>
+
+                <!-- Loan Term -->
+                <div class="mb-4">
+                    <label class="form-label">Loan Term (Months) <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" formControlName="loanTerm" placeholder="Enter loan term">
+                    <div *ngIf="loanForm.controls['loanTerm'].touched && loanForm.controls['loanTerm'].invalid" class="text-danger">
+                        Loan term is required and must be at least 6 months.
+                    </div>
+                </div>
+
+                <!-- Interest Rate -->
+                <div class="mb-4">
+                    <label class="form-label">Interest Rate (%) <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" formControlName="interestRate" placeholder="Enter interest rate">
+                    <div *ngIf="loanForm.controls['interestRate'].touched && loanForm.controls['interestRate'].invalid" class="text-danger">
+                        Interest rate is required.
+                    </div>
+                </div>
+
+                <!-- Borrower Name -->
+                <div class="mb-4">
+                    <label class="form-label">Borrower Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" formControlName="borrowerName" placeholder="Enter borrower name">
+                    <div *ngIf="loanForm.controls['borrowerName'].touched && loanForm.controls['borrowerName'].invalid" class="text-danger">
+                        Borrower name is required.
+                    </div>
+                </div>
+
+                <!-- Borrower Email -->
+                <div class="mb-4">
+                    <label class="form-label">Borrower Email <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" formControlName="borrowerEmail" placeholder="Enter borrower email">
+                    <div *ngIf="loanForm.controls['borrowerEmail'].touched && loanForm.controls['borrowerEmail'].invalid" class="text-danger">
+                        <span *ngIf="loanForm.controls['borrowerEmail'].errors?.['required']">Email is required.</span>
+                        <span *ngIf="loanForm.controls['borrowerEmail'].errors?.['email']">Enter a valid email address.</span>
+                    </div>
+                </div>
+
+                <!-- Status Dropdown -->
+                <div class="mb-4">
+                    <label class="form-label">Status <span class="text-danger">*</span></label>
+                    <select class="form-select" formControlName="status">
+                        <option value="" disabled selected>Select status</option>
+                        <option value="1">Approved</option>
+                        <option value="0">Pending</option>
+                    </select>
+                    <div *ngIf="loanForm.controls['status'].touched && loanForm.controls['status'].invalid" class="text-danger">
+                        Status is required.
+                    </div>
+                </div>
+                <!-- Submit Button -->
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary" [disabled]="loanForm.invalid">
+                        <i class="feather icon-check"></i> Create Loan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

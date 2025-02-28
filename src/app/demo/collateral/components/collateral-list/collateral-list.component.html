@@ -1,0 +1,75 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5>Collateral List</h5>
+                        <button class="btn btn-primary" [routerLink]="['/collateral/create']">
+                            Add New Collateral
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Loading State -->
+                    <div *ngIf="loading" class="text-center p-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+
+                    <!-- Error State -->
+                    <div *ngIf="error" class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+
+                    <!-- Data Table -->
+                    <div *ngIf="!loading && !error" class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Description</th>
+                                    <th>Value</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngIf="collaterals.length === 0">
+                                    <td colspan="6" class="text-center">No collaterals found</td>
+                                </tr>
+                                <tr *ngFor="let collateral of collaterals">
+                                    <td>{{ collateral.collateralCode }}</td>
+                                    <td>{{ collateral.description }}</td>
+                                    <td>{{ collateral.value | currency }}</td>
+                                    <td>
+                                        <span
+                                            [class]="'badge ' + (collateral.status === 1 ? 'bg-success' : 'bg-danger')">
+                                            {{ collateral.status === 1 ? 'Active' : 'Inactive' }}
+                                        </span>
+                                    </td>
+                                    <td>{{ collateral.date | date:'medium' }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info me-2"
+                                            [routerLink]="['/collateral', collateral.id]">
+                                            View
+                                        </button>
+                                        <button class="btn btn-sm btn-primary me-2"
+                                            [routerLink]="['/collateral/edit', collateral.id]">
+                                            Edit
+                                        </button>
+                                        <button class="btn btn-sm btn-danger">
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

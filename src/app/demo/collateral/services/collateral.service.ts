@@ -1,21 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { Collateral } from '../models/collateral.model';
 // FormData is already available globally in modern browsers
 // No need to import it from a polyfill
 
-export interface Collateral {
-  id?: number;
-  price: number;
-  description: string;
-  F_collateralPhoto?: File;
-  B_collateralPhoto?: File;
-  status: number;
-  cifId: number;
-  collateralTypeId: number;
-  collateralCode?: string;
-  date?: Date;
-}
 
 @Injectable({
   providedIn: 'root'
@@ -35,5 +24,13 @@ export class CollateralService {
 
   getAllCifs(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/cifs`);
+  }
+
+  updateCollateral(id: number, formData: FormData): Observable<Collateral> {
+    return this.http.put<Collateral>(`${this.baseUrl}/collaterals/${id}`, formData);
+  }
+
+  deleteCollateral(id: number): Observable<void> {
+    return this.http.delete<void>(`api/collaterals/${id}`);
   }
 }

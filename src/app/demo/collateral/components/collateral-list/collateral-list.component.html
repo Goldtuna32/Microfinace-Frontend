@@ -1,75 +1,99 @@
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5>Collateral List</h5>
-                        <button class="btn btn-primary" [routerLink]="['/collateral/create']">
-                            Add New Collateral
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <!-- Loading State -->
-                    <div *ngIf="loading" class="text-center p-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-
-                    <!-- Error State -->
-                    <div *ngIf="error" class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-
-                    <!-- Data Table -->
-                    <div *ngIf="!loading && !error" class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Code</th>
-                                    <th>Description</th>
-                                    <th>Value</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngIf="collaterals.length === 0">
-                                    <td colspan="6" class="text-center">No collaterals found</td>
-                                </tr>
-                                <tr *ngFor="let collateral of collaterals">
-                                    <td>{{ collateral.collateralCode }}</td>
-                                    <td>{{ collateral.description }}</td>
-                                    <td>{{ collateral.value | currency }}</td>
-                                    <td>
-                                        <span
-                                            [class]="'badge ' + (collateral.status === 1 ? 'bg-success' : 'bg-danger')">
-                                            {{ collateral.status === 1 ? 'Active' : 'Inactive' }}
-                                        </span>
-                                    </td>
-                                    <td>{{ collateral.date | date:'medium' }}</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-info me-2"
-                                            [routerLink]="['/collateral', collateral.id]">
-                                            View
-                                        </button>
-                                        <button class="btn btn-sm btn-primary me-2"
-                                            [routerLink]="['/collateral/edit', collateral.id]">
-                                            Edit
-                                        </button>
-                                        <button class="btn btn-sm btn-danger">
-                                            Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="container-fluid p-4">
+  <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+    <div class="bg-blue-600 text-white p-4 flex justify-between items-center">
+      <h5 class="text-lg font-semibold mb-0">Collateral List</h5>
+      <button class="btn btn-primary text-sm px-4 py-2" [routerLink]="['/collateral/create']">
+        Add New Collateral
+      </button>
     </div>
+
+    <div class="p-4">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="text-center py-8">
+        <div class="spinner-border text-blue-600" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+        {{ error }}
+      </div>
+
+      <!-- Data Table -->
+      <div *ngIf="!loading && !error" class="overflow-x-auto">
+        <table class="w-full border-collapse text-sm">
+          <thead class="bg-gray-100 text-gray-700">
+            <tr>
+              <th class="p-3 text-left font-semibold cursor-pointer" (click)="sort('collateralCode')">
+                Code
+                <i class="bi bi-arrow-down-up ms-1"></i>
+              </th>
+              <th class="p-3 text-left font-semibold cursor-pointer" (click)="sort('description')">
+                Description
+                <i class="bi bi-arrow-down-up ms-1"></i>
+              </th>
+              <th class="p-3 text-left font-semibold cursor-pointer" (click)="sort('value')">
+                Value
+                <i class="bi bi-arrow-down-up ms-1"></i>
+              </th>
+              <th class="p-3 text-left font-semibold cursor-pointer" (click)="sort('status')">
+                Status
+                <i class="bi bi-arrow-down-up ms-1"></i>
+              </th>
+              <th class="p-3 text-left font-semibold cursor-pointer" (click)="sort('date')">
+                Date
+                <i class="bi bi-arrow-down-up ms-1"></i>
+              </th>
+              <th class="p-3 text-left font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="paginatedCollaterals.length === 0" class="text-center">
+              <td colspan="6" class="py-6 text-gray-500">No collaterals found</td>
+            </tr>
+            <tr *ngFor="let collateral of paginatedCollaterals" class="hover:bg-gray-50 transition">
+              <td class="p-3 border-b border-gray-200">{{ collateral.collateralCode }}</td>
+              <td class="p-3 border-b border-gray-200">{{ collateral.description }}</td>
+              <td class="p-3 border-b border-gray-200">{{ collateral.value | currency }}</td>
+              <td class="p-3 border-b border-gray-200">
+                <span class="inline-block px-2 py-1 text-xs font-medium text-white rounded-full"
+                      [ngClass]="{'bg-green-500': collateral.status === 1, 'bg-red-500': collateral.status !== 1}">
+                  {{ collateral.status === 1 ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td class="p-3 border-b border-gray-200">{{ collateral.date | date:'medium' }}</td>
+              <td class="p-3 border-b border-gray-200 space-x-2">
+                <button class="btn btn-sm btn-outline-info px-2 py-1" (click)="openDetailModal(collateral)">
+                  View
+                </button>
+                <button class="btn btn-sm btn-outline-primary px-2 py-1" (click)="editCollateral(collateral)">
+                  Edit
+                </button>
+                <button class="btn btn-sm btn-outline-danger px-2 py-1" (click)="deleteCollateral(collateral.id)">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div class="mt-4 flex justify-between items-center">
+          <div class="text-sm text-gray-600">
+            Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ currentPage * pageSize > collaterals.length ? collaterals.length : currentPage * pageSize }} of {{ collaterals.length }} entries
+          </div>
+          <div class="flex space-x-2">
+            <button class="btn btn-sm btn-outline-secondary px-2 py-1" (click)="previousPage()" [disabled]="currentPage === 1">
+              Previous
+            </button>
+            <span class="px-2 py-1 text-sm">{{ currentPage }}</span>
+            <button class="btn btn-sm btn-outline-secondary px-2 py-1" (click)="nextPage()" [disabled]="currentPage * pageSize >= collaterals.length">
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

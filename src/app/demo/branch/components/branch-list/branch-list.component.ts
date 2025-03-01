@@ -9,6 +9,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatIcon } from '@angular/material/icon';
 import { Branch } from '../../models/branch.model';
+import { BranchDetailComponent } from '../branch-detail/branch-detail.component';
+import { MatDialog } from '@angular/material/dialog';
  
 @Component({
   selector: 'app-branch-list',
@@ -21,20 +23,21 @@ export class BranchListComponent {
   dataSource = new MatTableDataSource<any>([]);
   loading = true;
   errorMessage = '';
+  showModal: boolean = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   selectedBranch: any | null = null; // ✅ Store selected branch
 
-  constructor(private branchService: BranchService, private snackBar: MatSnackBar) {}
+  constructor(private branchService: BranchService, private snackBar: MatSnackBar, private router: Router, private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.loadBranches();
   }
 
   loadBranches() {
-    this.branchService.getBranches().subscribe({
+    this.branchService.getBranchesWith().subscribe({
       next: (data) => {
         this.dataSource.data = data;
         this.dataSource.paginator = this.paginator;
@@ -49,12 +52,15 @@ export class BranchListComponent {
     });
   }
 
-  viewDetails(branch: any) {
-    this.selectedBranch = branch;
-  }
-
-  closeDetails() {
-    this.selectedBranch = null;
+  openBranchDetailDialog(branch: Branch) {
+    this.dialog.open(BranchDetailComponent, {
+      width: '90%',
+      maxWidth: '900px',
+      height: 'auto',
+      maxHeight: '90vh',
+      panelClass: 'custom-dialog-container',
+      data: branch
+    });
   }
 
   applyFilter(event: Event) {

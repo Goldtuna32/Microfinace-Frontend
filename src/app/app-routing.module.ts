@@ -52,6 +52,10 @@ const routes: Routes = [
         loadComponent: () => import('./demo/branch/components/branch-list/branch-list.component')
           .then(m => m.BranchListComponent)
       },
+      { path: 'branches/:id',
+        loadComponent: () => import('./demo/branch/components/branch-detail/branch-detail.component')
+        .then(m => m.BranchDetailComponent)
+       },
       {
         path: 'cif/create',
         loadComponent: () => import('./demo/cif/components/cif-create/cif-create.component')
@@ -84,6 +88,7 @@ const routes: Routes = [
         loadComponent: () => import('./demo/transaction/components/transaction/transaction.component')
          .then(m => m.TransactionComponent)
       },
+     
 
     ]
   },

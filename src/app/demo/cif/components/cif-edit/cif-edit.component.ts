@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-cif-edit',
-  imports: [ReactiveFormsModule, MatFormField, MatLabel, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './cif-edit.component.html',
   styleUrl: './cif-edit.component.scss'
 })

@@ -29,7 +29,6 @@ export class BranchCreateComponent {
       branchName: ['', Validators.required],
       phoneNumber: ['', [Validators.required, Validators.pattern(/^\d{10,15}$/)]],
       email: ['', [Validators.required, Validators.email]],
-      status: ['', Validators.required],
       street: ['', Validators.required],
     });
 
@@ -71,8 +70,7 @@ export class BranchCreateComponent {
         branch: {
           branchName: this.branchForm.value.branchName,
           phoneNumber: this.branchForm.value.phoneNumber,
-          email: this.branchForm.value.email,
-          status: this.branchForm.value.status
+          email: this.branchForm.value.email
         },
         address: {
           region: this.branchForm.value.region.trim(),

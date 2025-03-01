@@ -1,0 +1,114 @@
+<div class="p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold">Edit Branch</h2>
+      <button (click)="close()" class="text-gray-500 hover:text-gray-700">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  
+    <form [formGroup]="editForm" (ngSubmit)="save()">
+      <div class="grid grid-cols-1 gap-4">
+        <div>
+          <label class="block text-gray-700 font-medium">Branch Code <span class="text-red-500">*</span></label>
+          <input formControlName="branchCode" class="w-full border rounded-md p-2 bg-gray-100" readonly>
+        </div>
+  
+        <div>
+          <label class="block text-gray-700 font-medium">Branch Name <span class="text-red-500">*</span></label>
+          <input formControlName="branchName" class="w-full border rounded-md p-2 focus:ring focus:ring-blue-300" 
+                 placeholder="Enter branch name" required>
+          <div *ngIf="editForm.get('branchName')?.touched && editForm.get('branchName')?.errors?.['required']" 
+               class="text-red-500 text-sm">Branch Name is required</div>
+        </div>
+  
+        <div>
+          <label class="block text-gray-700 font-medium">Phone Number <span class="text-red-500">*</span></label>
+          <input formControlName="phoneNumber" class="w-full border rounded-md p-2 focus:ring focus:ring-blue-300" 
+                 placeholder="Enter phone number (10-15 digits)" required>
+          <div *ngIf="editForm.get('phoneNumber')?.touched && editForm.get('phoneNumber')?.errors?.['required']" 
+               class="text-red-500 text-sm">Phone Number is required</div>
+          <div *ngIf="editForm.get('phoneNumber')?.touched && editForm.get('phoneNumber')?.errors?.['pattern']" 
+               class="text-red-500 text-sm">Phone Number must be 10-15 digits</div>
+        </div>
+  
+        <div>
+          <label class="block text-gray-700 font-medium">Email <span class="text-red-500">*</span></label>
+          <input formControlName="email" type="email" class="w-full border rounded-md p-2 focus:ring focus:ring-blue-300" 
+                 placeholder="Enter email" required>
+          <div *ngIf="editForm.get('email')?.touched && editForm.get('email')?.errors?.['required']" 
+               class="text-red-500 text-sm">Email is required</div>
+          <div *ngIf="editForm.get('email')?.touched && editForm.get('email')?.errors?.['email']" 
+               class="text-red-500 text-sm">Please enter a valid email</div>
+        </div>
+  
+        <div>
+          <label class="block text-gray-700 font-medium">Region <span class="text-red-500">*</span></label>
+          <select formControlName="region" (change)="onRegionChange($event)" 
+                  class="w-full border rounded-md p-2 focus:ring focus:ring-blue-300" required>
+            <option value="">Select Region</option>
+            <option *ngFor="let region of regions" [value]="region">{{ region }}</option>
+          </select>
+          <div *ngIf="editForm.get('region')?.touched && editForm.get('region')?.errors?.['required']" 
+               class="text-red-500 text-sm">Region is required</div>
+          <div *ngIf="regions.length === 0" class="text-yellow-500 text-sm">No regions available - check JSON file</div>
+        </div>
+  
+        <div>
+          <label class="block text-gray-700 font-medium">District <span class="text-red-500">*</span></label>
+          <select formControlName="district" (change)="onDistrictChange($event)" 
+                  class="w-full border rounded-md p-2 focus:ring focus:ring-blue-300" required>
+            <option value="">Select District</option>
+            <option *ngFor="let district of districts" [value]="district">{{ district }}</option>
+          </select>
+          <div *ngIf="editForm.get('district')?.touched && editForm.get('district')?.errors?.['required']" 
+               class="text-red-500 text-sm">District is required</div>
+          <div *ngIf="districts.length === 0 && editForm.get('region')?.value" 
+               class="text-yellow-500 text-sm">No districts available for selected region</div>
+        </div>
+  
+        <div>
+          <label class="block text-gray-700 font-medium">Township <span class="text-red-500">*</span></label>
+          <select formControlName="township" class="w-full border rounded-md p-2 focus:ring focus:ring-blue-300" required>
+            <option value="">Select Township</option>
+            <option *ngFor="let township of townships" [value]="township">{{ township }}</option>
+          </select>
+          <div *ngIf="editForm.get('township')?.touched && editForm.get('township')?.errors?.['required']" 
+               class="text-red-500 text-sm">Township is required</div>
+          <div *ngIf="townships.length === 0 && editForm.get('district')?.value" 
+               class="text-yellow-500 text-sm">No townships available for selected district</div>
+        </div>
+  
+        <div>
+          <label class="block text-gray-700 font-medium">Street <span class="text-red-500">*</span></label>
+          <input formControlName="street" class="w-full border rounded-md p-2 focus:ring focus:ring-blue-300" 
+                 placeholder="Enter street" required>
+          <div *ngIf="editForm.get('street')?.touched && editForm.get('street')?.errors?.['required']" 
+               class="text-red-500 text-sm">Street is required</div>
+        </div>
+  
+        <div>
+          <label class="block text-gray-700 font-medium">Status <span class="text-red-500">*</span></label>
+          <select formControlName="status" class="w-full border rounded-md p-2 focus:ring focus:ring-blue-300" required>
+            <option value="">Select Status</option>
+            <option value="1">Active</option>
+            <option value="0">Inactive</option>
+          </select>
+          <div *ngIf="editForm.get('status')?.touched && editForm.get('status')?.errors?.['required']" 
+               class="text-red-500 text-sm">Status is required</div>
+        </div>
+  
+        <input formControlName="addressId" type="hidden">
+      </div>
+  
+      <div class="flex justify-end gap-2 mt-6">
+        <button type="button" (click)="close()" 
+                class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
+          Cancel
+        </button>
+        <button type="submit" [disabled]="editForm.invalid" 
+                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:bg-gray-400">
+          Save
+        </button>
+      </div>
+    </form>
+  </div>

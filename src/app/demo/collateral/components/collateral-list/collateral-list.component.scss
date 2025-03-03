@@ -65,3 +65,11 @@ tr {
     cursor: not-allowed;
   }
 }
+.btn-outline-success {
+  border-color: #28a745;
+  color: #28a745;
+  &:hover {
+    background-color: #28a745;
+    color: white;
+  }
+}

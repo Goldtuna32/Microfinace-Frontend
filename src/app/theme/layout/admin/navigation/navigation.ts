@@ -132,6 +132,36 @@ export const NavigationItems: NavigationItem[] = [
       }
     ]
   },
+  {
+    id: 'Collateral Type',
+    title: 'Collateral Type',
+    type: 'group',
+    icon: 'icon-group',
+    children: [
+      {
+        id: 'Collateral Type',
+        title: 'Collateral Type',
+        type: 'collapse',
+        icon: 'feather icon-box',
+        children: [
+          {
+            id: 'Collateral Type List',
+            title: 'Collateral-Type List',
+            type: 'item',
+            url: '/collateralType/list',
+            icon: 'feather icon-list'
+          },
+          {
+            id: 'Create Collateral-Type',
+            title: 'Create Collateral-Type',
+            type: 'item',
+            url: '/collateralType/create',
+            icon: 'feather icon-plus'
+          },
+        ]
+      }
+    ]
+  },
 
   {
     id: 'collateral',

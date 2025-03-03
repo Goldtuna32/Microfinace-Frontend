@@ -5,17 +5,13 @@ import { RouterModule } from '@angular/router';
 import { CollateralDetailComponent } from '../collateral-detail/collateral-detail.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Collateral } from '../../models/collateral.model';
-import { MatSort } from '@angular/material/sort';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatIcon } from '@angular/material/icon';
-import { MatSpinner } from '@angular/material/progress-spinner';
+import { MatTableModule } from '@angular/material/table';
 import { CollateralEditComponent } from '../collateral-edit/collateral-edit.component';
 
 @Component({
   selector: 'app-collateral-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatIcon, MatPaginator, MatTableModule, MatSpinner],
+  imports: [CommonModule, RouterModule, MatTableModule],
   templateUrl: './collateral-list.component.html',
   styleUrl: './collateral-list.component.scss'
 })
@@ -28,6 +24,7 @@ export class CollateralListComponent implements OnInit {
   pageSize: number = 5; // Default page size
   sortColumn: keyof Collateral | null = null;
   sortDirection: 'asc' | 'desc' = 'asc';
+  showDeleted = false;
 
   constructor(
     private collateralService: CollateralService,
@@ -38,13 +35,18 @@ export class CollateralListComponent implements OnInit {
     this.loadCollaterals();
   }
 
-  private loadCollaterals(): void {
+  loadCollaterals(): void {
     this.loading = true;
-    this.collateralService.getAllCollaterals().subscribe({
+    const serviceCall = this.showDeleted
+      ? this.collateralService.getDeletedCollaterals()
+      : this.collateralService.getAllCollaterals();
+
+    serviceCall.subscribe({
       next: (data: Collateral[]) => {
         this.collaterals = data;
         this.updatePagination();
         this.loading = false;
+        this.error = null;
       },
       error: (error) => {
         this.error = 'Error loading collaterals. Please try again later.';
@@ -52,6 +54,13 @@ export class CollateralListComponent implements OnInit {
         console.error('Error:', error);
       }
     });
+  }
+
+  toggleDeletedList(): void {
+    this.showDeleted = !this.showDeleted;
+    this.currentPage = 1; // Reset pagination
+    this.sortColumn = null; // Reset sorting
+    this.loadCollaterals();
   }
 
   sort(column: keyof Collateral): void {
@@ -157,6 +166,20 @@ export class CollateralListComponent implements OnInit {
       error: (error) => {
         this.error = 'Error deleting collateral.';
         console.error('Delete error:', error);
+      }
+    });
+  }
+
+  restoreCollateral(id: number | undefined): void {
+    if (id === undefined || !confirm('Are you sure you want to restore this collateral?')) return;
+    this.collateralService.restoreCollateral(id).subscribe({
+      next: () => {
+        this.collaterals = this.collaterals.filter(c => c.id !== id);
+        this.updatePagination();
+      },
+      error: (error) => {
+        this.error = 'Error restoring collateral.';
+        console.error('Restore error:', error);
       }
     });
   }

@@ -1,10 +1,14 @@
 <div class="container-fluid p-4">
   <div class="bg-white shadow-lg rounded-lg overflow-hidden">
     <div class="bg-blue-600 text-white p-4 flex justify-between items-center">
-      <h5 class="text-lg font-semibold mb-0">Collateral List</h5>
-      <button class="btn btn-primary text-sm px-4 py-2" [routerLink]="['/collateral/create']">
-        Add New Collateral
-      </button>
+      <h5 class="text-lg font-semibold mb-0">
+        {{ showDeleted ? 'Deleted Collateral List' : 'Collateral List' }}
+      </h5>
+      <div class="space-x-2">
+        <button class="btn btn-primary text-sm px-4 py-2" (click)="toggleDeletedList()">
+          {{ showDeleted ? 'Show Active Collaterals' : 'Show Deleted Collaterals' }}
+        </button>
+      </div>
     </div>
 
     <div class="p-4">
@@ -26,31 +30,28 @@
           <thead class="bg-gray-100 text-gray-700">
             <tr>
               <th class="p-3 text-left font-semibold cursor-pointer" (click)="sort('collateralCode')">
-                Code
-                <i class="bi bi-arrow-down-up ms-1"></i>
+                Code <i class="bi bi-arrow-down-up ms-1"></i>
               </th>
               <th class="p-3 text-left font-semibold cursor-pointer" (click)="sort('description')">
-                Description
-                <i class="bi bi-arrow-down-up ms-1"></i>
+                Description <i class="bi bi-arrow-down-up ms-1"></i>
               </th>
               <th class="p-3 text-left font-semibold cursor-pointer" (click)="sort('value')">
-                Value
-                <i class="bi bi-arrow-down-up ms-1"></i>
+                Value <i class="bi bi-arrow-down-up ms-1"></i>
               </th>
               <th class="p-3 text-left font-semibold cursor-pointer" (click)="sort('status')">
-                Status
-                <i class="bi bi-arrow-down-up ms-1"></i>
+                Status <i class="bi bi-arrow-down-up ms-1"></i>
               </th>
               <th class="p-3 text-left font-semibold cursor-pointer" (click)="sort('date')">
-                Date
-                <i class="bi bi-arrow-down-up ms-1"></i>
+                Date <i class="bi bi-arrow-down-up ms-1"></i>
               </th>
               <th class="p-3 text-left font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngIf="paginatedCollaterals.length === 0" class="text-center">
-              <td colspan="6" class="py-6 text-gray-500">No collaterals found</td>
+              <td colspan="6" class="py-6 text-gray-500">
+                {{ showDeleted ? 'No deleted collaterals found' : 'No active collaterals found' }}
+              </td>
             </tr>
             <tr *ngFor="let collateral of paginatedCollaterals" class="hover:bg-gray-50 transition">
               <td class="p-3 border-b border-gray-200">{{ collateral.collateralCode }}</td>
@@ -67,11 +68,14 @@
                 <button class="btn btn-sm btn-outline-info px-2 py-1" (click)="openDetailModal(collateral)">
                   View
                 </button>
-                <button class="btn btn-sm btn-outline-primary px-2 py-1" (click)="editCollateral(collateral)">
+                <button class="btn btn-sm btn-outline-primary px-2 py-1" (click)="editCollateral(collateral)" *ngIf="collateral.status === 1">
                   Edit
                 </button>
-                <button class="btn btn-sm btn-outline-danger px-2 py-1" (click)="deleteCollateral(collateral.id)">
+                <button class="btn btn-sm btn-outline-danger px-2 py-1" (click)="deleteCollateral(collateral.id)" *ngIf="collateral.status === 1">
                   Delete
+                </button>
+                <button class="btn btn-sm btn-outline-success px-2 py-1" (click)="restoreCollateral(collateral.id)" *ngIf="collateral.status !== 1">
+                  Restore
                 </button>
               </td>
             </tr>

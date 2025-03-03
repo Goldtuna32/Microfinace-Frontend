@@ -67,6 +67,16 @@ const routes: Routes = [
           .then(m => m.CifListComponent)
       },
       {
+        path: 'collateralType/create',
+        loadComponent: () => import('./demo/collateral-type/components/create-collateral-type/create-collateral-type.component')
+         .then(m => m.CreateCollateralTypeComponent)
+      },
+      {
+        path: 'collateralType/list',
+        loadComponent: () => import('./demo/collateral-type/components/collateral-type-list/collateral-type-list.component')
+        .then(m => m.CollateralTypeListComponent)
+      },
+      {
         path: 'cif/edit/:id',
         loadComponent: () => import('./demo/cif/components/cif-edit/cif-edit.component')
           .then(m => m.CifEditComponent)

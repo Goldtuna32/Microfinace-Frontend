@@ -1,0 +1,110 @@
+<div class="container mx-auto mt-4">
+  <div class="shadow-lg rounded-lg overflow-hidden bg-white">
+    <!-- Header Section -->
+    <div class="bg-blue-600 text-white p-4 flex justify-between items-center">
+      <h4 class="text-lg font-semibold">
+        {{ showDeleted ? 'Deleted Collateral Type List' : 'Collateral Type List' }}
+      </h4>
+      <div class="space-x-2">
+        <button
+          (click)="toggleDeletedList()"
+          class="btn bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
+        >
+          {{ showDeleted ? 'Show Active' : 'Show Deleted' }}
+        </button>
+       
+      </div>
+    </div>
+
+    <div class="p-6">
+      <!-- Loading Spinner -->
+      <div *ngIf="loading" class="text-center my-4">
+        <mat-spinner color="primary"></mat-spinner>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="bg-red-500 text-white p-3 rounded mb-3">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Filter Input -->
+      <div class="mb-4">
+        <input
+          matInput
+          (keyup)="applyFilter($event)"
+          placeholder="Search..."
+          class="w-full border rounded-md p-2 shadow-sm focus:ring focus:ring-blue-300"
+        >
+      </div>
+
+      <!-- Data Table -->
+      <div class="overflow-x-auto">
+        <table mat-table [dataSource]="dataSource" matSort class="w-full border border-gray-200">
+          <!-- ID Column -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="border p-2 bg-gray-100 font-semibold">ID</th>
+            <td mat-cell *matCellDef="let row" class="border p-2">{{ row.id }}</td>
+          </ng-container>
+
+          <!-- Name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="border p-2 bg-gray-100 font-semibold">Name</th>
+            <td mat-cell *matCellDef="let row" class="border p-2">{{ row.name }}</td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="border p-2 bg-gray-100 font-semibold">Status</th>
+            <td mat-cell *matCellDef="let row" class="border p-2">
+              <span
+                class="inline-block px-2 py-1 text-xs font-medium text-white rounded-full"
+                [ngClass]="{'bg-green-500': row.status === 1, 'bg-red-500': row.status !== 1}"
+              >
+                {{ row.status === 1 ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column (unchanged) -->
+<ng-container matColumnDef="actions">
+  <th mat-header-cell *matHeaderCellDef class="border p-2 bg-gray-100 font-semibold text-center w-32">Actions</th>
+  <td mat-cell *matCellDef="let row" class="border p-2 text-center w-32">
+    <div class="flex justify-center space-x-2">
+      <button
+        (click)="editCollateralType(row)"
+        class="text-blue-600 hover:text-blue-800 p-1"
+        title="Edit"
+      >
+        <i class="bi bi-pencil"></i>
+      </button>
+      <button
+        *ngIf="row.status === 1"
+        (click)="deleteCollateralType(row.id)"
+        class="text-red-600 hover:text-red-800 p-1"
+        title="Delete"
+      >
+        <i class="bi bi-trash"></i>
+      </button>
+      <button
+        *ngIf="row.status !== 1"
+        (click)="restoreCollateralType(row.id)"
+        class="text-green-600 hover:text-green-800 p-1"
+        title="Restore"
+      >
+        <i class="bi bi-arrow-counterclockwise"></i>
+      </button>
+    </div>
+  </td>
+</ng-container>
+
+          <!-- Header and Row Definitions -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-gray-100"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+
+      <!-- Paginator -->
+      <mat-paginator [pageSize]="10" showFirstLastButtons class="mt-4"></mat-paginator>
+    </div>
+  </div>
+</div>

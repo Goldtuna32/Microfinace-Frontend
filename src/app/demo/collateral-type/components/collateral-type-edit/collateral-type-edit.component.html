@@ -1,0 +1,42 @@
+<div class="p-6">
+    <h2 class="text-xl font-semibold text-blue-600 mb-4">Edit Collateral Type</h2>
+    <form [formGroup]="collateralTypeForm" (ngSubmit)="onSubmit()" class="space-y-4">
+      <div>
+        <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+        <input
+          id="name"
+          formControlName="name"
+          type="text"
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Enter collateral type name"
+          [ngClass]="{'border-red-500': collateralTypeForm.get('name')?.invalid && collateralTypeForm.get('name')?.touched}"
+        >
+        <span
+          *ngIf="collateralTypeForm.get('name')?.hasError('required') && collateralTypeForm.get('name')?.touched"
+          class="text-red-500 text-sm"
+        >
+          Name is required
+        </span>
+      </div>
+  
+      <!-- Hidden status field (maintained but not editable in UI) -->
+      <input type="hidden" formControlName="status">
+  
+      <div class="flex justify-end space-x-2">
+        <button
+          type="button"
+          (click)="onCancel()"
+          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="collateralTypeForm.invalid"
+          class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+        >
+          Save
+        </button>
+      </div>
+    </form>
+  </div>

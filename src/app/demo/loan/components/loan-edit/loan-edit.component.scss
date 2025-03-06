@@ -1,0 +1,52 @@
+/* src/app/components/loan-edit/loan-edit.component.scss */
+.container {
+  @apply mx-auto p-6 max-w-4xl;
+}
+
+.card {
+  @apply shadow-lg rounded-lg overflow-hidden;
+}
+
+.card-header {
+  @apply bg-blue-600 text-white p-4 flex items-center;
+}
+
+.card-body {
+  @apply p-6;
+}
+
+.alert {
+  @apply mb-4;
+}
+
+.form-label {
+  @apply font-semibold mb-1;
+}
+
+.form-control {
+  @apply w-full p-2 border rounded;
+}
+
+.text-danger {
+  @apply text-red-600 text-sm mt-1;
+}
+
+.btn {
+  @apply px-4 py-2 rounded transition-colors duration-200;
+}
+
+.btn-primary {
+  @apply bg-blue-600 text-white hover:bg-blue-700;
+}
+
+.btn-outline-primary {
+  @apply border-blue-600 text-blue-600 hover:bg-blue-50;
+}
+
+.btn-outline-secondary {
+  @apply border-gray-600 text-gray-600 hover:bg-gray-50;
+}
+
+.btn-danger {
+  @apply bg-red-600 text-white hover:bg-red-700;
+}

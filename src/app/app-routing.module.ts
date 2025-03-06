@@ -87,6 +87,21 @@ const routes: Routes = [
           .then(m => m.LoanCreateComponent)
       },
       {
+        path: 'loan/list',
+        loadComponent: () => import('./demo/loan/components/loan-list/loan-list.component')
+         .then(m => m.LoanListComponent)
+      },
+      {
+        path: 'loans/:id',
+        loadComponent: () => import('./demo/loan/components/loan-detail/loan-detail.component')
+         .then(m => m.LoanDetailComponent)
+      },
+      {
+        path: 'loans/:id/edit',
+        loadComponent: () => import('./demo/loan/components/loan-edit/loan-edit.component')
+          .then(m => m.LoanEditComponent)
+      },
+      {
         path: 'current-account/list',
         loadComponent: () => import('./demo/current-account/components/current-account-list/current-account-list.component')
           .then(m => m.CurrentAccountListComponent)

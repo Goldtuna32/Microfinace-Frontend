@@ -1,1 +1,146 @@
-<p>loan-list works!</p>
+<!-- src/app/components/loan-list/loan-list.component.html -->
+<div class="container mx-auto p-4">
+    <mat-card class="shadow-lg">
+      <mat-card-content>
+        <div *ngIf="errorMessage" class="alert alert-danger mb-4" role="alert">
+          {{ errorMessage }}
+        </div>
+  
+        <mat-tab-group class="bg-gray-100">
+          <!-- Pending Loans Tab -->
+          <mat-tab label="Pending Loans (Status: 3)">
+            <div class="p-4">
+              <table mat-table [dataSource]="pendingLoansDataSource" class="w-full bg-white shadow-md rounded-lg">
+                <ng-container matColumnDef="id">
+                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">ID</th>
+                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.id }}</td>
+                </ng-container>
+                <ng-container matColumnDef="loanAmount">
+                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Loan Amount</th>
+                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.loanAmount | currency }}</td>
+                </ng-container>
+                <ng-container matColumnDef="interestRate">
+                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Interest Rate (%)</th>
+                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.interestRate }}</td>
+                </ng-container>
+                <ng-container matColumnDef="gracePeriod">
+                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Grace Period (days)</th>
+                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.gracePeriod }}</td>
+                </ng-container>
+                <ng-container matColumnDef="repaymentDuration">
+                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Repayment Duration (months)</th>
+                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.repaymentDuration }}</td>
+                </ng-container>
+                <ng-container matColumnDef="documentFee">
+                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Document Fee</th>
+                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.documentFee | currency }}</td>
+                </ng-container>
+                <ng-container matColumnDef="serviceCharges">
+                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Service Charges</th>
+                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.serviceCharges | currency }}</td>
+                </ng-container>
+                <ng-container matColumnDef="currentAccountId">
+                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Current Account ID</th>
+                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.currentAccountId }}</td>
+                </ng-container>
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Actions</th>
+                    <td mat-cell *matCellDef="let loan" class="p-2">
+                      <button mat-button [matMenuTriggerFor]="menu" class="btn btn-outline-primary btn-sm flex items-center space-x-2">
+                        <i class="bi bi-gear"></i>
+                        <span>Actions</span>
+                      </button>
+                      <mat-menu #menu="matMenu" class="w-48 rounded-lg shadow-lg bg-white divide-y divide-gray-200">
+                        <button mat-menu-item (click)="editLoan(loan)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-blue-100 rounded transition">
+                          <i class="bi bi-pencil text-blue-600"></i>
+                          <span>Edit</span>
+                        </button>
+                        <button mat-menu-item (click)="deleteLoan(loan)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-red-100 rounded transition">
+                          <i class="bi bi-trash text-red-600"></i>
+                          <span>Delete</span>
+                        </button>
+                        <button mat-menu-item (click)="approveLoan(loan)" *ngIf="loan.status === 3" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-green-100 rounded transition">
+                          <i class="bi bi-check-circle text-green-600"></i>
+                          <span>Approve</span>
+                        </button>
+                        <button mat-menu-item (click)="viewDetails(loan)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-teal-100 rounded transition">
+                          <i class="bi bi-eye text-teal-600"></i>
+                          <span>View Details</span>
+                        </button>
+                      </mat-menu>
+                    </td>
+                  </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns" class="border-b"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-gray-100"></tr>
+                <tr class="mat-row" *matNoDataRow>
+                  <td class="mat-cell text-center p-4" colspan="9">No pending loans found.</td>
+                </tr>
+              </table>
+              <mat-paginator #pendingPaginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons class="mt-4 bg-white p-2 rounded-b-lg"></mat-paginator>
+            </div>
+          </mat-tab>
+  
+          <!-- Approved Loans Tab -->
+          <mat-tab label="Approved Loans (Status: 4)">
+            <div class="p-4">
+              <table mat-table [dataSource]="approvedLoansDataSource" class="w-full bg-white shadow-md rounded-lg">
+                <ng-container matColumnDef="id">
+                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">ID</th>
+                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.id }}</td>
+                </ng-container>
+                <ng-container matColumnDef="loanAmount">
+                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Loan Amount</th>
+                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.loanAmount | currency }}</td>
+                </ng-container>
+                <ng-container matColumnDef="interestRate">
+                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Interest Rate (%)</th>
+                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.interestRate }}</td>
+                </ng-container>
+                <ng-container matColumnDef="gracePeriod">
+                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Grace Period (days)</th>
+                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.gracePeriod }}</td>
+                </ng-container>
+                <ng-container matColumnDef="repaymentDuration">
+                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Repayment Duration (months)</th>
+                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.repaymentDuration }}</td>
+                </ng-container>
+                <ng-container matColumnDef="documentFee">
+                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Document Fee</th>
+                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.documentFee | currency }}</td>
+                </ng-container>
+                <ng-container matColumnDef="serviceCharges">
+                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Service Charges</th>
+                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.serviceCharges | currency }}</td>
+                </ng-container>
+                <ng-container matColumnDef="currentAccountId">
+                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Current Account ID</th>
+                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.currentAccountId }}</td>
+                </ng-container>
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Actions</th>
+                    <td mat-cell *matCellDef="let loan" class="p-2">
+                      <button mat-button [matMenuTriggerFor]="menu" class="btn btn-outline-primary btn-sm flex items-center space-x-2">
+                        <i class="bi bi-gear"></i>
+                        <span>Actions</span>
+                      </button>
+                      <mat-menu #menu="matMenu" class="w-48 rounded-lg shadow-lg bg-white divide-y divide-gray-200">
+                        <button mat-menu-item (click)="viewDetails(loan)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-teal-100 rounded transition">
+                          <i class="bi bi-eye text-teal-600"></i>
+                          <span>View Details</span>
+                        </button>
+                      </mat-menu>
+                    </td>
+                  </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns" class="border-b"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-gray-100"></tr>
+                <tr class="mat-row" *matNoDataRow>
+                  <td class="mat-cell text-center p-4" colspan="9">No approved loans found.</td>
+                </tr>
+              </table>
+              <mat-paginator #approvedPaginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons class="mt-4 bg-white p-2 rounded-b-lg"></mat-paginator>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-card-content>
+    </mat-card>
+  </div>

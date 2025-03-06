@@ -5,7 +5,14 @@ import { Collateral } from '../models/collateral.model';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { CollateralType } from '../../collateral-type/models/collateralType.model';
+import { SmeLoanCollateral } from '../../loan/models/SmeLoanCollateral.model';
 
+  
+interface CurrentAccountDTO {
+  id: number;
+  accountNumber: string;
+  cifId: number;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +37,10 @@ export class CollateralService {
         return throwError(() => new Error(error.statusText));
       })
     );
+  }
+
+  getAllCollateralsForCif(cifId: number): Observable<SmeLoanCollateral[]> {
+    return this.http.get<SmeLoanCollateral[]>(`${this.baseUrl}/collaterals/cif/${cifId}`);
   }
 
   getAllCifs(): Observable<any[]> {
@@ -66,6 +77,28 @@ export class CollateralService {
     return this.http.get<Collateral[]>(`${this.baseUrl}/collaterals/deleted`).pipe(
       catchError(error => {
         console.error('Failed to fetch deleted collaterals:', error.statusText);
+        return throwError(() => new Error(error.statusText));
+      })
+    );
+  }
+
+  getCurrentAccountsByCifSerialNumber(serialNumber: string): Observable<CurrentAccountDTO[]> {
+    return this.http.get<CurrentAccountDTO[]>(`${this.baseUrl}/current-accounts/serial/${serialNumber}`).pipe(
+      catchError(error => {
+        console.error(`Failed to fetch current accounts for serial number ${serialNumber}:`, error);
+        return throwError(() => new Error(error.statusText));
+      })
+    );
+  }
+
+  getCurrentAccountsByCifId(cifId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/current-accounts/by-cif/${cifId}`);
+  }
+
+  getCollateralsByCifId(cifId: number): Observable<Collateral[]> {
+    return this.http.get<Collateral[]>(`${this.baseUrl}/collaterals/cif/${cifId}`).pipe(
+      catchError(error => {
+        console.error(`Failed to fetch collaterals for CIF ${cifId}:`, error);
         return throwError(() => new Error(error.statusText));
       })
     );

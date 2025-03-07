@@ -30,6 +30,7 @@ export class CifListComponent implements OnInit, AfterViewInit {
   dataSource = new MatTableDataSource<CIF>([]);
   loading = true;
   errorMessage = '';
+  isDeletedView = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -63,30 +64,37 @@ export class CifListComponent implements OnInit, AfterViewInit {
   }
 
   loadCIFs() {
-    this.cifService.getAllCIFs().subscribe({
+    this.loading = true;
+    const cifObservable = this.isDeletedView ? this.cifService.getDeletedCIFs() : this.cifService.getAllCIFs();
+    
+    cifObservable.subscribe({
       next: (data) => {
         this.dataSource.data = data;
-        
-        
-        // Manually loop through CIFs to check for current account status
-        data.forEach((cif, index) => {
-          this.currentAccountService.hasCurrentAccount(cif.id).subscribe({
-            next: (hasAccount) => {
-              this.dataSource.data[index].hasCurrentAccount = hasAccount;
-            },
-            error: (error) => {
-              console.error(`Error checking account for CIF ${cif.id}:`, error);
-            }
+        if (!this.isDeletedView) {
+          data.forEach((cif, index) => {
+            this.currentAccountService.hasCurrentAccount(cif.id).subscribe({
+              next: (hasAccount) => {
+                this.dataSource.data[index].hasCurrentAccount = hasAccount;
+              },
+              error: (error) => {
+                console.error(`Error checking account for CIF ${cif.id}:`, error);
+              }
+            });
           });
-        });
-
+        }
         this.loading = false;
       },
       error: (error) => {
         console.error('Error fetching CIFs:', error);
         this.loading = false;
+        this.errorMessage = 'Failed to load CIF list.';
       }
     });
+  }
+
+  toggleView() {
+    this.isDeletedView = !this.isDeletedView;
+    this.loadCIFs();
   }
 
   applyFilter(event: Event) {
@@ -152,6 +160,21 @@ export class CifListComponent implements OnInit, AfterViewInit {
         console.log('Current Account Created:', result);
       }
     });
+  }
+
+  restoreCIF(id: number) {
+    if (confirm('Are you sure you want to restore this CIF?')) {
+      this.cifService.restoreCIF(id).subscribe({
+        next: () => {
+          alert('CIF restored successfully.');
+          this.loadCIFs();
+        },
+        error: (error) => {
+          alert('Failed to restore CIF.');
+          console.error('Error restoring CIF:', error);
+        }
+      });
+    }
   }
 
   deleteCIF(id: number) {

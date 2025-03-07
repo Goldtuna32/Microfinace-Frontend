@@ -14,16 +14,23 @@ export class CifService {
   constructor(private http: HttpClient) {}
 
   getAllCIFs(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}`);
+    return this.http.get<any[]>(`${this.baseUrl}/active`);
+  }
+
+  getDeletedCIFs(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/deleted`);
   }
 
   updateCIF(id: number, cifData: FormData): Observable<any> {
     return this.http.put(`${this.baseUrl}/${id}`, cifData);
   }  
 
-  // Delete CIF
   deleteCIF(id: number): Observable<any> {
     return this.http.delete(`${this.baseUrl}/${id}`);
+  }
+
+  restoreCIF(id: number): Observable<any> {
+    return this.http.put(`${this.baseUrl}/${id}/restore`, null);
   }
 
   getCIFById(id: number): Observable<any> {

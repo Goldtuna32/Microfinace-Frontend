@@ -1,1 +1,93 @@
-<p>collateral-detail works!</p>
+<div class="container p-3 bg-white shadow-md rounded-lg">
+  <div class="flex justify-between items-center mb-3">
+    <h2 class="text-lg font-semibold text-gray-800">Collateral Details</h2>
+    <button (click)="close()" class="btn btn-link text-gray-500 hover:text-gray-700 p-0">
+      <i class="bi bi-x-lg text-base"></i>
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <!-- Collateral Code -->
+    <div class="flex items-start space-x-1.5">
+      <i class="bi bi-code-square text-primary text-base mt-0.5"></i>
+      <div>
+        <label class="block text-[11px] font-medium text-gray-600">Collateral Code</label>
+        <p class="text-gray-900 text-xs">{{ collateral.collateralCode }}</p>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="flex items-start space-x-1.5">
+      <i class="bi bi-text-paragraph text-primary text-base mt-0.5"></i>
+      <div>
+        <label class="block text-[11px] font-medium text-gray-600">Description</label>
+        <p class="text-gray-900 text-xs">{{ collateral.description }}</p>
+      </div>
+    </div>
+
+    <!-- Value -->
+    <div class="flex items-start space-x-1.5">
+      <i class="bi bi-currency-dollar text-primary text-base mt-0.5"></i>
+      <div>
+        <label class="block text-[11px] font-medium text-gray-600">Value</label>
+        <p class="text-gray-900 text-xs">{{ collateral.value | currency }}</p>
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div class="flex items-start space-x-1.5">
+      <i class="bi bi-toggle-on text-primary text-base mt-0.5"></i>
+      <div>
+        <label class="block text-[11px] font-medium text-gray-600">Status</label>
+        <span class="badge text-xs px-1.5 py-0.5"
+              [ngClass]="{'bg-success': collateral.status === 1, 'bg-danger': collateral.status !== 1}">
+          {{ collateral.status === 1 ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Date -->
+    <div class="flex items-start space-x-1.5">
+      <i class="bi bi-calendar-date text-primary text-base mt-0.5"></i>
+      <div>
+        <label class="block text-[11px] font-medium text-gray-600">Date</label>
+        <p class="text-gray-900 text-xs">{{ collateral.date | date:'mediumDate' }}</p>
+      </div>
+    </div>
+
+    <!-- Front Collateral Photo -->
+    <div class="flex items-start space-x-1.5">
+      <i class="bi bi-image text-primary text-base mt-0.5"></i>
+      <div class="w-full">
+        <label class="block text-[11px] font-medium text-gray-600">Front Photo</label>
+        <div class="mt-0.5">
+          <p-image *ngIf="collateral.f_collateral_photo" [src]="collateral.f_collateral_photo" 
+                   alt="Front Collateral Photo" width="100%" height="120px" [preview]="true"
+                   class="border border-gray-200 rounded-md shadow-sm transition-all duration-200"></p-image>
+          <p *ngIf="!collateral.f_collateral_photo" class="text-gray-500 text-xs">No front photo available</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Back Collateral Photo -->
+    <div class="flex items-start space-x-1.5">
+      <i class="bi bi-image-fill text-primary text-base mt-0.5"></i>
+      <div class="w-full">
+        <label class="block text-[11px] font-medium text-gray-600">Back Photo</label>
+        <div class="mt-0.5">
+          <p-image *ngIf="collateral.b_collateral_photo" [src]="collateral.b_collateral_photo" 
+                   alt="Back Collateral Photo" width="100%" height="120px" [preview]="true"
+                   class="border border-gray-200 rounded-md shadow-sm transition-all duration-200"></p-image>
+          <p *ngIf="!collateral.b_collateral_photo" class="text-gray-500 text-xs">No back photo available</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 flex justify-end">
+    <button (click)="close()" 
+            class="btn btn-secondary px-3 py-0.5 text-white rounded-md hover:bg-gray-700 focus:ring-2 focus:ring-gray-300 transition text-xs">
+      <i class="bi bi-box-arrow-left me-1"></i> Close
+    </button>
+  </div>
+</div>

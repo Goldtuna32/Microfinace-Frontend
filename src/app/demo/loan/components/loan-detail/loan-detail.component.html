@@ -1,0 +1,90 @@
+<!-- src/app/components/loan-list/loan-detail.component.html -->
+<div class="container mx-auto p-6">
+    <div class="card shadow-lg">
+      <div class="card-header bg-primary text-white d-flex align-items-center">
+        <i class="bi bi-info-circle me-2"></i>
+        <h2 class="text-xl font-bold mb-0">Loan Details - ID: {{ loan?.id }}</h2>
+      </div>
+      <div class="card-body">
+        <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          {{ errorMessage }}
+          <button type="button" class="btn-close" (click)="errorMessage = null" aria-label="Close"></button>
+        </div>
+  
+        <div *ngIf="loan" class="row g-4">
+          <div class="col-md-6">
+            <p class="fw-bold mb-1"><i class="bi bi-currency-dollar me-2"></i>Loan Amount:</p>
+            <p class="text-muted">{{ loan.loanAmount | currency }}</p>
+          </div>
+          <div class="col-md-6">
+            <p class="fw-bold mb-1"><i class="bi bi-percent me-2"></i>Interest Rate:</p>
+            <p class="text-muted">{{ loan.interestRate }}%</p>
+          </div>
+          <div class="col-md-6">
+            <p class="fw-bold mb-1"><i class="bi bi-clock me-2"></i>Grace Period:</p>
+            <p class="text-muted">{{ loan.gracePeriod }} days</p>
+          </div>
+          <div class="col-md-6">
+            <p class="fw-bold mb-1"><i class="bi bi-calendar-month me-2"></i>Repayment Duration:</p>
+            <p class="text-muted">{{ loan.repaymentDuration }} months</p>
+          </div>
+          <div class="col-md-6">
+            <p class="fw-bold mb-1"><i class="bi bi-file-earmark-text me-2"></i>Document Fee:</p>
+            <p class="text-muted">{{ loan.documentFee | currency }}</p>
+          </div>
+          <div class="col-md-6">
+            <p class="fw-bold mb-1"><i class="bi bi-gear me-2"></i>Service Charges:</p>
+            <p class="text-muted">{{ loan.serviceCharges | currency }}</p>
+          </div>
+          <div class="col-md-6">
+            <p class="fw-bold mb-1"><i class="bi bi-check-circle me-2"></i>Status:</p>
+            <p class="text-muted">{{ loan.status === 3 ? 'Pending' : 'Approved' }}</p>
+          </div>
+          <div class="col-md-6">
+            <p class="fw-bold mb-1"><i class="bi bi-bank me-2"></i>Current Account ID:</p>
+            <p class="text-muted">{{ loan.currentAccountId }}</p>
+          </div>
+          <div class="col-md-6">
+            <p class="fw-bold mb-1"><i class="bi bi-card-text me-2"></i>Current Account Number:</p>
+            <p class="text-muted">{{ loan.accountNumber }}</p>
+          </div>
+          <div class="col-12 mt-4">
+            <h3 class="text-lg font-semibold mb-2"><i class="bi bi-person me-2"></i>CIF Details</h3>
+            <div *ngIf="loan.cif; else noCif" class="card p-4 bg-light">
+              <p class="mb-2"><strong>Name:</strong> {{ loan.cif.name }}</p>
+              <p class="mb-2"><strong>CIF Code:</strong> {{ loan.cif.serialNumber }}</p>
+              <p class="mb-2"><strong>NRC Number:</strong> {{ loan.cif.nrcNumber }}</p>
+              <p><strong>Email:</strong> {{ loan.cif.email }}</p>
+            </div>
+            <ng-template #noCif>
+              <p class="text-muted">No CIF details available.</p>
+            </ng-template>
+          </div>
+          <div class="col-12 mt-4">
+            <h3 class="text-lg font-semibold mb-2"><i class="bi bi-shield me-2"></i>Collaterals</h3>
+            <div *ngIf="loan.collaterals && loan.collaterals.length > 0; else noCollaterals" class="card p-4 bg-light">
+              <ul class="list-group list-group-flush">
+                <li *ngFor="let coll of loan.collaterals" class="list-group-item d-flex justify-content-between align-items-center">
+                  <span>{{ coll.description }} (ID: {{ coll.collateralId }})</span>
+                  <span>{{ coll.collateralAmount | currency }}</span>
+                </li>
+              </ul>
+            </div>
+            <ng-template #noCollaterals>
+              <p class="text-muted">No collaterals available.</p>
+            </ng-template>
+          </div>
+          <div class="col-12 mt-4">
+            <p class="fw-bold mb-1"><i class="bi bi-wallet me-2"></i>Total Collateral Amount:</p>
+            <p class="text-muted">{{ loan.totalCollateralAmount | currency }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer d-flex justify-content-end">
+        <button class="btn btn-outline-secondary" (click)="goBack()">
+          <i class="bi bi-arrow-left me-2"></i>Back to List
+        </button>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,55 @@
+<div class="container mx-auto p-4">
+    <mat-card class="shadow-lg">
+      <mat-card-header>
+        <mat-card-title>Repayment Schedule for Loan #{{loanId}}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="flex justify-between mb-4 space-x-2">
+          <button mat-raised-button color="primary" (click)="goBack()">
+            <i class="bi bi-arrow-left mr-2"></i>Back to Loan List
+          </button>
+          <div>
+            <button mat-raised-button color="primary" (click)="exportReport('pdf')" class="mr-2">
+              <i class="bi bi-file-earmark-pdf mr-2"></i>Export to PDF
+            </button>
+            <button mat-raised-button color="primary" (click)="exportReport('excel')">
+              <i class="bi bi-file-earmark-excel mr-2"></i>Export to Excel
+            </button>
+          </div>
+        </div>
+  
+        <table mat-table [dataSource]="repaymentSchedule" class="w-full bg-white shadow-md rounded-lg">
+          <ng-container matColumnDef="installmentNumber">
+            <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Installment #</th>
+            <td mat-cell *matCellDef="let item" class="p-2">{{ item.installmentNumber }}</td>
+          </ng-container>
+          <ng-container matColumnDef="dueDate">
+            <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Due Date</th>
+            <td mat-cell *matCellDef="let item" class="p-2">{{ item.dueDate | date }}</td>
+          </ng-container>
+          <ng-container matColumnDef="principalAmount">
+            <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Principal</th>
+            <td mat-cell *matCellDef="let item" class="p-2">{{ item.principalAmount | currency }}</td>
+          </ng-container>
+          <ng-container matColumnDef="interestAmount">
+            <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Interest</th>
+            <td mat-cell *matCellDef="let item" class="p-2">{{ item.interestAmount | currency }}</td>
+          </ng-container>
+          <ng-container matColumnDef="totalPayment">
+            <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Total Payment</th>
+            <td mat-cell *matCellDef="let item" class="p-2">{{ item.totalPayment | currency }}</td>
+          </ng-container>
+          <ng-container matColumnDef="remainingPrincipal">
+            <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Remaining Balance</th>
+            <td mat-cell *matCellDef="let item" class="p-2">{{ item.remainingPrincipal | currency }}</td>
+          </ng-container>
+  
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell text-center p-4" colspan="6">No repayment schedule found.</td>
+          </tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+  </div>

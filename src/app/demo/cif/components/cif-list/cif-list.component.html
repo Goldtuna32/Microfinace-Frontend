@@ -1,11 +1,13 @@
 <div class="container mx-auto mt-4">
   <div class="shadow-lg rounded-lg overflow-hidden bg-white">
     <!-- Header Section -->
-    <div class="bg-blue-600 text-white p-4">
-      <h4 class="text-lg font-semibold">CIF List</h4>
+    <div class="bg-blue-600 text-white p-4 flex justify-between items-center">
+      <h4 class="text-lg font-semibold">{{ isDeletedView ? 'Deleted CIF List' : 'CIF List' }}</h4>
+      <button mat-button (click)="toggleView()" class="text-white hover:bg-blue-700">
+        {{ isDeletedView ? 'Show Active CIFs' : 'Show Deleted CIFs' }}
+      </button>
     </div>
     <div class="p-6">
-      
       <!-- Loading Spinner -->
       <div *ngIf="loading" class="text-center my-4">
         <mat-spinner color="primary"></mat-spinner>
@@ -24,13 +26,11 @@
       <!-- Angular Material Data Table -->
       <div class="overflow-x-auto">
         <table mat-table [dataSource]="dataSource" matSort class="w-full border border-gray-200">
-          
           <!-- Serial Number Column -->
           <ng-container matColumnDef="SerialNumber">
             <th mat-header-cell *matHeaderCellDef mat-sort-header class="border p-2">Serial Number</th>
             <td mat-cell *matCellDef="let row" class="border p-2">{{ row.serialNumber || 'N/A' }}</td>
           </ng-container>
-
 
           <!-- Name Column -->
           <ng-container matColumnDef="name">
@@ -75,32 +75,40 @@
 
                 <!-- Dropdown Menu -->
                 <mat-menu #menu="matMenu" class="w-48 rounded-lg shadow-lg bg-white divide-y divide-gray-200">
-                  <!-- Edit Option -->
-                  <button mat-menu-item (click)="editCIF(row)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-blue-100 rounded transition">
-                    <i class="bi bi-pencil text-blue-600"></i>
-                    <span>Edit</span>
-                  </button>
+                  <!-- Actions for Active CIFs -->
+                  <ng-container *ngIf="!isDeletedView">
+                    <button mat-menu-item (click)="editCIF(row)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-blue-100 rounded transition">
+                      <i class="bi bi-pencil text-blue-600"></i>
+                      <span>Edit</span>
+                    </button>
+                    <button mat-menu-item (click)="deleteCIF(row.id)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-red-100 rounded transition">
+                      <i class="bi bi-trash text-red-600"></i>
+                      <span>Delete</span>
+                    </button>
+                    <button mat-menu-item (click)="openCifDetailDialog(row)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-green-100 rounded transition">
+                      <i class="bi bi-eye text-green-600"></i>
+                      <span>View Details</span>
+                    </button>
+                    <button mat-menu-item 
+                            [disabled]="row.hasCurrentAccount"
+                            (click)="openCurrentAccountDialog(row)"
+                            class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded transition disabled:opacity-50 disabled:cursor-not-allowed">
+                      <i class="bi" [ngClass]="{'bi-check-circle text-green-600': row.hasCurrentAccount, 'bi-plus-circle text-blue-600': !row.hasCurrentAccount}"></i>
+                      <span>{{ row.hasCurrentAccount ? 'Already Created' : 'Create Account' }}</span>
+                    </button>
+                  </ng-container>
 
-                  <!-- Delete Option -->
-                  <button mat-menu-item (click)="deleteCIF(row.id)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-red-100 rounded transition">
-                    <i class="bi bi-trash text-red-600"></i>
-                    <span>Delete</span>
-                  </button>
-
-                  <!-- View Details Option -->
-                  <button mat-menu-item (click)="openCifDetailDialog(row)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-green-100 rounded transition">
-                    <i class="bi bi-eye text-green-600"></i>
-                    <span>View Details</span>
-                  </button>
-
-                  <!-- Create Account Option -->
-                  <button mat-menu-item 
-                          [disabled]="row.hasCurrentAccount"
-                          (click)="openCurrentAccountDialog(row)"
-                          class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded transition disabled:opacity-50 disabled:cursor-not-allowed">
-                    <i class="bi" [ngClass]="{'bi-check-circle text-green-600': row.hasCurrentAccount, 'bi-plus-circle text-blue-600': !row.hasCurrentAccount}"></i>
-                    <span>{{ row.hasCurrentAccount ? 'Already Created' : 'Create Account' }}</span>
-                  </button>
+                  <!-- Actions for Deleted CIFs -->
+                  <ng-container *ngIf="isDeletedView">
+                    <button mat-menu-item (click)="restoreCIF(row.id)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-green-100 rounded transition">
+                      <i class="bi bi-arrow-counterclockwise text-green-600"></i>
+                      <span>Restore</span>
+                    </button>
+                    <button mat-menu-item (click)="openCifDetailDialog(row)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-green-100 rounded transition">
+                      <i class="bi bi-eye text-green-600"></i>
+                      <span>View Details</span>
+                    </button>
+                  </ng-container>
                 </mat-menu>
               </div>
             </td>
@@ -114,7 +122,6 @@
 
       <!-- Paginator -->
       <mat-paginator [pageSize]="10" showFirstLastButtons></mat-paginator>
-
     </div>
   </div>
 </div>

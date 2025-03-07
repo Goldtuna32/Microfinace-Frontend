@@ -52,6 +52,10 @@ const routes: Routes = [
         loadComponent: () => import('./demo/branch/components/branch-list/branch-list.component')
           .then(m => m.BranchListComponent)
       },
+      { path: 'branches/:id',
+        loadComponent: () => import('./demo/branch/components/branch-detail/branch-detail.component')
+        .then(m => m.BranchDetailComponent)
+       },
       {
         path: 'cif/create',
         loadComponent: () => import('./demo/cif/components/cif-create/cif-create.component')
@@ -63,6 +67,16 @@ const routes: Routes = [
           .then(m => m.CifListComponent)
       },
       {
+        path: 'collateralType/create',
+        loadComponent: () => import('./demo/collateral-type/components/create-collateral-type/create-collateral-type.component')
+         .then(m => m.CreateCollateralTypeComponent)
+      },
+      {
+        path: 'collateralType/list',
+        loadComponent: () => import('./demo/collateral-type/components/collateral-type-list/collateral-type-list.component')
+        .then(m => m.CollateralTypeListComponent)
+      },
+      {
         path: 'cif/edit/:id',
         loadComponent: () => import('./demo/cif/components/cif-edit/cif-edit.component')
           .then(m => m.CifEditComponent)
@@ -71,6 +85,26 @@ const routes: Routes = [
         path: 'loan/create',
         loadComponent: () => import('./demo/loan/components/loan-create/loan-create.component')
           .then(m => m.LoanCreateComponent)
+      },
+      {
+        path: 'loan/list',
+        loadComponent: () => import('./demo/loan/components/loan-list/loan-list.component')
+         .then(m => m.LoanListComponent)
+      },
+      {
+        path: 'loans/:loanId/repayment-schedule',
+        loadComponent: () => import('./demo/repayment-schedule/components/repayment-schedule/repayment-schedule.component')
+          .then(m => m.RepaymentScheduleComponent)
+      },
+      {
+        path: 'loans/:id',
+        loadComponent: () => import('./demo/loan/components/loan-detail/loan-detail.component')
+         .then(m => m.LoanDetailComponent)
+      },
+      {
+        path: 'loans/:id/edit',
+        loadComponent: () => import('./demo/loan/components/loan-edit/loan-edit.component')
+          .then(m => m.LoanEditComponent)
       },
       {
         path: 'current-account/list',
@@ -84,16 +118,7 @@ const routes: Routes = [
         loadComponent: () => import('./demo/transaction/components/transaction/transaction.component')
          .then(m => m.TransactionComponent)
       },
-      {
-        path: 'transaction-history/:accountId',
-        loadComponent: () => import('./demo/transaction/components/history/history.component')
-          .then(m => m.HistoryComponent)
-      },
-      {
-        path: 'dealer-registration',
-        loadComponent: () => import('./demo/dealer-registration/components/dealer-registration/dealer-registration.component')
-          .then(m => m.DealerRegistrationComponent)
-      }
+     
 
     ]
   },

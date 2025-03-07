@@ -1,14 +1,75 @@
-.table {
-  th, td {
-    vertical-align: middle;
-  }
+table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.badge {
-  padding: 0.5em 0.75em;
+th {
+  font-weight: 600;
+  color: #1e3a8a; /* Matches bg-blue-600 */
+}
+
+td, th {
+  padding: 0.75rem; /* Smaller padding for a tighter look */
+}
+
+tr {
+  transition: background-color 0.2s ease;
+}
+
+.border-b {
+  border-bottom: 1px solid #e5e7eb; /* Light gray border */
 }
 
 .btn-sm {
+  font-size: 0.75rem;
   padding: 0.25rem 0.5rem;
-  font-size: 0.875rem;
+}
+
+.btn-outline-info {
+  border-color: #17a2b8;
+  color: #17a2b8;
+  &:hover {
+    background-color: #17a2b8;
+    color: white;
+  }
+}
+
+.btn-outline-primary {
+  border-color: #007bff;
+  color: #007bff;
+  &:hover {
+    background-color: #007bff;
+    color: white;
+  }
+}
+
+.btn-outline-danger {
+  border-color: #dc3545;
+  color: #dc3545;
+  &:hover {
+    background-color: #dc3545;
+    color: white;
+  }
+}
+
+.btn-outline-secondary {
+  border-color: #6b7280;
+  color: #6b7280;
+  &:hover {
+    background-color: #6b7280;
+    color: white;
+  }
+  &:disabled {
+    border-color: #d1d5db;
+    color: #d1d5db;
+    cursor: not-allowed;
+  }
+}
+.btn-outline-success {
+  border-color: #28a745;
+  color: #28a745;
+  &:hover {
+    background-color: #28a745;
+    color: white;
+  }
 }

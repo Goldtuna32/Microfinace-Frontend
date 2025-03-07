@@ -1,0 +1,36 @@
+/* src/app/components/loan-list/loan-detail.component.scss */
+.container {
+  @apply mx-auto p-6 max-w-4xl;
+}
+
+.card {
+  @apply shadow-lg rounded-lg overflow-hidden;
+}
+
+.card-header {
+  @apply bg-blue-600 text-white p-4 flex items-center; /* Replaced bg-primary with bg-blue-600 */
+}
+
+.card-body {
+  @apply p-6;
+}
+
+.card-footer {
+  @apply p-4 bg-gray-50;
+}
+
+.alert {
+  @apply mb-4;
+}
+
+.text-muted {
+  @apply text-gray-600;
+}
+
+.fw-bold {
+  @apply font-semibold;
+}
+
+.list-group-item {
+  @apply border-0 py-2;
+}

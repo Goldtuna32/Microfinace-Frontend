@@ -1,0 +1,34 @@
+<!-- Modal Background -->
+<div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-1/2">
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg font-semibold">Branch Details</h3>
+        <button class="text-red-500 text-lg" (click)="close()">✖</button>
+      </div>
+      
+      <!-- Modal Content -->
+      <div class="mt-4" *ngIf="branch">
+        <p><strong>Branch Code:</strong> {{ branch.branchCode }}</p>
+        <p><strong>Branch Name:</strong> {{ branch.branchName }}</p>
+        <p><strong>Phone:</strong> {{ branch.phoneNumber }}</p>
+        <p><strong>Email:</strong> {{ branch.email }}</p>
+        <p><strong>Address:</strong> 
+          {{ branch.address?.region || 'N/A' }}, 
+          {{ branch.address?.district || 'N/A' }}, 
+          {{ branch.address?.township || 'N/A' }}
+        </p>
+        <p><strong>Status:</strong> 
+          <span [ngClass]="{'text-green-600': branch.status === 1, 'text-red-600': branch.status === 0}">
+            {{ branch.status === 1 ? 'Active' : 'Inactive' }}
+          </span>
+        </p>
+      </div>
+  
+      <!-- Close Button -->
+      <div class="mt-4 flex justify-end">
+        <button class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700" (click)="close()">Close</button>
+      </div>
+    </div>
+  </div>
+  

@@ -187,6 +187,28 @@ export const NavigationItems: NavigationItem[] = [
     ]
   },
   {
+    id: 'Dealer',
+    title: 'Dealer',
+    type: 'group',
+    icon: 'feather icon-home', // 🏢 Represents a branch
+    children: [
+      {
+        id: 'Dealer Registration',
+        title: 'Dealer Registration',
+        type: 'item',
+        url: '/dealer-registration',
+        icon: 'feather icon-plus' // ➕ Indicates adding a new branch
+      },
+      {
+        id: 'view loan',
+        title: 'All Loan',
+        type: 'item',
+        url: '/loan/list',
+        icon: 'feather icon-list' // 📋 Represents a list of branches
+      }
+    ]
+  },
+  {
     id: 'ui-component',
     title: 'Ui Component',
     type: 'group',

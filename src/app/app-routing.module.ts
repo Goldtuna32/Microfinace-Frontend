@@ -84,6 +84,16 @@ const routes: Routes = [
         loadComponent: () => import('./demo/transaction/components/transaction/transaction.component')
          .then(m => m.TransactionComponent)
       },
+      {
+        path: 'transaction-history/:accountId',
+        loadComponent: () => import('./demo/transaction/components/history/history.component')
+          .then(m => m.HistoryComponent)
+      },
+      {
+        path: 'dealer-registration',
+        loadComponent: () => import('./demo/dealer-registration/components/dealer-registration/dealer-registration.component')
+          .then(m => m.DealerRegistrationComponent)
+      }
 
     ]
   },

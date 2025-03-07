@@ -17,6 +17,7 @@ export class TransactionComponent implements OnInit {
   loading = signal(false);
   error = signal<string | null>(null);
   successMessage = signal<string | null>(null);
+  backendError: string | null = null;
 
   constructor(private fb: FormBuilder) {}
 
@@ -27,25 +28,25 @@ export class TransactionComponent implements OnInit {
 
   initForm(): void {
     this.transactionForm = this.fb.group({
-      account: ['', Validators.required],
+      currentAccountId: ['', Validators.required], // Backend expects 'currentAccountId'
       amount: ['', [Validators.required, Validators.min(0.01)]],
-      type: ['debit', Validators.required],
-      description: ['', Validators.required]
+      transactionType: ['DEBIT', Validators.required], // Backend expects 'transactionType'
+      transactionDescription: ['', Validators.required] // Backend expects 'transactionDescription'
     });
   }
 
   fetchCurrentAccounts() {
     this.loading.set(true);
     this.error.set(null);
-    
+  
     this.transactionService.getCurrentAccounts().subscribe({
       next: (data) => {
-        console.log('Fetched accounts:', data);
+        console.log('✅ Received accounts:', data); // Debugging
         this.currentAccounts.set(data);
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Error fetching accounts:', err);
+        console.error('❌ Error fetching accounts:', err);
         this.error.set('Failed to load accounts. Please try again.');
         this.loading.set(false);
       }
@@ -57,36 +58,24 @@ export class TransactionComponent implements OnInit {
       this.loading.set(true);
       this.error.set(null);
       this.successMessage.set(null);
-      
+  
       const transactionData = this.transactionForm.value;
+  
       this.transactionService.createTransaction(transactionData).subscribe({
         next: (response) => {
-          console.log('Transaction created successfully:', response);
+          console.log('✅ Transaction created successfully:', response);
           this.successMessage.set('Transaction created successfully!');
-          this.transactionForm.reset({
-            type: 'debit'
-          });
-          this.loading.set(false);
+          this.transactionForm.reset({ type: 'debit' });
         },
         error: (err) => {
-          console.error('Error creating transaction:', err);
-          this.error.set('Failed to create transaction. Please try again.');
-          this.loading.set(false);
+          console.error('❌ Error creating transaction:', err);
+          this.error.set(err.message || 'Transaction failed.');
         }
       });
-    }
-  }
-  onSubmit() {
-    if (this.transactionForm.valid) {
-      console.log('🟢 Form Data:', this.transactionForm.value);
-      this.transactionService.createTransaction(this.transactionForm.value).subscribe(
-        response => console.log('✅ Success:', response),
-        error => console.error('❌ Error:', error)
-      );
-    } else {
-      console.warn('⚠️ Form is invalid!');
+  
+      this.loading.set(false);
     }
   }
   
-
+  
 }

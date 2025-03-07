@@ -70,10 +70,12 @@
               "buildTarget": "skeleton:build:production"
             },
             "development": {
-              "buildTarget": "skeleton:build:development"
+              "buildTarget": "skeleton:build:development" 
+              
             }
           },
           "defaultConfiguration": "development"
+          
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",

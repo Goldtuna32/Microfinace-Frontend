@@ -82,6 +82,11 @@ editLoan(loan: SmeLoanRegistration): void {
   this.router.navigate(['/loans', loan.id, 'edit']);
 }
 
+showRepaymentSchedule(loan: SmeLoanRegistration): void {
+  this.router.navigate(['/loans', loan.id, 'repayment-schedule']);
+}
+
+
   deleteLoan(loan: SmeLoanRegistration): void {
     console.log('Delete loan:', loan); // Placeholder
   }

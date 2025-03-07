@@ -92,6 +92,11 @@ const routes: Routes = [
          .then(m => m.LoanListComponent)
       },
       {
+        path: 'loans/:loanId/repayment-schedule',
+        loadComponent: () => import('./demo/repayment-schedule/components/repayment-schedule/repayment-schedule.component')
+          .then(m => m.RepaymentScheduleComponent)
+      },
+      {
         path: 'loans/:id',
         loadComponent: () => import('./demo/loan/components/loan-detail/loan-detail.component')
          .then(m => m.LoanDetailComponent)

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { CIF } from '../models/cif.model';
 
 
@@ -13,13 +13,28 @@ export class CifService {
 
   constructor(private http: HttpClient) {}
 
-  getAllCIFs(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/active`);
+  getAllCIFs(
+    page: number = 0,
+    size: number = 10,
+    sortBy: string = 'id',
+    direction: string = 'asc'
+  ): Observable<{ content: CIF[]; totalPages: number; totalElements: number }> {
+    return this.http.get<{ content: CIF[], totalPages: number, totalElements: number }>(
+      `${this.baseUrl}/active?page=${page}&size=${size}&sortBy=${sortBy}&direction=${direction}`
+    );
   }
 
-  getDeletedCIFs(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/deleted`);
+  getDeletedCIFs(
+    page: number = 0,
+    size: number = 10,
+    sortBy: string = 'id',
+    direction: string = 'asc'
+  ): Observable<{ content: CIF[]; totalPages: number; totalElements: number }> {
+    return this.http.get<{ content: CIF[], totalPages: number, totalElements: number }>(
+      `${this.baseUrl}/deleted?page=${page}&size=${size}&sortBy=${sortBy}&direction=${direction}`
+    );
   }
+
 
   updateCIF(id: number, cifData: FormData): Observable<any> {
     return this.http.put(`${this.baseUrl}/${id}`, cifData);

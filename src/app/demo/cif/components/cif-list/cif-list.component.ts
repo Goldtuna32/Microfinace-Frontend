@@ -20,17 +20,27 @@ import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'app-cif-list',
   standalone: true,
-  imports: [ CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatIconModule, MatProgressSpinnerModule, MatTooltipModule, MatMenuModule, MatButtonModule],
+  imports: [
+    CommonModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule,
+    MatMenuModule,
+    MatButtonModule
+  ],
   templateUrl: './cif-list.component.html',
-  styleUrl: './cif-list.component.scss'
+  styleUrls: ['./cif-list.component.scss']
 })
-
 export class CifListComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['SerialNumber', 'name', 'nrcNumber', 'dob', 'phoneNumber', 'email', 'actions'];
   dataSource = new MatTableDataSource<CIF>([]);
   loading = true;
   errorMessage = '';
   isDeletedView = false;
+  totalElements = 0;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -43,68 +53,101 @@ export class CifListComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadCIFs();
+    this.loadCIFs(0, 10); // Fetch 10 CIFs per page
   }
 
-  openCifDetailDialog(cif: CIF) {
-    this.dialog.open(CifDetailModalComponent, {
-      width: '90%',
-      maxWidth: '900px',
-      height: 'auto',
-      maxHeight: '90vh',
-      panelClass: 'custom-dialog-container',
-      data: cif
-    });
-  }
-
-  ngAfterViewInit(): void {
-    // Ensure paginator & sorting are set after view initializes
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-  }
-
-  loadCIFs() {
+  loadCIFs(page: number = 0, pageSize: number = 10) {
     this.loading = true;
-    const cifObservable = this.isDeletedView ? this.cifService.getDeletedCIFs() : this.cifService.getAllCIFs();
-    
+    this.errorMessage = '';
+  
+    const sortBy = this.sort?.active || 'id';
+    const direction = this.sort?.direction || 'asc';
+  
+    const cifObservable = this.isDeletedView
+      ? this.cifService.getDeletedCIFs(page, pageSize, sortBy, direction)
+      : this.cifService.getAllCIFs(page, pageSize, sortBy, direction);
+  
     cifObservable.subscribe({
-      next: (data) => {
-        this.dataSource.data = data;
-        if (!this.isDeletedView) {
-          data.forEach((cif, index) => {
-            this.currentAccountService.hasCurrentAccount(cif.id).subscribe({
-              next: (hasAccount) => {
-                this.dataSource.data[index].hasCurrentAccount = hasAccount;
-              },
-              error: (error) => {
-                console.error(`Error checking account for CIF ${cif.id}:`, error);
-              }
-            });
-          });
+      next: (response) => {
+        console.log('✅ API Response:', response); // 🔍 Debug API response
+  
+        if (!response || !response.content) {
+          console.warn('⚠️ No content found in API response');
+          this.dataSource.data = [];
+          this.totalElements = 0;
+          this.errorMessage = 'No CIFs found.';
+        } else {
+          this.dataSource.data = response.content;
+          this.totalElements = response?.totalElements ?? 0;  // ✅ Ensures a valid number
+          // ✅ Assign total elements correctly
+  
+          console.log('✅ Total Elements:', this.totalElements); // 🔍 Debug total count
+  
+          if (this.paginator) {
+            this.paginator.length = this.totalElements; // ✅ Ensure paginator updates
+            this.paginator.pageIndex = page;
+            this.paginator.pageSize = pageSize;
+            console.log(`✅ Updated paginator: PageIndex=${this.paginator.pageIndex}, PageSize=${this.paginator.pageSize}, Length=${this.paginator.length}`);
+          }
         }
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error fetching CIFs:', error);
+        console.error('❌ API Error:', error);
         this.loading = false;
         this.errorMessage = 'Failed to load CIF list.';
+        this.dataSource.data = [];
+        this.totalElements = 0;
+        if (this.paginator) this.paginator.length = 0;
       }
     });
   }
+  
+  
+  
+  
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  
+    this.sort.sortChange.subscribe(() => {
+      this.paginator.pageIndex = 0;
+      this.loadCIFs(0, this.paginator.pageSize);
+    });
+  
+    this.paginator.page.subscribe((event) => {
+      console.log(`Page changed: ${event.pageIndex}, PageSize: ${event.pageSize}`);
+      this.loadCIFs(event.pageIndex, event.pageSize);
+    });
+  
+    setTimeout(() => {
+      if (this.paginator) {
+        console.log('✅ Initial paginator setup:', this.paginator);
+        this.paginator.length = this.totalElements;
+      }
+    }, 500); // Delay to ensure proper initialization
+  }
+  
+  
+  
 
   toggleView() {
     this.isDeletedView = !this.isDeletedView;
-    this.loadCIFs();
+    this.loadCIFs(0, 10);
   }
 
   applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-
-    // Ensure filter resets paginator to first page
+    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    this.dataSource.filter = filterValue;
+  
     if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
+      this.dataSource.paginator.firstPage(); // Reset to first page on filter change
     }
+  }
+  
+
+  onPageChange(event: any) {
+    this.loadCIFs(event.pageIndex, 10);
   }
 
   editCIF(cif: CIF) {
@@ -112,32 +155,24 @@ export class CifListComponent implements OnInit, AfterViewInit {
       width: '400px',
       data: { ...cif }
     });
-  
+
     dialogRef.afterClosed().subscribe((updatedCif: FormData) => {
       if (updatedCif) {
         const id = updatedCif.get('id');
-        console.log('Received FormData from dialog:', updatedCif);
-        console.log('Extracted id from FormData:', id);
-  
         if (!id || isNaN(Number(id))) {
           console.error('Invalid ID from FormData:', id);
           alert('Failed to update CIF: Invalid ID.');
           return;
         }
-  
+
         const updatedCifData: any = {};
         updatedCif.forEach((value, key) => {
           updatedCifData[key] = value;
         });
-        console.log('Converted FormData to object:', updatedCifData);
-  
+
         this.cifService.updateCIF(Number(id), updatedCif).subscribe({
           next: () => {
-            const index = this.dataSource.data.findIndex(item => item.id === Number(id));
-            if (index !== -1) {
-              this.dataSource.data[index] = updatedCifData;
-              this.dataSource._updateChangeSubscription();
-            }
+            this.loadCIFs(this.paginator.pageIndex, 10);
             alert('CIF updated successfully!');
           },
           error: (error) => {
@@ -157,7 +192,7 @@ export class CifListComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log('Current Account Created:', result);
+        this.loadCIFs(this.paginator.pageIndex, 10);
       }
     });
   }
@@ -167,7 +202,7 @@ export class CifListComponent implements OnInit, AfterViewInit {
       this.cifService.restoreCIF(id).subscribe({
         next: () => {
           alert('CIF restored successfully.');
-          this.loadCIFs();
+          this.loadCIFs(this.paginator.pageIndex, 10);
         },
         error: (error) => {
           alert('Failed to restore CIF.');
@@ -182,7 +217,7 @@ export class CifListComponent implements OnInit, AfterViewInit {
       this.cifService.deleteCIF(id).subscribe({
         next: () => {
           alert('CIF deleted successfully.');
-          this.loadCIFs();
+          this.loadCIFs(this.paginator.pageIndex, 10);
         },
         error: (error) => {
           alert('Failed to delete CIF.');
@@ -190,5 +225,16 @@ export class CifListComponent implements OnInit, AfterViewInit {
         }
       });
     }
+  }
+
+  openCifDetailDialog(cif: CIF) {
+    this.dialog.open(CifDetailModalComponent, {
+      width: '90%',
+      maxWidth: '900px',
+      height: 'auto',
+      maxHeight: '90vh',
+      panelClass: 'custom-dialog-container',
+      data: cif
+    });
   }
 }

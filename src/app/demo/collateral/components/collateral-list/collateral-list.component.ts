@@ -40,10 +40,10 @@ export class CollateralListComponent implements OnInit {
     const serviceCall = this.showDeleted
       ? this.collateralService.getDeletedCollaterals()
       : this.collateralService.getAllCollaterals();
-
+  
     serviceCall.subscribe({
-      next: (data: Collateral[]) => {
-        this.collaterals = data;
+      next: (response: { content: Collateral[]; totalPages: number; totalElements: number }) => {
+        this.collaterals = response.content; // Extract the Collateral[] from the content property
         this.updatePagination();
         this.loading = false;
         this.error = null;

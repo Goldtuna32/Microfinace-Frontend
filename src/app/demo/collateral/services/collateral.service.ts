@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Collateral } from '../models/collateral.model';
 import { throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { CollateralType } from '../../collateral-type/models/collateralType.model';
 import { SmeLoanCollateral } from '../../loan/models/SmeLoanCollateral.model';
 
@@ -26,10 +26,19 @@ export class CollateralService {
     return this.http.post<any>(`${this.baseUrl}/collaterals`, formData);
   }
 
-  getAllCollaterals(): Observable<Collateral[]> {
-    return this.http.get<Collateral[]>(`${this.baseUrl}/collaterals/active`);
+  getAllCollaterals(page: number = 0, size: number = 10, sortBy: string = 'id', direction: string = 'asc'): Observable<{ content: Collateral[], totalPages: number, totalElements: number }> {
+    return this.http.get<{ content: Collateral[], totalPages: number, totalElements: number }>(
+      `${this.baseUrl}/collaterals/active?page=${page}&size=${size}&sortBy=${sortBy}&direction=${direction}`
+    );
   }
 
+  getDeletedCollaterals(page: number = 0, size: number = 10, sortBy: string = 'id', direction: string = 'asc'): Observable<{ content: Collateral[], totalPages: number, totalElements: number }> {
+    return this.http.get<{ content: Collateral[], totalPages: number, totalElements: number }>(
+      `${this.baseUrl}/collaterals/deleted?page=${page}&size=${size}&sortBy=${sortBy}&direction=${direction}`
+    );
+  }
+
+  
   getAllActiveCollateralTypes(): Observable<CollateralType[]> {
     return this.http.get<CollateralType[]>(`${this.baseUrl}/collateral-types/active`).pipe(
       catchError(error => {
@@ -73,14 +82,6 @@ export class CollateralService {
     );
   }
 
-  getDeletedCollaterals(): Observable<Collateral[]> {
-    return this.http.get<Collateral[]>(`${this.baseUrl}/collaterals/deleted`).pipe(
-      catchError(error => {
-        console.error('Failed to fetch deleted collaterals:', error.statusText);
-        return throwError(() => new Error(error.statusText));
-      })
-    );
-  }
 
   getCurrentAccountsByCifSerialNumber(serialNumber: string): Observable<CurrentAccountDTO[]> {
     return this.http.get<CurrentAccountDTO[]>(`${this.baseUrl}/current-accounts/serial/${serialNumber}`).pipe(

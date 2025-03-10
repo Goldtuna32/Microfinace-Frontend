@@ -3,6 +3,12 @@
     <!-- Header Section -->
     <div class="bg-blue-600 text-white p-4 flex justify-between items-center">
       <h4 class="text-lg font-semibold">{{ isDeletedView ? 'Deleted CIF List' : 'CIF List' }}</h4>
+      <button mat-button (click)="downloadReport('pdf')" class="text-white hover:bg-blue-700 px-3 py-1 rounded">
+        Download PDF
+      </button>
+      <button mat-button (click)="downloadReport('excel')" class="text-white hover:bg-blue-700 px-3 py-1 rounded">
+        Download Excel
+      </button>
       <button mat-button (click)="toggleView()" class="text-white hover:bg-blue-700">
         {{ isDeletedView ? 'Show Active CIFs' : 'Show Deleted CIFs' }}
       </button>
@@ -67,13 +73,11 @@
             <th mat-header-cell *matHeaderCellDef class="border p-2 text-center">Actions</th>
             <td mat-cell *matCellDef="let row" class="border p-2">
               <div class="relative inline-block">
-                <!-- Text Trigger -->
                 <button [matMenuTriggerFor]="menu" aria-label="Actions menu"
                   class="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 px-2 py-1 rounded">
                   Actions
                 </button>
 
-                <!-- Dropdown Menu -->
                 <mat-menu #menu="matMenu" class="w-48 rounded-lg shadow-lg bg-white divide-y divide-gray-200">
                   <!-- Actions for Active CIFs -->
                   <ng-container *ngIf="!isDeletedView">
@@ -114,21 +118,31 @@
             </td>
           </ng-container>
 
-          <!-- Header and Row Definitions -->
           <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-gray-100"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
       </div>
 
-     
-      <mat-paginator
-  [length]="totalElements"
-  [pageSize]="10"
-  [pageSizeOptions]="[10, 20, 50]"
-  showFirstLastButtons>
-</mat-paginator>
-
-      
+      <!-- Bootstrap Pagination -->
+      <nav aria-label="Page navigation example" class="mt-4" *ngIf="totalPages > 0">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" href="javascript:void(0)" (click)="previousPage()" aria-label="Previous">
+              <span aria-hidden="true">«</span>
+              <span class="sr-only">Previous</span>
+            </a>
+          </li>
+          <li class="page-item" *ngFor="let page of getPageNumbers()" [class.active]="page === currentPage">
+            <a class="page-link" href="javascript:void(0)" (click)="goToPage(page)">{{ page }}</a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" href="javascript:void(0)" (click)="nextPage()" aria-label="Next">
+              <span aria-hidden="true">»</span>
+              <span class="sr-only">Next</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
     </div>
   </div>
 </div>

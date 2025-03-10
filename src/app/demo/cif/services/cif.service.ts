@@ -13,28 +13,13 @@ export class CifService {
 
   constructor(private http: HttpClient) {}
 
-  getAllCIFs(
-    page: number = 0,
-    size: number = 10,
-    sortBy: string = 'id',
-    direction: string = 'asc'
-  ): Observable<{ content: CIF[]; totalPages: number; totalElements: number }> {
-    return this.http.get<{ content: CIF[], totalPages: number, totalElements: number }>(
-      `${this.baseUrl}/active?page=${page}&size=${size}&sortBy=${sortBy}&direction=${direction}`
-    );
+  getAllCIFs(): Observable<CIF[]> {
+    return this.http.get<CIF[]>(`${this.baseUrl}/active`);
   }
 
-  getDeletedCIFs(
-    page: number = 0,
-    size: number = 10,
-    sortBy: string = 'id',
-    direction: string = 'asc'
-  ): Observable<{ content: CIF[]; totalPages: number; totalElements: number }> {
-    return this.http.get<{ content: CIF[], totalPages: number, totalElements: number }>(
-      `${this.baseUrl}/deleted?page=${page}&size=${size}&sortBy=${sortBy}&direction=${direction}`
-    );
+  getDeletedCIFs(): Observable<CIF[]> {
+    return this.http.get<CIF[]>(`${this.baseUrl}/deleted`);
   }
-
 
   updateCIF(id: number, cifData: FormData): Observable<any> {
     return this.http.put(`${this.baseUrl}/${id}`, cifData);

@@ -1,0 +1,10 @@
+// src/app/components/hp-product-list/hp-product-list.component.scss
+.table-responsive {
+    max-height: 500px;
+    overflow-y: auto;
+  }
+  
+  .pagination .active .page-link {
+    background-color: #3b82f6; /* Tailwind bg-blue-500 */
+    color: white;
+  }

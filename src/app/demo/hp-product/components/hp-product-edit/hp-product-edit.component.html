@@ -1,0 +1,114 @@
+<div class="container mx-auto p-4 max-w-lg">
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">
+        <i class="bi bi-pencil-square me-2"></i> Edit HP Product
+    </h2>
+    <form (ngSubmit)="onSubmit()" class="bg-white shadow-md rounded-lg p-6">
+        <div class="mb-4">
+            <label for="name" class="form-label fw-bold text-gray-700">
+                <i class="bi bi-tag me-1"></i> Name
+            </label>
+            <input
+                id="name"
+                [(ngModel)]="hpProduct.name"
+                name="name"
+                class="form-control w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                placeholder="Enter product name"
+                required
+            />
+        </div>
+        <div class="mb-4">
+            <label for="price" class="form-label fw-bold text-gray-700">
+                <i class="bi bi-currency-dollar me-1"></i> Price
+            </label>
+            <input
+                id="price"
+                type="number"
+                [(ngModel)]="hpProduct.price"
+                name="price"
+                class="form-control w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                placeholder="Enter price"
+                required
+            />
+        </div>
+        <div class="mb-4">
+            <label for="productTypeId" class="form-label fw-bold text-gray-700">
+                <i class="bi bi-list-ul me-1"></i> Product Type
+            </label>
+            <select
+                id="productTypeId"
+                [(ngModel)]="hpProduct.productTypeId"
+                name="productTypeId"
+                class="form-select w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                required
+            >
+                <option value="" disabled>Select a product type</option>
+                <option *ngFor="let type of productTypes" [value]="type.id">{{ type.name }}</option>
+            </select>
+        </div>
+        <div class="mb-4">
+            <label for="dealerRegistrationId" class="form-label fw-bold text-gray-700">
+                <i class="bi bi-building me-1"></i> Dealer Registration
+            </label>
+            <select
+                id="dealerRegistrationId"
+                [(ngModel)]="hpProduct.dealerRegistrationId"
+                name="dealerRegistrationId"
+                class="form-select w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                required
+            >
+                <option value="" disabled>Select a dealer</option>
+                <option *ngFor="let dealer of dealerRegistrations" [value]="dealer.id">{{ dealer.companyName }}</option>
+            </select>
+        </div>
+        <div class="mb-4">
+            <label for="commissionFee" class="form-label fw-bold text-gray-700">
+                <i class="bi bi-percent me-1"></i> Commission Fee
+            </label>
+            <input
+                id="commissionFee"
+                type="number"
+                [(ngModel)]="hpProduct.commissionFee"
+                name="commissionFee"
+                class="form-control w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                placeholder="Enter commission fee"
+                required
+            />
+        </div>
+        <div class="mb-4">
+            <label for="photo" class="form-label fw-bold text-gray-700">
+                <i class="bi bi-image me-1"></i> Product Photo
+            </label>
+            <div class="mb-2">
+                <img 
+                    [src]="currentPhotoUrl" 
+                    alt="Current product photo" 
+                    class="w-24 h-24 object-cover rounded-md border border-gray-200"
+                    (error)="currentPhotoUrl = 'https://via.placeholder.com/96?text=No+Image'"
+                />
+            </div>
+            <input
+                id="photo"
+                type="file"
+                (change)="onFileChange($event)"
+                class="form-control w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                accept="image/*"
+            />
+            <small class="text-gray-500">Leave blank to keep the current photo</small>
+        </div>
+        <div class="flex justify-between">
+            <button
+                type="submit"
+                class="btn btn-primary py-2 px-4 flex items-center gap-2 hover:bg-blue-600 transition-colors"
+            >
+                <i class="bi bi-save"></i> Save Changes
+            </button>
+            <button
+                type="button"
+                (click)="onCancel()"
+                class="btn btn-secondary py-2 px-4 flex items-center gap-2 hover:bg-gray-600 transition-colors"
+            >
+                <i class="bi bi-x-circle"></i> Cancel
+            </button>
+        </div>
+    </form>
+</div>

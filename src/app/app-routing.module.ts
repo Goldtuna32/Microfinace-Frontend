@@ -127,6 +127,36 @@ const routes: Routes = [
         path: 'dealer-registration',
         loadComponent: () => import('./demo/dealer-registration/components/dealer-registration/dealer-registration.component')
           .then(m => m.DealerRegistrationComponent)
+      },
+      {
+        path: 'create-product-type',
+        loadComponent: () => import('./demo/product-type/components/create-product-type/create-product-type.component') 
+          .then(m => m.CreateProductTypeComponent)
+      },
+      {
+        path: 'product-types',
+        loadComponent: () => import('./demo/product-type/components/product-type-list/product-type-list.component') 
+          .then(m => m.ProductTypeListComponent)
+      },
+      {
+        path: 'product-types/edit/:id',
+        loadComponent: () => import('./demo/product-type/components/product-type-edit/product-type-edit.component')
+         .then(m => m.ProductTypeEditComponent)
+      },
+      {
+        path: 'hp-product/list',
+        loadComponent: () => import('./demo/hp-product/components/hp-product-list/hp-product-list.component')
+         .then(m => m.HpProductListComponent)
+      },
+      {
+        path: 'add-hp-product',
+        loadComponent: () => import('./demo/hp-product/components/add-hp-product/add-hp-product.component')
+          .then(m => m.AddHpProductComponent)
+      },
+      {
+        path: 'edit-hp-product/:id',
+        loadComponent: () => import('./demo/hp-product/components/hp-product-edit/hp-product-edit.component')
+          .then(m => m.HpProductEditComponent)
       }
      
 

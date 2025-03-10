@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CollateralService } from '../../services/collateral.service';
 import { RouterModule } from '@angular/router';
@@ -13,7 +13,7 @@ import { CollateralEditComponent } from '../collateral-edit/collateral-edit.comp
   standalone: true,
   imports: [CommonModule, RouterModule, MatTableModule],
   templateUrl: './collateral-list.component.html',
-  styleUrl: './collateral-list.component.scss'
+  styleUrls: ['./collateral-list.component.scss'] // Fixed styleUrl to styleUrls
 })
 export class CollateralListComponent implements OnInit {
   collaterals: Collateral[] = [];
@@ -43,7 +43,7 @@ export class CollateralListComponent implements OnInit {
   
     serviceCall.subscribe({
       next: (response: { content: Collateral[]; totalPages: number; totalElements: number }) => {
-        this.collaterals = response.content; // Extract the Collateral[] from the content property
+        this.collaterals = response.content;
         this.updatePagination();
         this.loading = false;
         this.error = null;
@@ -91,15 +91,32 @@ export class CollateralListComponent implements OnInit {
     this.paginatedCollaterals = this.collaterals.slice(start, end);
   }
 
-  previousPage(): void {
+  // Pagination Methods
+  getTotalPages(): number {
+    return Math.ceil(this.collaterals.length / this.pageSize);
+  }
+
+  getPageNumbers(): number[] {
+    const totalPages = this.getTotalPages();
+    return Array.from({ length: totalPages }, (_, i) => i);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.getTotalPages()) {
+      this.currentPage = page;
+      this.updatePagination();
+    }
+  }
+
+  goToPreviousPage(): void {
     if (this.currentPage > 1) {
       this.currentPage--;
       this.updatePagination();
     }
   }
 
-  nextPage(): void {
-    if (this.currentPage * this.pageSize < this.collaterals.length) {
+  goToNextPage(): void {
+    if (this.currentPage < this.getTotalPages()) {
       this.currentPage++;
       this.updatePagination();
     }
@@ -115,17 +132,14 @@ export class CollateralListComponent implements OnInit {
 
   editCollateral(collateral: Collateral): void {
     const dialogRef = this.dialog.open(CollateralEditComponent, {
-      width: '600px', // Slightly larger for form fields
+      width: '600px',
       maxHeight: '90vh',
-      data: { ...collateral } // Pass a copy of the collateral
+      data: { ...collateral }
     });
 
     dialogRef.afterClosed().subscribe((updatedCollateral: FormData) => {
       if (updatedCollateral) {
         const id = updatedCollateral.get('id');
-        console.log('Received FormData from dialog:', updatedCollateral);
-        console.log('Extracted id from FormData:', id);
-
         if (!id || isNaN(Number(id))) {
           console.error('Invalid ID from FormData:', id);
           alert('Failed to update Collateral: Invalid ID.');
@@ -136,7 +150,6 @@ export class CollateralListComponent implements OnInit {
         updatedCollateral.forEach((value, key) => {
           updatedCollateralData[key] = value;
         });
-        console.log('Converted FormData to object:', updatedCollateralData);
 
         this.collateralService.updateCollateral(Number(id), updatedCollateral).subscribe({
           next: () => {

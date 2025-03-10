@@ -170,8 +170,8 @@ export const NavigationItems: NavigationItem[] = [
     icon: 'icon-group',
     children: [
       {
-        id: 'collateral-list',
-        title: 'Collateral-list',
+        id: 'collateral',
+        title: 'Collateral',
         type: 'collapse',
         icon: 'feather icon-box',
         children: [
@@ -192,49 +192,125 @@ export const NavigationItems: NavigationItem[] = [
         ]
       }
     ]
-  }
-  ,
+  },
   {
     id: 'Loan',
     title: 'Loan',
     type: 'group',
-    icon: 'feather icon-home', // 🏢 Represents a branch
+    icon: 'icon-group',
     children: [
       {
-        id: 'create loan',
-        title: 'Create Loan',
-        type: 'item',
-        url: '/loan/create',
-        icon: 'feather icon-plus' // ➕ Indicates adding a new branch
-      },
-      {
-        id: 'view loan',
-        title: 'All Loan',
-        type: 'item',
-        url: '/loan/list',
-        icon: 'feather icon-list' // 📋 Represents a list of branches
+        id: 'Loan',
+        title: 'Loan',
+        type: 'collapse',
+        icon: 'feather icon-box',
+        children: [
+          {
+            id: 'All Loan List',
+            title: 'All Loan List',
+            type: 'item',
+            url: '/loan/list',
+            icon: 'feather icon-list'
+          },
+          {
+            id: 'Loan Registration',
+            title: 'Loan Registration',
+            type: 'item',
+            url: '/loan/create',
+            icon: 'feather icon-plus'
+          },
+        ]
       }
     ]
   },
+
   {
     id: 'Dealer',
     title: 'Dealer',
     type: 'group',
-    icon: 'feather icon-home', // 🏢 Represents a branch
+    icon: 'icon-group',
     children: [
       {
-        id: 'Dealer Registration',
-        title: 'Dealer Registration',
-        type: 'item',
-        url: '/dealer-registration',
-        icon: 'feather icon-plus' // ➕ Indicates adding a new branch
-      },
+        id: 'Dealer',
+        title: 'Dealer',
+        type: 'collapse',
+        icon: 'feather icon-box',
+        children: [
+          {
+            id: 'Dealer List',
+            title: 'Dealer List',
+            type: 'item',
+            url: '/product-types',
+            icon: 'feather icon-list'
+          },
+          {
+            id: 'Dealer Registration',
+            title: 'Dealer Registration',
+            type: 'item',
+            url: '/dealer-registration',
+            icon: 'feather icon-plus'
+          },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'Product-Type',
+    title: 'Product Type',
+    type: 'group',
+    icon: 'icon-group',
+    children: [
       {
-        id: 'view loan',
-        title: 'All Loan',
-        type: 'item',
-        url: '/loan/list',
-        icon: 'feather icon-list' // 📋 Represents a list of branches
+        id: 'Product Type',
+        title: 'Product Type',
+        type: 'collapse',
+        icon: 'feather icon-box',
+        children: [
+          {
+            id: 'Product-Type List',
+            title: 'Product-Type List',
+            type: 'item',
+            url: '/product-types',
+            icon: 'feather icon-list'
+          },
+          {
+            id: 'Add Product-Type',
+            title: 'Add Product-Type',
+            type: 'item',
+            url: '/create-product-type',
+            icon: 'feather icon-plus'
+          },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'Hp Product',
+    title: 'Hp  Product',
+    type: 'group',
+    icon: 'icon-group',
+    children: [
+      {
+        id: 'Hp Product',
+        title: 'Hp Product',
+        type: 'collapse',
+        icon: 'feather icon-box',
+        children: [
+          {
+            id: 'Hp-Product List',
+            title: 'Hp-Product List',
+            type: 'item',
+            url: '/hp-product/list',
+            icon: 'feather icon-list'
+          },
+          {
+            id: 'Add Hp-Product',
+            title: 'Add Hp-Product',
+            type: 'item',
+            url: '/add-hp-product',
+            icon: 'feather icon-plus'
+          },
+        ]
       }
     ]
   },

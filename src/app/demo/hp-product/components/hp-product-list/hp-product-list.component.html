@@ -1,0 +1,142 @@
+<div class="container mt-5 mx-auto px-4">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      <div class="card shadow-lg p-0 bg-white rounded-lg">
+        <!-- Header -->
+        <div class="bg-blue-600 text-white p-4 flex justify-between items-center rounded-t-lg">
+          <h4 class="text-lg font-semibold">
+            {{ isInactiveView ? 'Inactive HP Products' : 'Active HP Products' }}
+          </h4>
+          <button 
+            class="text-white hover:bg-blue-700 px-4 py-2 rounded"
+            (click)="toggleView()">
+            {{ isInactiveView ? 'Show Active HP Products' : 'Show Inactive HP Products' }}
+          </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-4">
+          <!-- Filter Input -->
+          <div class="mb-4">
+            <input
+              type="text"
+              class="form-control p-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full"
+              placeholder="Filter HP products..."
+              (keyup)="applyFilter($event)"
+            />
+          </div>
+
+          <!-- Table -->
+          <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+              <thead class="bg-gray-800 text-white">
+                <tr>
+                  <th scope="col" class="px-4 py-3">Photo</th> <!-- Added Photo Column -->
+                  <th scope="col" class="px-4 py-3">Name</th>
+                  <th scope="col" class="px-4 py-3">Price</th>
+                  <th scope="col" class="px-4 py-3">Status</th>
+                  <th scope="col" class="px-4 py-3">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let hpProduct of getPaginatedHpProducts()" class="hover:bg-gray-50">
+                  <td class="px-4 py-2 align-middle">
+                    <img 
+                      [src]="hpProduct.hpProductPhoto" 
+                      alt="{{ hpProduct.name }} photo" 
+                      class="w-12 h-12 object-cover rounded-md border border-gray-200"
+                      (error)="onImageError($event)"
+                    />
+                  </td>
+                  <td class="px-4 py-2 align-middle">{{ hpProduct.name }}</td>
+                  <td class="px-4 py-2 align-middle">${{ hpProduct.price.toFixed(2) }}</td>
+                  <td class="px-4 py-2 align-middle">
+                    <span 
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium"
+                      [ngClass]="{
+                        'bg-green-100 text-green-800': hpProduct.status === 1,
+                        'bg-red-100 text-red-800': hpProduct.status === 2 || hpProduct.status === 0,
+                        'bg-gray-100 text-gray-800': hpProduct.status === undefined
+                      }">
+                      <i class="bi me-1" [ngClass]="{
+                        'bi-check-circle': hpProduct.status === 1,
+                        'bi-x-circle': hpProduct.status === 2 || hpProduct.status === 0,
+                        'bi-question-circle': hpProduct.status === undefined
+                      }"></i>
+                      {{ getStatusDisplay(hpProduct.status) }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-2 align-middle">
+                    <!-- Edit button (always visible) -->
+                    <button 
+  class="btn btn-primary btn-sm me-2 hover:bg-blue-600 transition-colors duration-200"
+  title="Edit"
+  [routerLink]="['/edit-hp-product', hpProduct.id]">
+  <i class="bi bi-pencil-square"></i>
+</button>
+                    <!-- Delete button (active view only) -->
+                    <button 
+                      *ngIf="!isInactiveView"
+                      class="btn btn-danger btn-sm hover:bg-red-700 transition-colors duration-200"
+                      title="Delete"
+                      (click)="deleteHpProduct(hpProduct.id)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                    <!-- Restore button (inactive view only) -->
+                    <button 
+                      *ngIf="isInactiveView"
+                      class="btn btn-success btn-sm hover:bg-green-700 transition-colors duration-200"
+                      title="Restore"
+                      (click)="restoreHpProduct(hpProduct.id)">
+                      <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Custom Pagination -->
+          <div class="mt-4 flex justify-center">
+            <nav aria-label="Page navigation example">
+              <ul class="pagination flex items-center space-x-1">
+                <li class="page-item" [class.disabled]="currentPage === 0">
+                  <a 
+                    class="page-link px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition-colors duration-200" 
+                    href="javascript:void(0)" 
+                    (click)="goToPreviousPage()"
+                    aria-label="Previous">
+                    <span aria-hidden="true">«</span>
+                    <span class="sr-only">Previous</span>
+                  </a>
+                </li>
+                <li *ngFor="let page of getPageNumbers()" 
+                    class="page-item" 
+                    [class.active]="currentPage === page">
+                  <a 
+                    class="page-link px-3 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition-colors duration-200" 
+                    [class.bg-blue-500]="currentPage === page" 
+                    [class.text-white]="currentPage === page" 
+                    href="javascript:void(0)" 
+                    (click)="goToPage(page)">
+                    {{ page + 1 }}
+                  </a>
+                </li>
+                <li class="page-item" [class.disabled]="currentPage === getTotalPages() - 1">
+                  <a 
+                    class="page-link px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition-colors duration-200" 
+                    href="javascript:void(0)" 
+                    (click)="goToNextPage()"
+                    aria-label="Next">
+                    <span aria-hidden="true">»</span>
+                    <span class="sr-only">Next</span>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

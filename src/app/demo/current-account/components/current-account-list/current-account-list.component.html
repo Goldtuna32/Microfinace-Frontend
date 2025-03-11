@@ -73,6 +73,10 @@
                   (click)="deleteCurrentAccount(row.id)">
             Delete
           </button>
+          <button mat-menu-item (click)="navigateToTransactionHistory(row.id)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-blue-100 rounded transition">
+            <i class="bi bi-clock-history text-blue-600"></i>
+            <span>Transaction History</span>
+          </button>
         </td>
       </ng-container>
 

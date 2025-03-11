@@ -240,7 +240,7 @@ export const NavigationItems: NavigationItem[] = [
             id: 'Dealer List',
             title: 'Dealer List',
             type: 'item',
-            url: '/product-types',
+            url: '/dealer-list',
             icon: 'feather icon-list'
           },
           {

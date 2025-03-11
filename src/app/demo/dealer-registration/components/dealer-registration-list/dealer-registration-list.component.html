@@ -1,0 +1,59 @@
+<div class="container mt-4">
+    <h2 class="mb-3">Dealer Registration List</h2>
+  
+    <!-- Search input -->
+    <div class="mb-3">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Search by company name..."
+        [(ngModel)]="searchText"
+        (input)="filterDealers()"
+      />
+    </div>
+  
+    <!-- Dealer List Table -->
+    <table class="table table-striped">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Company Name</th>
+          <th>Phone Number</th>
+          <th>Status</th>
+          <th>Registration Date</th>
+          <th>Actions</th>
+        
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let dealer of filteredDealers">
+          <td>{{ dealer.id }}</td>
+          <td>{{ dealer.companyName }}</td>
+          <td>{{ dealer.phoneNumber }}</td>
+          <td>
+            <span class="badge bg-success" *ngIf="dealer.status === 1">Active</span>
+            <span class="badge bg-secondary" *ngIf="dealer.status !== 1">Inactive</span>
+          </td>
+          <td>{{ dealer.registrationDate | date }}</td>
+          <!-- <td>
+            <button class="btn btn-danger btn-sm" (click)="deleteDealer(dealer.id)">
+              Delete
+            </button>
+          </td> -->
+
+          <td>
+            <a [routerLink]="['/dealer/edit', dealer.id]" class="btn btn-primary">Edit</a>
+            <button class="btn btn-danger" (click)="deleteDealer(dealer.id)">Delete</button>
+          </td>
+          
+          
+          
+
+        </tr>
+        <tr *ngIf="filteredDealers.length === 0">
+          <td colspan="6" class="text-center text-muted">No dealers found</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  

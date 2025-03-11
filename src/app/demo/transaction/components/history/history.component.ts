@@ -73,18 +73,17 @@ area1CAC: ApexOptions = {
 
   loadTransactions() {
     if (!this.accountId) return;
-
+  
     this.transactionService.getTransactionsByAccount(this.accountId).subscribe({
       next: (response) => {
         console.log("✅ Transactions fetched for Account:", this.accountId, response);
-        this.dataSource.data = response.content || response;
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
+        this.dataSource.data = response || []; // Ensure it's always an array
         this.updateChartData(response);
       },
       error: (error) => console.error('❌ Error loading transactions:', error),
     });
   }
+  
 
   updateChartData(transactions: AccountTransaction[]) {
     const creditData: number[] = [];

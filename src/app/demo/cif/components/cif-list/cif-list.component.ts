@@ -16,6 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CifDetailModalComponent } from '../cif-detail-modal/cif-detail-modal.component';
 import { CIF } from '../../models/cif.model';
 import { MatButtonModule } from '@angular/material/button';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-cif-list',
@@ -40,55 +41,48 @@ export class CifListComponent implements OnInit, AfterViewInit {
   loading = true;
   errorMessage = '';
   isDeletedView = false;
-  totalElements = 0;
+  fullCifList: CIF[] = [];
+  currentPage = 1; // Start at page 1
+  pageSize = 10; // Default page size
+  totalPages = 0; // Calculated based on full list length
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
     private cifService: CifService,
     private router: Router,
     private dialog: MatDialog,
-    private currentAccountService: CurrentAccountService
+    private currentAccountService: CurrentAccountService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
-    this.loadCIFs(0, 10); // Fetch 10 CIFs per page
+    this.loadCIFs();
   }
 
-  loadCIFs(page: number = 0, pageSize: number = 10) {
+  loadCIFs() {
     this.loading = true;
     this.errorMessage = '';
-  
-    const sortBy = this.sort?.active || 'id';
-    const direction = this.sort?.direction || 'asc';
-  
+
     const cifObservable = this.isDeletedView
-      ? this.cifService.getDeletedCIFs(page, pageSize, sortBy, direction)
-      : this.cifService.getAllCIFs(page, pageSize, sortBy, direction);
-  
+      ? this.cifService.getDeletedCIFs()
+      : this.cifService.getAllCIFs();
+
     cifObservable.subscribe({
-      next: (response) => {
-        console.log('✅ API Response:', response); // 🔍 Debug API response
-  
-        if (!response || !response.content) {
-          console.warn('⚠️ No content found in API response');
+      next: (cifList: CIF[]) => {
+        console.log('✅ API Response:', cifList);
+        if (!cifList || cifList.length === 0) {
+          console.warn('⚠️ No CIFs found in response');
           this.dataSource.data = [];
-          this.totalElements = 0;
+          this.fullCifList = [];
           this.errorMessage = 'No CIFs found.';
+          this.totalPages = 0;
         } else {
-          this.dataSource.data = response.content;
-          this.totalElements = response?.totalElements ?? 0;  // ✅ Ensures a valid number
-          // ✅ Assign total elements correctly
-  
-          console.log('✅ Total Elements:', this.totalElements); // 🔍 Debug total count
-  
-          if (this.paginator) {
-            this.paginator.length = this.totalElements; // ✅ Ensure paginator updates
-            this.paginator.pageIndex = page;
-            this.paginator.pageSize = pageSize;
-            console.log(`✅ Updated paginator: PageIndex=${this.paginator.pageIndex}, PageSize=${this.paginator.pageSize}, Length=${this.paginator.length}`);
-          }
+          this.fullCifList = cifList;
+          this.totalPages = Math.ceil(this.fullCifList.length / this.pageSize);
+          this.updatePaginatedData(); // Set initial page
+          // Check current account status for each CIF
+          this.fullCifList.forEach(cif => this.checkCurrentAccount(cif));
         }
         this.loading = false;
       },
@@ -97,57 +91,78 @@ export class CifListComponent implements OnInit, AfterViewInit {
         this.loading = false;
         this.errorMessage = 'Failed to load CIF list.';
         this.dataSource.data = [];
-        this.totalElements = 0;
-        if (this.paginator) this.paginator.length = 0;
+        this.fullCifList = [];
+        this.totalPages = 0;
       }
     });
   }
-  
-  
-  
-  
+
   ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-  
+
     this.sort.sortChange.subscribe(() => {
-      this.paginator.pageIndex = 0;
-      this.loadCIFs(0, this.paginator.pageSize);
+      this.dataSource.sort = this.sort;
+      this.currentPage = 1; // Reset to first page on sort
+      this.updatePaginatedData();
     });
-  
-    this.paginator.page.subscribe((event) => {
-      console.log(`Page changed: ${event.pageIndex}, PageSize: ${event.pageSize}`);
-      this.loadCIFs(event.pageIndex, event.pageSize);
-    });
-  
-    setTimeout(() => {
-      if (this.paginator) {
-        console.log('✅ Initial paginator setup:', this.paginator);
-        this.paginator.length = this.totalElements;
-      }
-    }, 500); // Delay to ensure proper initialization
   }
-  
-  
-  
+
+  private updatePaginatedData() {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = Math.min(startIndex + this.pageSize, this.fullCifList.length);
+    this.dataSource.data = this.fullCifList.slice(startIndex, endIndex);
+  }
 
   toggleView() {
     this.isDeletedView = !this.isDeletedView;
-    this.loadCIFs(0, 10);
+    this.currentPage = 1; // Reset to first page
+    this.loadCIFs();
   }
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
     this.dataSource.filter = filterValue;
-  
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage(); // Reset to first page on filter change
+    this.currentPage = 1; // Reset to first page on filter
+    this.updatePaginatedData();
+  }
+
+  // Pagination controls
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePaginatedData();
     }
   }
-  
 
-  onPageChange(event: any) {
-    this.loadCIFs(event.pageIndex, 10);
+  previousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePaginatedData();
+    }
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePaginatedData();
+    }
+  }
+
+  getPageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  // Check if CIF has a current account
+  checkCurrentAccount(cif: CIF) {
+    this.currentAccountService.hasCurrentAccount(cif.id).subscribe({
+      next: (hasAccount: boolean) => {
+        cif.hasCurrentAccount = hasAccount; // Update CIF object
+      },
+      error: (error) => {
+        console.error(`Failed to check current account for CIF ${cif.id}:`, error);
+        cif.hasCurrentAccount = false; // Default to false on error
+      }
+    });
   }
 
   editCIF(cif: CIF) {
@@ -165,14 +180,9 @@ export class CifListComponent implements OnInit, AfterViewInit {
           return;
         }
 
-        const updatedCifData: any = {};
-        updatedCif.forEach((value, key) => {
-          updatedCifData[key] = value;
-        });
-
         this.cifService.updateCIF(Number(id), updatedCif).subscribe({
           next: () => {
-            this.loadCIFs(this.paginator.pageIndex, 10);
+            this.loadCIFs();
             alert('CIF updated successfully!');
           },
           error: (error) => {
@@ -184,7 +194,29 @@ export class CifListComponent implements OnInit, AfterViewInit {
     });
   }
 
+  downloadReport(format: string) {
+    const type = this.isDeletedView ? 'deleted' : 'active';
+    const url = `http://localhost:8080/api/reports/cif/${type}/${format}`;
+    const fileName = `${type}_cifs_report.${format === 'pdf' ? 'pdf' : 'xlsx'}`;
+
+    this.http.get(url, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const link = document.createElement('a');
+        const url = window.URL.createObjectURL(blob);
+        link.href = url;
+        link.download = fileName;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (error) => {
+        this.errorMessage = `Error downloading ${format.toUpperCase()} report`;
+        console.error(error);
+      }
+    });
+  }
+
   openCurrentAccountDialog(row: CIF) {
+    if (row.hasCurrentAccount) return; // Do nothing if account already exists
     const dialogRef = this.dialog.open(CurrentAccountComponent, {
       width: '400px',
       data: { cifId: row.id }
@@ -192,7 +224,7 @@ export class CifListComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.loadCIFs(this.paginator.pageIndex, 10);
+        this.loadCIFs();
       }
     });
   }
@@ -202,7 +234,7 @@ export class CifListComponent implements OnInit, AfterViewInit {
       this.cifService.restoreCIF(id).subscribe({
         next: () => {
           alert('CIF restored successfully.');
-          this.loadCIFs(this.paginator.pageIndex, 10);
+          this.loadCIFs();
         },
         error: (error) => {
           alert('Failed to restore CIF.');
@@ -217,7 +249,7 @@ export class CifListComponent implements OnInit, AfterViewInit {
       this.cifService.deleteCIF(id).subscribe({
         next: () => {
           alert('CIF deleted successfully.');
-          this.loadCIFs(this.paginator.pageIndex, 10);
+          this.loadCIFs();
         },
         error: (error) => {
           alert('Failed to delete CIF.');

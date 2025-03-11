@@ -10,6 +10,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
+import { MatMenu, MatMenuModule } from '@angular/material/menu';
 
 export interface CurrentAccount {
   id: number;
@@ -25,7 +27,7 @@ export interface CurrentAccount {
 
 @Component({
   selector: 'app-current-account-list',
-  imports: [ CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [ CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatIconModule, MatProgressSpinnerModule, MatMenuModule],
   templateUrl: './current-account-list.component.html',
   styleUrl: './current-account-list.component.scss'
 })
@@ -38,7 +40,7 @@ export class CurrentAccountListComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private currentAccountService: CurrentAccountService, private dialog: MatDialog) {}
+  constructor(private currentAccountService: CurrentAccountService, private dialog: MatDialog, private router: Router) {}
 
   ngOnInit(): void {
     this.loadCurrentAccounts();
@@ -47,6 +49,10 @@ export class CurrentAccountListComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+  }
+  
+  navigateToTransactionHistory(accountId: number) {
+    this.router.navigate(['/transaction-history', accountId]);
   }
   
 

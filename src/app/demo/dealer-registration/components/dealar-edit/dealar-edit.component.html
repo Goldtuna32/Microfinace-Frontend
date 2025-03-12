@@ -47,20 +47,22 @@
         </div>
       </div>
   
-     <!-- Current Account -->
+   <!-- Current Account -->
 <div class="mb-4">
-    <label for="currentAccountId" class="block text-gray-700 font-semibold mb-2">Current Account</label>
-    <select
-          id="currentAccountId"
-          formControlName="currentAccountId"
-          class="form-select w-full border border-gray-300 rounded-md p-2"
-          [disabled]="isEditMode"> <!-- 🔹 Disable when editing -->
-      <option value="" disabled selected>Select Current Account</option>
-      <option *ngFor="let account of currentAccounts" [value]="account.id">
-        {{ account.accountNumber }}
-      </option>
-    </select>
-  </div>
+  <label for="currentAccountId" class="block text-gray-700 font-semibold mb-2">Current Account</label>
+  <select
+    id="currentAccountId"
+    formControlName="currentAccountId"
+    class="form-select w-full border border-gray-300 rounded-md p-2"
+    [disabled]="isEditMode"
+  >
+    <option value="" disabled selected>Select Current Account</option>
+    <option *ngFor="let account of currentAccounts" [value]="account.id">
+      {{ account.accountNumber }}
+    </option>
+  </select>
+</div>
+
   
   
       <!-- Submit Button -->

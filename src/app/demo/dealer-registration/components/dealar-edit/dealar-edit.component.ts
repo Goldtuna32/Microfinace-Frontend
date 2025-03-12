@@ -55,7 +55,6 @@ regions: any;
     });
   }
   
-
   onSubmit() {
     if (this.dealerForm.valid) {
       if (this.isEditMode) {

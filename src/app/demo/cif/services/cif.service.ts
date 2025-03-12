@@ -1,8 +1,19 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { CIF } from '../models/cif.model';
 
+export interface PageInfo {
+  size: number;
+  number: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  page: PageInfo;
+}
 
 
 @Injectable({
@@ -13,14 +24,24 @@ export class CifService {
 
   constructor(private http: HttpClient) {}
 
-  getAllCIFs(): Observable<CIF[]> {
-    return this.http.get<CIF[]>(`${this.baseUrl}/active`);
+  getAllCIFs(page: number, size: number, nrcPrefix?: string): Observable<PageResponse<CIF>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    if (nrcPrefix) params = params.set('nrcPrefix', nrcPrefix);
+
+    return this.http.get<PageResponse<CIF>>(`${this.baseUrl}/active`, { params });
   }
 
-  getDeletedCIFs(): Observable<CIF[]> {
-    return this.http.get<CIF[]>(`${this.baseUrl}/deleted`);
-  }
+  getDeletedCIFs(page: number, size: number, nrcPrefix?: string): Observable<PageResponse<CIF>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    if (nrcPrefix) params = params.set('nrcPrefix', nrcPrefix);
 
+    return this.http.get<PageResponse<CIF>>(`${this.baseUrl}/deleted`, { params });
+  }
+  
   updateCIF(id: number, cifData: FormData): Observable<any> {
     return this.http.put(`${this.baseUrl}/${id}`, cifData);
   }  

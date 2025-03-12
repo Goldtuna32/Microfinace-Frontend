@@ -1,52 +1,96 @@
-import { Component, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { BranchService } from '../../services/branch.service';
-import { Router } from '@angular/router';
+// branch-list.component.ts
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTableModule } from '@angular/material/table';
-import { MatIcon } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { BranchService, PageResponse } from '../../services/branch.service';
 import { Branch } from '../../models/branch.model';
 import { BranchDetailComponent } from '../branch-detail/branch-detail.component';
-import { MatDialog } from '@angular/material/dialog';
+
+// Standalone imports
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
- 
+import { SharedModule } from 'src/app/theme/shared/shared.module';
+
 @Component({
   selector: 'app-branch-list',
-  imports: [ CommonModule, MatPaginator, MatSort, MatTableModule, MatMenuModule, MatButtonModule, FormsModule ],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatIconModule,
+    MatMenuModule,
+    MatButtonModule,
+    FormsModule,
+    SharedModule
+  ],
   templateUrl: './branch-list.component.html',
-  styleUrl: './branch-list.component.scss'
+  styleUrls: ['./branch-list.component.scss']
 })
-export class BranchListComponent {
+export class BranchListComponent implements AfterViewInit {
   displayedColumns: string[] = ['branchCode', 'branchName', 'phoneNumber', 'email', 'address', 'status', 'actions'];
-  dataSource = new MatTableDataSource<any>([]);
+  dataSource = new MatTableDataSource<Branch>([]);
   loading = true;
   errorMessage = '';
-  showModal: boolean = false;
-  showEditModal: boolean = false;
-  originalBranch: Branch | null = null; // Store original for rollback
+  showEditModal = false;
+  originalBranch: Branch | null = null;
+  selectedBranch: Branch | null = null;
+
+  // Pagination variables
+  pageSize = 10;
+  currentPage = 0;
+  totalElements = 0;
+  totalPages = 0;
+
+  // Filter variables
+  filterRegion: string = '';
+  filterBranchName: string = '';
+  filterBranchCode: string = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
 
-  selectedBranch: any | null = null; // ✅ Store selected branch
+  constructor(
+    private branchService: BranchService,
+    private snackBar: MatSnackBar,
+    private router: Router,
+    private dialog: MatDialog
+  ) 
+    {
+      this.loadBranches(); // Load initial data
+    }
 
-  constructor(private branchService: BranchService, private snackBar: MatSnackBar, private router: Router, private dialog: MatDialog) {}
+  ngAfterViewInit(): void {
+    // Sync paginator with backend
+    this.paginator.page.subscribe(() => {
+      this.currentPage = this.paginator.pageIndex; // 0-based index
+      this.pageSize = this.paginator.pageSize;
+      this.loadBranches();
+    });
 
-  ngOnInit(): void {
+    // Initial data load
     this.loadBranches();
   }
 
-  loadBranches() {
-    this.branchService.getBranchesWith().subscribe({
-      next: (data) => {
-        this.dataSource.data = data;
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
+  loadBranches(): void {
+    this.loading = true;
+    const filters = {
+      region: this.filterRegion.trim() || undefined,
+      branchName: this.filterBranchName.trim() || undefined,
+      branchCode: this.filterBranchCode.trim() || undefined
+    };
+    this.branchService.getBranchesWith(this.currentPage, this.pageSize, filters).subscribe({
+      next: (response: PageResponse<Branch>) => {
+        this.dataSource.data = response.content;
+        this.totalElements = response.page.totalElements;
+        this.totalPages = response.page.totalPages;
         this.loading = false;
       },
       error: (error) => {
@@ -57,18 +101,20 @@ export class BranchListComponent {
     });
   }
 
-  editBranch(branch: Branch) {
-    this.originalBranch = { ...branch }; // Store original for cancellation
-    this.selectedBranch = { ...branch }; // Work on a copy
+  editBranch(branch: Branch): void {
+    this.originalBranch = { ...branch };
+    this.selectedBranch = {
+      ...branch,
+      address: branch.address || { region: '', district: '', township: '' } // Default empty object if null
+    };
     this.showEditModal = true;
   }
 
-  // Save changes
-  saveBranch() {
+  saveBranch(): void {
     if (!this.selectedBranch || !this.selectedBranch.id) return;
 
-    // Basic validation
-    if (!this.selectedBranch.branchCode || !this.selectedBranch.branchName || !this.selectedBranch.phoneNumber || !this.selectedBranch.email) {
+    if (!this.selectedBranch.branchCode || !this.selectedBranch.branchName || 
+        !this.selectedBranch.phoneNumber || !this.selectedBranch.email) {
       this.snackBar.open('Please fill in all required fields', 'Close', { duration: 3000 });
       return;
     }
@@ -88,8 +134,7 @@ export class BranchListComponent {
     });
   }
 
-  // Delete branch
-  deleteBranch(id: number) {
+  deleteBranch(id: number): void {
     if (confirm('Are you sure you want to delete this branch?')) {
       this.branchService.deleteBranch(id).subscribe({
         next: () => {
@@ -104,12 +149,12 @@ export class BranchListComponent {
     }
   }
 
-  closeModal() {
+  closeModal(): void {
     this.showEditModal = false;
     this.selectedBranch = null;
   }
 
-  openBranchDetailDialog(branch: Branch) {
+  openBranchDetailDialog(branch: Branch): void {
     this.dialog.open(BranchDetailComponent, {
       width: '90%',
       maxWidth: '900px',
@@ -120,8 +165,40 @@ export class BranchListComponent {
     });
   }
 
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+ applyFilter(): void {
+    this.currentPage = 0; // Reset to first page when filtering
+    this.loadBranches();
+  }
+
+  clearFilter(): void {
+    this.filterRegion = '';
+    this.filterBranchName = '';
+    this.filterBranchCode = '';
+    this.currentPage = 0;
+    this.loadBranches();
+  }
+
+  // Pagination methods
+  previousPage(): void {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.loadBranches();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.loadBranches();
+    }
+  }
+
+  goToPage(page: number): void {
+    this.currentPage = page;
+    this.loadBranches();
+  }
+
+  getPageNumbers(): number[] {
+    return Array(this.totalPages).fill(0).map((_, i) => i);
   }
 }

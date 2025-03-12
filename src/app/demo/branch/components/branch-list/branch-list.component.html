@@ -1,3 +1,4 @@
+<!-- branch-list.component.html -->
 <div class="container mx-auto mt-6 px-4">
   <div class="shadow-lg rounded-lg overflow-hidden bg-white">
     <div class="bg-blue-600 text-white p-4">
@@ -8,34 +9,59 @@
         {{ errorMessage }}
       </div>
 
+      <!-- Filter Section -->
       <div class="mb-4">
-        <input (keyup)="applyFilter($event)" placeholder="Search branches..." 
-          class="w-full border rounded-md p-2 shadow-sm focus:ring focus:ring-blue-300">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-gray-700 font-medium">Branch Code</label>
+            <input [(ngModel)]="filterBranchCode" (ngModelChange)="applyFilter()" 
+                   class="w-full border rounded-md p-2 focus:ring focus:ring-blue-300" 
+                   placeholder="Filter by branch code">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium">Branch Name</label>
+            <input [(ngModel)]="filterBranchName" (ngModelChange)="applyFilter()" 
+                   class="w-full border rounded-md p-2 focus:ring focus:ring-blue-300" 
+                   placeholder="Filter by branch name">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium">Region</label>
+            <input [(ngModel)]="filterRegion" (ngModelChange)="applyFilter()" 
+                   class="w-full border rounded-md p-2 focus:ring focus:ring-blue-300" 
+                   placeholder="Filter by region">
+          </div>
+          <div class="flex items-end">
+            <button (click)="clearFilter()" 
+                    class="w-full px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
+              Clear Filters
+            </button>
+          </div>
+        </div>
       </div>
 
-      <table mat-table [dataSource]="dataSource" matSort class="w-full border border-gray-200">
+      <table mat-table [dataSource]="dataSource" class="w-full border border-gray-200">
         <ng-container matColumnDef="branchCode">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="border p-3 bg-gray-100">Branch Code</th>
+          <th mat-header-cell *matHeaderCellDef class="border p-3 bg-gray-100">Branch Code</th>
           <td mat-cell *matCellDef="let branch" class="border p-3">{{ branch.branchCode }}</td>
         </ng-container>
 
         <ng-container matColumnDef="branchName">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="border p-3 bg-gray-100">Branch Name</th>
+          <th mat-header-cell *matHeaderCellDef class="border p-3 bg-gray-100">Branch Name</th>
           <td mat-cell *matCellDef="let branch" class="border p-3">{{ branch.branchName }}</td>
         </ng-container>
 
         <ng-container matColumnDef="phoneNumber">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="border p-3 bg-gray-100">Phone</th>
+          <th mat-header-cell *matHeaderCellDef class="border p-3 bg-gray-100">Phone</th>
           <td mat-cell *matCellDef="let branch" class="border p-3">{{ branch.phoneNumber }}</td>
         </ng-container>
 
         <ng-container matColumnDef="email">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="border p-3 bg-gray-100">Email</th>
+          <th mat-header-cell *matHeaderCellDef class="border p-3 bg-gray-100">Email</th>
           <td mat-cell *matCellDef="let branch" class="border p-3">{{ branch.email }}</td>
         </ng-container>
 
         <ng-container matColumnDef="address">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="border p-3 bg-gray-100">Address</th>
+          <th mat-header-cell *matHeaderCellDef class="border p-3 bg-gray-100">Address</th>
           <td mat-cell *matCellDef="let branch" class="border p-3">
             {{ branch.address?.region || 'N/A' }}, 
             {{ branch.address?.district || 'N/A' }}, 
@@ -44,9 +70,10 @@
         </ng-container>
         
         <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header class="border p-3 bg-gray-100">Status</th>
+          <th mat-header-cell *matHeaderCellDef class="border p-3 bg-gray-100">Status</th>
           <td mat-cell *matCellDef="let branch" class="border p-3">
-            {{ branch.status === 1 ? 'Active' : 'Inactive' }}
+            <span *ngIf="branch.status === 1" class="badge m-r-5 badge-pill bg-success">Active</span>
+            <span *ngIf="branch.status === 0" class="badge m-r-5 badge-pill bg-danger">Inactive</span>
           </td>
         </ng-container>
 
@@ -84,13 +111,32 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
 
-      <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+      <!-- Pagination -->
+      <nav aria-label="Page navigation example" class="mt-4">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="currentPage === 0">
+            <a class="page-link" href="javascript:" aria-label="Previous" (click)="previousPage()">
+              <span aria-hidden="true">«</span>
+              <span class="sr-only">Previous</span>
+            </a>
+          </li>
+          <li class="page-item" *ngFor="let page of getPageNumbers()" [class.active]="currentPage === page">
+            <a class="page-link" href="javascript:" (click)="goToPage(page)">{{ page + 1 }}</a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+            <a class="page-link" href="javascript:" aria-label="Next" (click)="nextPage()">
+              <span aria-hidden="true">»</span>
+              <span class="sr-only">Next</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
     </div>
   </div>
 </div>
 
 <!-- Edit Modal -->
-<div *ngIf="showEditModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+<div *ngIf="showEditModal && selectedBranch" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
   <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold">Edit Branch</h2>

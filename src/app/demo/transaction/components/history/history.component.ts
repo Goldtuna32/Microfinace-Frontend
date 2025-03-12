@@ -14,6 +14,7 @@ import { ChartDB } from 'src/app/fack-db/chartData';
 
 // third party import
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-history',
@@ -53,7 +54,8 @@ area1CAC: ApexOptions = {
 
   constructor(
     private route: ActivatedRoute,
-    private transactionService: TransactionService
+    private transactionService: TransactionService,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
@@ -83,8 +85,17 @@ area1CAC: ApexOptions = {
       error: (error) => console.error('❌ Error loading transactions:', error),
     });
   }
-  
 
+  downloadReport(format: string) {
+    const url = `http://localhost:8080/api/reports/transactions?format=${format}`;
+    this.http.get(url, { responseType: 'blob' }).subscribe((blob: Blob) => {
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `transaction_report.${format === 'pdf' ? 'pdf' : 'xlsx'}`;
+      link.click();
+    });
+  }
+  
   updateChartData(transactions: AccountTransaction[]) {
     const creditData: number[] = [];
     const debitData: number[] = [];

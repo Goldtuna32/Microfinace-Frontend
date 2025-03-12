@@ -20,21 +20,19 @@
     <!-- Transaction List -->
     <div class="col-span-1">
       <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 w-full border border-gray-200 shadow-md">
+        <!-- Table columns unchanged -->
         <ng-container matColumnDef="id">
           <th mat-header-cell *matHeaderCellDef mat-sort-header class="py-2 px-4">ID</th>
           <td mat-cell *matCellDef="let transaction" class="py-2 px-4">{{ transaction.id }}</td>
         </ng-container>
-
         <ng-container matColumnDef="transactionDate">
           <th mat-header-cell *matHeaderCellDef mat-sort-header class="py-2 px-4">Date</th>
           <td mat-cell *matCellDef="let transaction" class="py-2 px-4">{{ transaction.transactionDate | date: 'short' }}</td>
         </ng-container>
-
         <ng-container matColumnDef="amount">
           <th mat-header-cell *matHeaderCellDef mat-sort-header class="py-2 px-4">Amount</th>
           <td mat-cell *matCellDef="let transaction" class="py-2 px-4">{{ transaction.amount | currency }}</td>
         </ng-container>
-
         <ng-container matColumnDef="status">
           <th mat-header-cell *matHeaderCellDef class="py-2 px-4">Status</th>
           <td mat-cell *matCellDef="let transaction" class="py-2 px-4">
@@ -44,10 +42,19 @@
             </span>
           </td>
         </ng-container>
-
         <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-gray-100"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
     </div>
+  </div>
+
+  <!-- Download Buttons -->
+  <div class="mt-4 flex justify-end space-x-4">
+    <button (click)="downloadReport('pdf')" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+      Download PDF
+    </button>
+    <button (click)="downloadReport('excel')" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+      Download Excel
+    </button>
   </div>
 </div>

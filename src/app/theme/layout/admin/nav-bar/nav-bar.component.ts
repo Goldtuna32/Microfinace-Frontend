@@ -23,13 +23,13 @@ export class NavBarComponent {
   NavCollapse = output();
   NavCollapsedMob = output();
 
-  // constructor
   constructor() {
     this.menuClass = false;
-    this.collapseStyle = 'none';
+    this.collapseStyle = 'block'; // Force visibility
     this.windowWidth = window.innerWidth;
+    console.log('NavBarComponent initialized, collapseStyle:', this.collapseStyle);
   }
-
+  
   // public method
   toggleMobOption() {
     this.menuClass = !this.menuClass;

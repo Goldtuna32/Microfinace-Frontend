@@ -1,0 +1,56 @@
+// src/app/nav-right/nav-right.component.scss
+
+.notification {
+    max-height: 400px; // Limit the overall dropdown height
+    width: 300px; // Optional: Set a fixed width for consistency
+    overflow: hidden; // Prevent content from spilling out of the dropdown
+  
+    .noti-head {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+  
+    .noti-body {
+      max-height: 300px; // Limit the scrollable area height
+      overflow-y: auto; // Enable vertical scrolling
+      padding: 0;
+  
+      .notification {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+  
+        &:last-child {
+          border-bottom: none;
+        }
+  
+        .media {
+          display: flex;
+          align-items: center;
+  
+          .img-radius {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+          }
+  
+          .media-body {
+            flex: 1;
+  
+            p {
+              margin-bottom: 5px;
+            }
+          }
+        }
+      }
+    }
+  
+    .noti-footer {
+      padding: 10px;
+      border-top: 1px solid #ddd;
+    }
+  }
+  
+  .dropdown-menu-end {
+    right: 0;
+    left: auto;
+  }

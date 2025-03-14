@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
  import { HttpClient } from '@angular/common/http';
 import { BranchService } from '../../services/branch.service';
+import { AlertService } from 'src/app/alertservice/alert.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-branch-create',
@@ -19,7 +21,9 @@ export class BranchCreateComponent {
   townships: string[] = [];
   locationData: any = {}; // Store the JSON data
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private branchService: BranchService) {}
+  constructor(private fb: FormBuilder, private http: HttpClient, private branchService: BranchService, private alertService: AlertService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.branchForm = this.fb.group({
@@ -85,12 +89,12 @@ export class BranchCreateComponent {
       this.branchService.createBranch(formData).subscribe({
         next: response => {
           console.log("Branch Created:", response);
-          alert("Branch Created Successfully");
+          this.alertService.showSuccess("Branch Created Successfully");
+          this.router.navigate(['/branch/list']);
           this.branchForm.reset();
         },
         error: error => {
-          console.error("Error Creating Branch:", error);
-          alert("Failed to create branch");
+          this.alertService.showError("Branch Creation Failed "+ error.error.message);
         }
       });
     }

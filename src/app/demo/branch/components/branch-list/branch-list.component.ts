@@ -18,6 +18,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/theme/shared/shared.module';
+import { AlertService } from 'src/app/alertservice/alert.service';
 
 @Component({
   selector: 'app-branch-list',
@@ -61,6 +62,7 @@ export class BranchListComponent implements AfterViewInit {
     private branchService: BranchService,
     private snackBar: MatSnackBar,
     private router: Router,
+    private alertService: AlertService,
     private dialog: MatDialog
   ) 
     {
@@ -95,7 +97,8 @@ export class BranchListComponent implements AfterViewInit {
       },
       error: (error) => {
         this.errorMessage = 'Failed to load branches. Please try again.';
-        console.error('Error fetching branches:', error);
+        this.alertService.showError("Failed to load branches");
+
         this.loading = false;
       }
     });

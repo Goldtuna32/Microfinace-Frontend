@@ -12,6 +12,9 @@ import { ChatMsgComponent } from './chat-msg/chat-msg.component';
 import { NotificationService } from 'src/app/demo/notification/notification.service';
 import { Notification } from 'src/app/demo/notification/Notification.model';
 import { Router } from '@angular/router';
+import { AlertService } from 'src/app/alertservice/alert.service';
+import { FlowbiteService } from 'src/app/flowbite services/flowbit.service';
+import { initFlowbite } from 'flowbite';
 
 @Component({
   selector: 'app-nav-right',
@@ -37,12 +40,24 @@ export class NavRightComponent {
   chatMessage: boolean = false;
   friendId!: number;
   notifications: Notification[] = [];
+  showSuccessAlert: boolean = false;
+  successMessage: string = '';
 
   constructor(
     private notificationService: NotificationService,
-    private router: Router // Inject Router
+    private router: Router,
+    private alertService: AlertService, // Inject AlertService
+    private flowbiteService: FlowbiteService // Inject FlowbiteService
   ) {
     this.loadNotifications();
+    
+    this.alertService.successAlert$.subscribe((message) => {
+      this.successMessage = message;
+      this.showSuccessAlert = true;
+      setTimeout(() => {
+        this.showSuccessAlert = false;
+      }, 5000); // Hide after 5 seconds
+    });
   }
 
   loadNotifications() {
@@ -84,5 +99,9 @@ export class NavRightComponent {
   onChatToggle(friendId: any) {
     this.friendId = friendId;
     this.chatMessage = !this.chatMessage;
+  }
+
+  dismissAlert() {
+    this.showSuccessAlert = false;
   }
 }

@@ -1,0 +1,12 @@
+
+// src/app/app.component.scss
+.app-container {
+  position: static !important; /* Prevent creating a positioning context */
+  top: 0 !important; /* Reset any top offset */
+  transform: none !important; /* Remove any transforms */
+  min-height: 100vh;
+  overflow: visible !important; /* Ensure fixed elements are not hidden */
+  padding: 0;
+  margin: 0;
+  height: auto;
+}

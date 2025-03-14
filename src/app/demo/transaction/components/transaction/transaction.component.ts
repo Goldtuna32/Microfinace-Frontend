@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TransactionService } from '../../services/transaction.service';
+import { AlertService } from 'src/app/alertservice/alert.service';
 
 @Component({
   selector: 'app-transaction',
@@ -19,7 +20,7 @@ export class TransactionComponent implements OnInit {
   successMessage = signal<string | null>(null);
   backendError: string | null = null;
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder, private alertService: AlertService) {}
 
   ngOnInit(): void {
     this.initForm();
@@ -64,12 +65,11 @@ export class TransactionComponent implements OnInit {
       this.transactionService.createTransaction(transactionData).subscribe({
         next: (response) => {
           console.log('✅ Transaction created successfully:', response);
-          this.successMessage.set('Transaction created successfully!');
+          this.alertService.showSuccess('Transaction created successfully!');
           this.transactionForm.reset({ type: 'debit' });
         },
         error: (err) => {
-          console.error('❌ Error creating transaction:', err);
-          this.error.set(err.message || 'Transaction failed.');
+          this.alertService.showError('Transaction failed.'+ err);
         }
       });
   

@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { NavLeftComponent } from './nav-left/nav-left.component';
 import { NavRightComponent } from './nav-right/nav-right.component';
+import { AlertComponent } from "../../../../alertservice/components/alert/alert.component";
 
 @Component({
   selector: 'app-nav-bar',

@@ -7,10 +7,11 @@ import { CommonModule, Location, LocationStrategy } from '@angular/common';
 import { NavBarComponent } from './nav-bar/nav-bar.component';
 import { NavigationComponent } from './navigation/navigation.component';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
+import { AlertComponent } from "../../../alertservice/components/alert/alert.component";
 
 @Component({
   selector: 'app-admin',
-  imports: [ RouterModule, NavBarComponent, NavigationComponent, CommonModule, BreadcrumbComponent],
+  imports: [RouterModule, NavBarComponent, NavigationComponent, CommonModule, BreadcrumbComponent, AlertComponent],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss']
 })

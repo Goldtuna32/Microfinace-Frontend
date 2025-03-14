@@ -20,6 +20,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
+import { FlowbiteService } from 'src/app/flowbite services/flowbit.service';
+import {initFlowbite} from "flowbite";
+import { AlertService } from 'src/app/alertservice/alert.service';
 
 @Component({
   selector: 'app-cif-list',
@@ -43,6 +46,7 @@ export class CifListComponent implements OnInit {
   loading = true;
   errorMessage = '';
   isDeletedView = false;
+  showSuccessAlert: boolean = false;
 
   // Pagination variables
   pageSize = 10;
@@ -58,11 +62,26 @@ export class CifListComponent implements OnInit {
     private router: Router,
     private dialog: MatDialog,
     private currentAccountService: CurrentAccountService,
-    private http: HttpClient
+    private http: HttpClient,
+    private alertService: AlertService
   ) {}
 
   ngOnInit(): void {
+
+    
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state?.['success']) {
+      this.showSuccessAlert = true;
+      // Optionally, auto-hide the alert after a few seconds
+      setTimeout(() => {
+        this.showSuccessAlert = false;
+      }, 5000); // Hide after 5 seconds
+    }
     this.loadCIFs();
+  }
+
+  dismissAlert() {
+    this.showSuccessAlert = false; // Manually dismiss the alert
   }
 
   loadCIFs(): void {
@@ -84,7 +103,7 @@ export class CifListComponent implements OnInit {
         this.dataSource.data.forEach(cif => this.checkCurrentAccount(cif));
       },
       error: (error) => {
-        console.error('❌ API Error:', error);
+        this.alertService.showError("Failed to load CIF List");
         this.loading = false;
         this.errorMessage = 'Failed to load CIF list.';
         this.dataSource.data = [];

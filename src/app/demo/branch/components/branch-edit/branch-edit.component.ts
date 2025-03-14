@@ -4,6 +4,7 @@ import { Branch } from '../../models/branch.model';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { AlertService } from 'src/app/alertservice/alert.service';
 
 
 @Component({
@@ -24,6 +25,7 @@ export class BranchEditComponent implements OnInit {
     public dialogRef: MatDialogRef<BranchEditComponent>,
     private fb: FormBuilder,
     private http: HttpClient,
+    private alertService: AlertService,
     @Inject(MAT_DIALOG_DATA) public data: Branch
   ) {
     this.originalBranch = data;
@@ -142,6 +144,7 @@ export class BranchEditComponent implements OnInit {
       };
 
       console.log('Updated Branch data:', updatedBranch);
+      this.alertService.showSuccess('Branch updated successfully');
       this.dialogRef.close(updatedBranch);
     }
   }

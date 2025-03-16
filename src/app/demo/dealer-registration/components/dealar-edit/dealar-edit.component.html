@@ -1,74 +1,146 @@
-<div class="container mx-auto p-4">
-    <h2 class="text-2xl font-bold mb-4">
-      {{ isEditMode ? 'Edit Dealer' : 'Register Dealer' }}
-    </h2>
-  
-    <form [formGroup]="dealerForm" (ngSubmit)="onSubmit()" class="bg-white shadow-md rounded-lg p-6">
-      
-      <!-- Company Name -->
-      <div class="mb-4">
-        <label for="companyName" class="block text-gray-700 font-semibold mb-2">Company Name</label>
-        <input id="companyName" formControlName="companyName" placeholder="Enter company name" class="form-control w-full border border-gray-300 rounded-md p-2">
+<div class="container mt-4">
+  <h2 class="mb-3">Edit Dealer</h2>
+
+  <div class="alert alert-success" *ngIf="successMessage">{{ successMessage }}</div>
+  <div class="alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <form [formGroup]="dealerForm" (ngSubmit)="onSubmit()">
+    <!-- Company Name -->
+    <div class="mb-3">
+      <label for="companyName" class="form-label">Company Name</label>
+      <input
+        type="text"
+        class="form-control"
+        id="companyName"
+        formControlName="companyName"
+        [class.is-invalid]="dealerForm.get('companyName')?.touched && dealerForm.get('companyName')?.invalid"
+      >
+      <div class="invalid-feedback" *ngIf="dealerForm.get('companyName')?.hasError('required')">
+        Company name is required
       </div>
-  
-      <!-- Phone Number -->
-      <div class="mb-4">
-        <label for="phoneNumber" class="block text-gray-700 font-semibold mb-2">Phone Number</label>
-        <input id="phoneNumber" formControlName="phoneNumber" placeholder="Enter phone number" class="form-control w-full border border-gray-300 rounded-md p-2">
+    </div>
+
+    <!-- Phone Number -->
+    <div class="mb-3">
+      <label for="phoneNumber" class="form-label">Phone Number</label>
+      <input
+        type="text"
+        class="form-control"
+        id="phoneNumber"
+        formControlName="phoneNumber"
+        [class.is-invalid]="dealerForm.get('phoneNumber')?.touched && dealerForm.get('phoneNumber')?.invalid"
+      >
+      <div class="invalid-feedback" *ngIf="dealerForm.get('phoneNumber')?.hasError('required')">
+        Phone number is required
       </div>
-  
-      <!-- Status -->
-      <div class="mb-4">
-        <label for="status" class="block text-gray-700 font-semibold mb-2">Status</label>
-        <input id="status" formControlName="status" placeholder="Enter status" class="form-control w-full border border-gray-300 rounded-md p-2">
+      <div class="invalid-feedback" *ngIf="dealerForm.get('phoneNumber')?.hasError('pattern')">
+        Please enter a valid 10-digit phone number
       </div>
-  
-      <!-- Address Fields -->
-      <div formGroupName="address">
+    </div>
+
+    <!-- Address Fields -->
+    <div class="card mb-3">
+      <div class="card-header">Address</div>
+      <div class="card-body" formGroupName="address">
+        <!-- Street -->
         <div class="mb-4">
           <label for="street" class="block text-gray-700 font-semibold mb-2">Street Address</label>
-          <input id="street" formControlName="street" placeholder="Enter street address" class="form-control w-full border border-gray-300 rounded-md p-2">
+          <input
+            id="street"
+            formControlName="street"
+            placeholder="Enter street address"
+            class="form-control w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [ngClass]="{'is-invalid': addressForm.get('street')?.touched && addressForm.get('street')?.invalid}"
+          >
+          <div class="invalid-feedback" *ngIf="addressForm.get('street')?.touched && addressForm.get('street')?.invalid">
+            Street address is required.
+          </div>
         </div>
-  
+
+        <!-- Region -->
         <div class="mb-4">
           <label for="region" class="block text-gray-700 font-semibold mb-2">Region</label>
-          <select id="region" formControlName="region" class="form-select w-full border border-gray-300 rounded-md p-2">
-            <option value="" disabled selected>Select Region</option>
+          <select
+            id="region"
+            formControlName="region"
+            (change)="onRegionChange()"
+            class="form-select w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [ngClass]="{'is-invalid': addressForm.get('region')?.touched && addressForm.get('region')?.invalid}"
+          >
+            <option value="" disabled>Select Region</option>
             <option *ngFor="let region of regions" [value]="region">{{ region }}</option>
           </select>
+          <div class="invalid-feedback" *ngIf="addressForm.get('region')?.touched && addressForm.get('region')?.invalid">
+            Region is required.
+          </div>
         </div>
-  
+
+        <!-- District -->
         <div class="mb-4">
           <label for="district" class="block text-gray-700 font-semibold mb-2">District</label>
-          <select id="district" formControlName="district" class="form-select w-full border border-gray-300 rounded-md p-2">
-            <option value="" disabled selected>Select District</option>
+          <select
+            id="district"
+            formControlName="district"
+            (change)="onDistrictChange()"
+            class="form-select w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [disabled]="!districts.length"
+            [ngClass]="{'is-invalid': addressForm.get('district')?.touched && addressForm.get('district')?.invalid}"
+          >
+            <option value="" disabled>Select District</option>
             <option *ngFor="let district of districts" [value]="district">{{ district }}</option>
           </select>
+          <div class="invalid-feedback" *ngIf="addressForm.get('district')?.touched && addressForm.get('district')?.invalid">
+            District is required.
+          </div>
+        </div>
+
+        <!-- Township -->
+        <div class="mb-4">
+          <label for="township" class="block text-gray-700 font-semibold mb-2">Township</label>
+          <select
+            id="township"
+            formControlName="township"
+            class="form-select w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [disabled]="!townships.length"
+            [ngClass]="{'is-invalid': addressForm.get('township')?.touched && addressForm.get('township')?.invalid}"
+          >
+            <option value="" disabled>Select Township</option>
+            <option *ngFor="let township of townships" [value]="township">{{ township }}</option>
+          </select>
+          <div class="invalid-feedback" *ngIf="addressForm.get('township')?.touched && addressForm.get('township')?.invalid">
+            Township is required.
+          </div>
         </div>
       </div>
-  
-     <!-- Current Account -->
-<div class="mb-4">
-    <label for="currentAccountId" class="block text-gray-700 font-semibold mb-2">Current Account</label>
-    <select
-          id="currentAccountId"
-          formControlName="currentAccountId"
-          class="form-select w-full border border-gray-300 rounded-md p-2"
-          [disabled]="isEditMode"> <!-- 🔹 Disable when editing -->
-      <option value="" disabled selected>Select Current Account</option>
-      <option *ngFor="let account of currentAccounts" [value]="account.id">
-        {{ account.accountNumber }}
-      </option>
-    </select>
-  </div>
-  
-  
-      <!-- Submit Button -->
-      <div class="text-center">
-        <button type="submit" class="btn btn-primary w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-          {{ isEditMode ? 'Update Dealer' : 'Register Dealer' }}
-        </button>
+    </div>
+
+    <!-- Current Account -->
+    <div class="mb-3">
+      <label for="currentAccountId" class="form-label">Current Account</label>
+      <select
+        class="form-select"
+        id="currentAccountId"
+        formControlName="currentAccountId"
+        [class.is-invalid]="dealerForm.get('currentAccountId')?.touched && dealerForm.get('currentAccountId')?.invalid"
+      >
+        <option value="">Select Current Account</option>
+        <option *ngFor="let account of currentAccounts" [value]="account.id">
+          {{ account.accountNumber || 'Account ' + account.id }}
+        </option>
+      </select>
+      <div class="invalid-feedback" *ngIf="dealerForm.get('currentAccountId')?.hasError('required')">
+        Current account is required
       </div>
-    </form>
-  </div>
-  
+    </div>
+
+    <!-- Buttons -->
+    <div class="mb-3">
+      <button type="submit" class="btn btn-primary me-2" [disabled]="dealerForm.invalid">
+        Save Changes
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="cancel()">
+        Cancel
+      </button>
+    </div>
+  </form>
+</div>

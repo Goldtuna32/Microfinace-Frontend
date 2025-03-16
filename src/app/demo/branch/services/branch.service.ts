@@ -59,4 +59,18 @@ export class BranchService {
     return this.http.get<PageResponse<Branch>>(url, { params });
   }
 
+  checkDuplicate(branchData: Partial<Branch>): Observable<boolean> {
+    return this.getBranches().pipe(
+      map((branches: Branch[]) => {
+        return branches.some(existingBranch => {
+          return (
+            existingBranch.branchName === branchData.branchName ||
+            existingBranch.phoneNumber === branchData.phoneNumber ||
+            existingBranch.email === branchData.email
+          );
+        });
+      })
+    );
+  }
+
 }

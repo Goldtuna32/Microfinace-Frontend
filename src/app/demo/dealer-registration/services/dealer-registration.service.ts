@@ -10,7 +10,6 @@ export class DealerRegistrationService {
     return this.http.get<any>(`${this.baseUrl}/${id}`);
   }
 
- 
 
   private baseUrl = 'http://localhost:8080/api/dealer-registration';
 

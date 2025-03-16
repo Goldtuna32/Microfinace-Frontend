@@ -6,6 +6,7 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { BranchService } from '../../services/branch.service';
 import { AlertService } from 'src/app/alertservice/alert.service';
 import { Router } from '@angular/router';
+import { Address, Branch } from '../../models/branch.model';
 
 @Component({
   selector: 'app-branch-create',
@@ -41,8 +42,44 @@ export class BranchCreateComponent {
       this.locationData = data;
       this.regions = Object.keys(data); 
     });
+
+    this.branchForm.valueChanges.subscribe(() => {
+      this.checkDuplicates();
+    });
   }
  
+  checkDuplicates(): void {
+    const branchData: Partial<Branch> = {
+      branchName: this.branchForm.value.branchName,
+      phoneNumber: this.branchForm.value.phoneNumber,
+      email: this.branchForm.value.email,
+      address: {
+        region: this.branchForm.value.region,
+        district: this.branchForm.value.district,
+        township: this.branchForm.value.township,
+        street: this.branchForm.value.street
+      } as Address
+    };
+
+    this.branchService.checkDuplicate(branchData).subscribe({
+      next: (isDuplicate) => {
+        if (isDuplicate) {
+          this.branchForm.get('branchName')?.setErrors({ duplicate: true });
+          this.branchForm.get('phoneNumber')?.setErrors({ duplicate: true });
+          this.branchForm.get('email')?.setErrors({ duplicate: true });
+        } else {
+          this.branchForm.get('branchName')?.setErrors(null);
+          this.branchForm.get('phoneNumber')?.setErrors(null);
+          this.branchForm.get('email')?.setErrors(null);
+        }
+      },
+      error: (err) => {
+        console.error('Error checking duplicates:', err);
+        this.alertService.showError('Failed to check duplicates. Please try again.');
+      }
+    });
+  }
+
   onRegionChange() {
     const selectedRegion = this.branchForm.value.region;
     this.districts = selectedRegion ? Object.keys(this.locationData[selectedRegion]) : [];

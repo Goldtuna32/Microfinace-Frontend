@@ -1,9 +1,9 @@
-// angular import
-import { Component, output } from '@angular/core';
+// Angular import
+import { Component, Output, Input, EventEmitter } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
-// project import
+// Project import
 import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { NavLeftComponent } from './nav-left/nav-left.component';
 import { NavRightComponent } from './nav-right/nav-right.component';
@@ -13,16 +13,21 @@ import { AlertComponent } from "../../../../alertservice/components/alert/alert.
   selector: 'app-nav-bar',
   imports: [SharedModule, NavLeftComponent, NavRightComponent, RouterModule, CommonModule],
   templateUrl: './nav-bar.component.html',
-  styleUrls: ['./nav-bar.component.scss']
+  styleUrls: ['./nav-bar.component.scss'],
+  standalone: true
 })
 export class NavBarComponent {
-  // public props
+  // Public props
   menuClass: boolean;
   collapseStyle: string;
   windowWidth: number;
+  navLeftTheme: string = 'default'; // Store nav-left theme
 
-  NavCollapse = output();
-  NavCollapsedMob = output();
+  // Inputs and Outputs
+  @Input() isDarkMode: boolean = false;
+  @Output() NavCollapse = new EventEmitter<void>();
+  @Output() NavCollapsedMob = new EventEmitter<void>();
+  @Output() toggleDarkMode = new EventEmitter<void>();
 
   constructor() {
     this.menuClass = false;
@@ -31,7 +36,7 @@ export class NavBarComponent {
     console.log('NavBarComponent initialized, collapseStyle:', this.collapseStyle);
   }
   
-  // public method
+  // Public methods
   toggleMobOption() {
     this.menuClass = !this.menuClass;
     this.collapseStyle = this.menuClass ? 'block' : 'none';
@@ -41,6 +46,10 @@ export class NavBarComponent {
     if (this.windowWidth >= 992) {
       this.NavCollapse.emit();
     }
+  }
+
+  onNavLeftThemeChange(theme: string) {
+    this.navLeftTheme = theme;
   }
 
   navCollapseMob() {

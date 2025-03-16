@@ -6,7 +6,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { BranchService, PageResponse } from '../../services/branch.service';
-import { Branch } from '../../models/branch.model';
 import { BranchDetailComponent } from '../branch-detail/branch-detail.component';
 
 // Standalone imports
@@ -19,6 +18,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { AlertService } from 'src/app/alertservice/alert.service';
+import { Branch } from '../../models/branch.model';
 
 @Component({
   selector: 'app-branch-list',

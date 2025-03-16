@@ -5,7 +5,6 @@ import { Routes, RouterModule } from '@angular/router';
 // project import
 import { AdminComponent } from './theme/layout/admin/admin.component';
 import { GuestComponent } from './theme/layout/guest/guest.component';
-
 import { COLLATERAL_ROUTES } from './demo/collateral/collateral.routes';
 
 const routes: Routes = [
@@ -15,7 +14,7 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: '/analytics',
+        redirectTo: '/auth/signin',
         pathMatch: 'full'
       },
       {
@@ -172,7 +171,7 @@ const routes: Routes = [
       },
       {
         path: 'auth/signin',
-        loadComponent: () => import('./demo/pages/authentication/sign-in/sign-in.component')
+        loadComponent: () => import('./demo/pages/authentication/sign-in/sign-in.component').then(m => m.SignInComponent)
       }
     ]
   }

@@ -7,3 +7,7 @@
     box-shadow: none; // Remove default shadow
   }
 }
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';

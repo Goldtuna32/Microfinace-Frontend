@@ -14,9 +14,9 @@
         <p><strong>Phone:</strong> {{ branch.phoneNumber }}</p>
         <p><strong>Email:</strong> {{ branch.email }}</p>
         <p><strong>Address:</strong> 
-          {{ branch.address?.region || 'N/A' }}, 
-          {{ branch.address?.district || 'N/A' }}, 
-          {{ branch.address?.township || 'N/A' }}
+          {{ branch.address.region || 'N/A' }},
+          {{ branch.address.district || 'N/A' }}, 
+          {{ branch.address.township || 'N/A' }}
         </p>
         <p><strong>Status:</strong> 
           <span [ngClass]="{'text-green-600': branch.status === 1, 'text-red-600': branch.status === 0}">

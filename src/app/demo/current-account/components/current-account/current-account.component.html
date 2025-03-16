@@ -1,28 +1,36 @@
-<h2>Create Current Account</h2>
+<h2 class="text-2xl font-bold mb-4 text-center">Create Current Account</h2>
 
-<form [formGroup]="accountForm" (ngSubmit)="saveAccount()">
-    <div class="mb-3">
-        <label class="form-label">CIF ID</label>
-        <input type="text" class="form-control" formControlName="cifId">
-      </div>      
+<form [formGroup]="accountForm" (ngSubmit)="saveAccount()" class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
+    <div class="mb-4">
+        <label class="form-label text-gray-700">CIF ID</label>
+        <div class="relative">
+            <input type="text" class="form-control border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500" formControlName="cifId">
+            <i class="bi bi-person absolute right-3 top-2 text-gray-400"></i>
+        </div>
+    </div>      
 
-      <div class="mb-3">
-        <label class="form-label">Balance</label>
-        <input type="number" class="form-control" formControlName="balance" step="0.01">
-      </div>
-      
-      <div class="mb-3">
-        <label class="form-label">Maximum Balance</label>
-        <input type="number" class="form-control" formControlName="maximumBalance" step="0.01">
-      </div>
-      
-      <div class="mb-3">
-        <label class="form-label">Minimum Balance</label>
-        <input type="number" class="form-control" formControlName="minimumBalance" step="0.01">
-      </div>
-      
-  <div class="d-flex justify-content-end">
-    <button type="button" class="btn btn-secondary me-2" (click)="closeDialog()">Cancel</button>
-    <button type="submit" class="btn btn-success">Create Account</button>
-  </div>
+    <div class="mb-4">
+        <label class="form-label text-gray-700">Maximum Balance</label>
+        <div class="relative">
+            <input type="number" class="form-control border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500" formControlName="maximumBalance" step="0.01">
+            <i class="bi bi-cash-coin absolute right-3 top-2 text-gray-400"></i>
+        </div>
+    </div>
+    
+    <div class="mb-4">
+        <label class="form-label text-gray-700">Minimum Balance</label>
+        <div class="relative">
+            <input type="number" class="form-control border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500" formControlName="minimumBalance" step="0.01">
+            <i class="bi bi-cash-coin absolute right-3 top-2 text-gray-400"></i>
+        </div>
+    </div>
+    
+    <div class="flex justify-end">
+        <button type="button" class="btn btn-secondary me-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded" (click)="closeDialog()">
+            <i class="bi bi-x-circle"></i> Cancel
+        </button>
+        <button type="submit" class="btn btn-success bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
+            <i class="bi bi-check-circle"></i> Create Account
+        </button>
+    </div>
 </form>

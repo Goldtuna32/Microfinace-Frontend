@@ -128,6 +128,19 @@ const routes: Routes = [
           .then(m => m.DealerRegistrationComponent)
       },
       {
+        path: 'dealer-list',
+        loadComponent: () => import('./demo/dealer-registration/components/dealer-registration-list/dealer-registration-list.component')
+          .then(m => m.DealerRegistrationListComponent)
+      },
+
+      {
+        path: 'dealer/edit/:id',
+        loadComponent: () => import('./demo/dealer-registration/components/dealar-edit/dealar-edit.component')
+          .then(m => m.DealerEditComponent)
+      },
+      
+
+      {
         path: 'create-product-type',
         loadComponent: () => import('./demo/product-type/components/create-product-type/create-product-type.component') 
           .then(m => m.CreateProductTypeComponent)

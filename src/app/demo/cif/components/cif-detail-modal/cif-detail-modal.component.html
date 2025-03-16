@@ -144,6 +144,12 @@
     </div>
     <!-- Footer -->
   <div class="bg-gray-50 p-3 flex justify-end border-t border-gray-200">
+    <button class="bg-blue-600 text-white px-2 py-1 text-sm rounded hover:bg-blue-700 transition-colors duration-200 flex items-center gap-1" (click)="downloadReport('pdf')">
+      <i class="pi pi-file-pdf text-sm"></i> Download PDF
+    </button>
+    <button class="bg-green-600 text-white px-2 py-1 text-sm rounded hover:bg-green-700 transition-colors duration-200 flex items-center gap-1" (click)="downloadReport('excel')">
+      <i class="pi pi-file-excel text-sm"></i> Download Excel
+    </button>
     <button class="bg-red-600 text-white px-2 py-1 text-sm rounded hover:bg-red-700 transition-colors duration-200 flex items-center gap-1" (click)="closeDialog()">
       <i class="pi pi-times text-sm"></i> Close
     </button>

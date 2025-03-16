@@ -25,7 +25,6 @@ export class CurrentAccountComponent {
       id: [data.id || null],
       cifId: [{ value: data.cifId, disabled: true }, Validators.required], // CIF ID is readonly
       accountNumber: [data.accountNumber || ''], 
-      balance: [data.balance || 0, [Validators.required, Validators.min(0)]], // ✅ Ensure it's a number
       maximumBalance: [data.maximumBalance || 0, [Validators.required, Validators.min(0)]], 
       minimumBalance: [data.minimumBalance || 0, [Validators.required, Validators.min(0)]], 
       status: [data.status || 1] 
@@ -62,7 +61,7 @@ export class CurrentAccountComponent {
         },
         error: (error) => {
           console.error('Error Creating Account:', error);
-          alert('Failed to create Current Account');
+          alert('Failed to create Current Account'); 
         }
       });
     }

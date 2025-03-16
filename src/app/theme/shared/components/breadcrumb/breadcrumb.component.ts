@@ -5,6 +5,7 @@ import { Title } from '@angular/platform-browser';
 
 // project import
 import { NavigationItem, NavigationItems } from 'src/app/theme/layout/admin/navigation/navigation';
+import { AlertComponent } from 'src/app/alertservice/components/alert/alert.component';
 
 interface titleType {
   // eslint-disable-next-line

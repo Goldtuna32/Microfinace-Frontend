@@ -1,14 +1,20 @@
 // angular import
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { animate, style, transition, trigger } from '@angular/animations';
 
 // bootstrap import
-import { NgbDropdownConfig } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdown, NgbDropdownConfig } from '@ng-bootstrap/ng-bootstrap';
 
 // project import
 import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { ChatUserListComponent } from './chat-user-list/chat-user-list.component';
 import { ChatMsgComponent } from './chat-msg/chat-msg.component';
+import { NotificationService } from 'src/app/demo/notification/notification.service';
+import { Notification } from 'src/app/demo/notification/Notification.model';
+import { Router } from '@angular/router';
+import { AlertService } from 'src/app/alertservice/alert.service';
+import { FlowbiteService } from 'src/app/flowbite services/flowbit.service';
+import { initFlowbite } from 'flowbite';
 
 @Component({
   selector: 'app-nav-right',
@@ -28,21 +34,74 @@ import { ChatMsgComponent } from './chat-msg/chat-msg.component';
   ]
 })
 export class NavRightComponent {
-  // public props
-  visibleUserList: boolean;
-  chatMessage: boolean;
-  friendId!: number;
+  @ViewChild('notificationDropdown') notificationDropdown!: NgbDropdown;
 
-  // constructor
-  constructor() {
-    this.visibleUserList = false;
-    this.chatMessage = false;
+  visibleUserList: boolean = false;
+  chatMessage: boolean = false;
+  friendId!: number;
+  notifications: Notification[] = [];
+  showSuccessAlert: boolean = false;
+  successMessage: string = '';
+
+  constructor(
+    private notificationService: NotificationService,
+    private router: Router,
+    private alertService: AlertService, // Inject AlertService
+    private flowbiteService: FlowbiteService // Inject FlowbiteService
+  ) {
+    this.loadNotifications();
+    
+    this.alertService.successAlert$.subscribe((message) => {
+      this.successMessage = message;
+      this.showSuccessAlert = true;
+      setTimeout(() => {
+        this.showSuccessAlert = false;
+      }, 5000); // Hide after 5 seconds
+    });
   }
 
-  // public method
-  // eslint-disable-next-line
-  onChatToggle(friendID: any) {
-    this.friendId = friendID;
+  loadNotifications() {
+    this.notificationService.getAllUnreadNotifications().subscribe(
+      (notifications) => {
+        this.notifications = notifications;
+      },
+      (error) => {
+        console.error('Error fetching notifications:', error);
+      }
+    );
+  }
+
+  markAsRead(notificationId: number) {
+    this.notificationService.markAsRead(notificationId).subscribe(() => {
+      this.loadNotifications();
+    });
+  }
+
+  sendTestNotification() {
+    this.notificationService.sendNotification(1, 'INFO', 'This is a test notification', 1).subscribe(() => {
+      this.loadNotifications();
+    });
+  }
+
+  closeNotificationDropdown() {
+    if (this.notificationDropdown) {
+      this.notificationDropdown.close();
+    }
+  }
+
+  navigateToPendingLoans(notification: Notification) {
+    if (notification.type === 'PENDING_LOAN') {
+      this.router.navigate(['/loan/list']);
+      this.closeNotificationDropdown(); // Close dropdown after navigation
+    }
+  }
+
+  onChatToggle(friendId: any) {
+    this.friendId = friendId;
     this.chatMessage = !this.chatMessage;
+  }
+
+  dismissAlert() {
+    this.showSuccessAlert = false;
   }
 }

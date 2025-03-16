@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, Observable, tap, throwError } from 'rxjs';
+import { AccountTransaction } from '../models/transaction.model';
 
 @Injectable({
   providedIn: 'root',
@@ -19,10 +20,9 @@ export class TransactionService {
     );
   }
 
-  // ✅ Get Transactions by Current Account ID
-  getTransactionsByAccount(accountId: number): Observable<any> {
-    return this.http.get<any>(
-      `${this.baseUrl}/transactions/current-account/${accountId}?page=0&size=10&sortBy=transactionDate&sortDir=desc`
+  getTransactionsByAccount(accountId: number): Observable<AccountTransaction[]> {
+    return this.http.get<AccountTransaction[]>(
+      `${this.baseUrl}/transactions/current-account/${accountId}`
     ).pipe(
       catchError(error => {
         console.error('❌ Error fetching transactions:', error);
@@ -30,6 +30,9 @@ export class TransactionService {
       })
     );
   }
+  
+  
+  
 
   // ✅ Create a Transaction
   createTransaction(transaction: any): Observable<any> {

@@ -1,8 +1,19 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Branch } from '../models/branch.model';
 import { map } from 'rxjs/operators';
+
+export interface PageResponse<T> {
+  content: T[];
+  page: PageInfo;
+}
+export interface PageInfo {
+  size: number;
+  number: number;
+  totalElements: number;
+  totalPages: number;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -35,10 +46,31 @@ export class BranchService {
     return this.http.get<any>(`${this.baseUrl}/${id}`);
   }
 
-  getBranchesWith(): Observable<Branch[]> {
-    return this.http.get<any>(`${this.baseUrl}/paged`).pipe(
-        map(response => response.content) // ✅ Extract only the branch list
+ getBranchesWith(page: number, size: number, filters: { region?: string; branchName?: string; branchCode?: string } = {}): Observable<PageResponse<Branch>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    if (filters.region) params = params.set('region', filters.region);
+    if (filters.branchName) params = params.set('name', filters.branchName);
+    if (filters.branchCode) params = params.set('branchCode', filters.branchCode);
+
+    const url = `${this.baseUrl}/paged`;
+    return this.http.get<PageResponse<Branch>>(url, { params });
+  }
+
+  checkDuplicate(branchData: Partial<Branch>): Observable<boolean> {
+    return this.getBranches().pipe(
+      map((branches: Branch[]) => {
+        return branches.some(existingBranch => {
+          return (
+            existingBranch.branchName === branchData.branchName ||
+            existingBranch.phoneNumber === branchData.phoneNumber ||
+            existingBranch.email === branchData.email
+          );
+        });
+      })
     );
-}
+  }
 
 }

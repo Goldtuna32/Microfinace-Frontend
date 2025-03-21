@@ -1,4 +1,3 @@
-
 <ul class="navbar-nav ms-auto">
   <li>
     <div class="dropdown" ngbDropdown placement="auto" #notificationDropdown="ngbDropdown">
@@ -49,15 +48,18 @@
       </div>
     </div>
   </li>
-  <!-- Rest of the HTML (mail and user profile sections) remains unchanged -->
-  <li (click)="this.visibleUserList = !this.visibleUserList">
+
+  <!-- Email List Toggle -->
+  <li (click)="toggleEmailList()">
     <div class="dropdown">
       <a href="javascript:" class="displayChatbox dropdown-toggle">
-        <i class="icon feather icon-mail" title="Mail InBox"></i>
-        <span class="badge bg-success"><span class="sr-only"></span></span>
+        <i class="icon feather icon-mail" title="Email List"></i>
+        <span class="badge bg-success" *ngIf="emails.length > 0">{{ emails.length }}</span>
       </a>
     </div>
   </li>
+
+  <!-- User Profile Section -->
   <li>
     <div class="dropdown drp-user" ngbDropdown placement="auto">
       <a href="javascript:" ngbDropdownToggle>
@@ -102,30 +104,53 @@
   </li>
 </ul>
 
-<!-- Chat sections remain unchanged -->
-@if (visibleUserList) {
-  <section class="header-user-list" [ngClass]="{ open: visibleUserList }" [@slideInOutLeft]>
-    <app-chat-user-list
-      (ChatToggle)="onChatToggle($event)"
-      (ChatCollapse)="this.visibleUserList = !this.visibleUserList; this.chatMessage = false"
-    />
-  </section>
-}
-@if (chatMessage) {
-  <section class="header-chat" [ngClass]="{ open: chatMessage }" [@slideInOutLeft]>
-    <app-chat-msg (ChatToggle)="this.chatMessage = !this.chatMessage" [friendId]="friendId" />
-  </section>
-}
-@if (visibleUserList) {
-  <section class="header-user-list" [ngClass]="{ open: visibleUserList }" [@slideInOutRight]>
-    <app-chat-user-list
-      (ChatToggle)="onChatToggle($event)"
-      (ChatCollapse)="this.visibleUserList = !this.visibleUserList; this.chatMessage = false"
-    />
-  </section>
-}
-@if (chatMessage) {
-  <section class="header-chat" [ngClass]="{ open: chatMessage }" [@slideInOutRight]>
-    <app-chat-msg (ChatToggle)="this.chatMessage = !this.chatMessage" [friendId]="friendId" />
+<!-- nav-right.component.html -->
+@if (visibleEmailList) {
+  <section class="header-user-list" [ngClass]="{ open: visibleEmailList }" [@slideInOutLeft]>
+    <div class="email-list">
+      <div class="email-header">
+        <h6>Email List</h6>
+        <div>
+          <button class="btn btn-primary btn-refresh" (click)="refreshEmailList($event)">Refresh</button>
+          <button class="btn btn-primary btn-compose" (click)="toggleComposeForm($event)">Compose</button>
+        </div>
+      </div>
+
+      @if (showComposeForm) {
+        <div class="compose-form" [@slideInOutRight]>
+          <input type="email" [(ngModel)]="emailTo" placeholder="To" class="form-control mb-2" />
+          <input type="text" [(ngModel)]="emailSubject" placeholder="Subject" class="form-control mb-2" />
+          <textarea [(ngModel)]="emailBody" placeholder="Body" class="form-control mb-2" rows="3"></textarea>
+          <div class="compose-actions">
+            <button (click)="sendEmail()" class="btn btn-success">Send</button>
+            <button (click)="toggleComposeForm($event)" class="btn btn-secondary">Cancel</button>
+          </div>
+        </div>
+      }
+
+      <ul class="email-items">
+        <li *ngFor="let email of emails" class="email-item">
+          <div class="media">
+            <div class="media-body">
+              <p class="email-subject">
+                <strong>{{ email.subject }}</strong>
+                <span class="email-time text-muted">
+                  <i class="icon feather icon-clock m-r-10"></i>
+                  {{ email.timestamp | date:'short' }}
+                </span>
+              </p>
+              <p class="email-body">{{ email.body.substring(0, 50) }}...</p>
+              <p class="email-to">
+                <small>{{ email.direction === 'SENT' ? 'To' : 'From' }}: {{ email.to }}</small>
+                <span class="email-direction">{{ email.direction }}</span>
+              </p>
+            </div>
+          </div>
+        </li>
+        <li *ngIf="emails.length === 0" class="no-emails">
+          <p>No emails yet</p>
+        </li>
+      </ul>
+    </div>
   </section>
 }

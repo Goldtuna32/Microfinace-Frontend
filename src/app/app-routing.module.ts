@@ -66,6 +66,11 @@ const routes: Routes = [
           .then(m => m.CifListComponent)
       },
       {
+        path: 'cif-detail/:id',
+        loadComponent: () => import('./demo/cif/components/cif-detail-modal/cif-detail-modal.component')
+          .then(m => m.CifDetailModalComponent)
+      },
+      {
         path: 'collateralType/create',
         loadComponent: () => import('./demo/collateral-type/components/create-collateral-type/create-collateral-type.component')
          .then(m => m.CreateCollateralTypeComponent)

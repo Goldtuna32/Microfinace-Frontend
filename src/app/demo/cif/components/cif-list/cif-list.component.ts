@@ -260,14 +260,7 @@ export class CifListComponent implements OnInit {
     }
   }
 
-  openCifDetailDialog(cif: CIF): void {
-    this.dialog.open(CifDetailModalComponent, {
-      width: '90%',
-      maxWidth: '900px',
-      height: 'auto',
-      maxHeight: '90vh',
-      panelClass: 'custom-dialog-container',
-      data: cif
-    });
+  openCifDetail(cif: CIF): void {
+    this.router.navigate(['/cif-detail', cif.id]); // Navigate to the CIF detail page with the CIF ID
   }
 }

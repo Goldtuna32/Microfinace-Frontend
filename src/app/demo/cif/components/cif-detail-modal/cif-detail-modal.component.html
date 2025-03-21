@@ -1,108 +1,110 @@
-<div class="flex flex-col h-full max-h-[90vh]">
-  <!-- Header -->
+<div *ngIf="isLoading" class="flex items-center justify-center h-full">
+  <p class="text-gray-600">Loading...</p>
+</div>
+
+<div *ngIf="!isLoading" class="flex flex-col h-full max-h-[90vh]">
   <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 flex items-center justify-between">
     <h2 class="text-2xl font-bold tracking-wide">CIF Details</h2>
     <i class="pi pi-id-card text-2xl text-white"></i>
   </div>
 
-  <!-- Body with Scroll -->
   <div class="flex-1 overflow-y-auto bg-white text-gray-800 p-6">
-    <!-- Details Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-      <div class="flex items-start border border-gray-100 rounded-lg p-3 hover:border-gray-200 transition-colors">
-        <i class="pi pi-user text-indigo-400 mr-2 mt-1"></i>
+      <div class="detail-card">
+        <i class="pi pi-user"></i>
         <div>
-          <p class="text-sm text-gray-600 font-medium">Name</p>
-          <p class="text-lg text-gray-800">{{ cif.name }}</p>
+          <p class="label">Name</p>
+          <p class="value">{{ cif?.name }}</p> <!-- Use safe navigation operator -->
         </div>
       </div>
-      <div class="flex items-start border border-gray-100 rounded-lg p-3 hover:border-gray-200 transition-colors">
-        <i class="pi pi-address-book text-indigo-400 mr-2 mt-1"></i>
+      <div class="detail-card">
+        <i class="pi pi-address-book"></i>
         <div>
-          <p class="text-sm text-gray-600 font-medium">NRC Number</p>
-          <p class="text-lg text-gray-800">{{ cif.nrcNumber }}</p>
+          <p class="label">NRC Number</p>
+          <p class="value">{{ cif?.nrcNumber }}</p> <!-- Use safe navigation operator -->
         </div>
       </div>
-      <div class="flex items-start border border-gray-100 rounded-lg p-3 hover:border-gray-200 transition-colors">
-        <i class="pi pi-calendar text-indigo-400 mr-2 mt-1"></i>
+      <div class="detail-card">
+        <i class="pi pi-calendar"></i>
         <div>
-          <p class="text-sm text-gray-600 font-medium">Date of Birth</p>
-          <p class="text-lg text-gray-800">{{ cif.dob | date: 'longDate' }}</p>
+          <p class="label">Date of Birth</p>
+          <p class="value">{{ cif?.dob | date: 'longDate' }}</p> <!-- Use safe navigation operator -->
         </div>
       </div>
-      <div class="flex items-start border border-gray-100 rounded-lg p-3 hover:border-gray-200 transition-colors">
-        <i class="pi pi-venus-mars text-indigo-400 mr-2 mt-1"></i>
+      <div class="detail-card">
+        <i class="pi pi-venus-mars"></i>
         <div>
-          <p class="text-sm text-gray-600 font-medium">Gender</p>
-          <p class="text-lg text-gray-800">{{ cif.gender }}</p>
+          <p class="label">Gender</p>
+          <p class="value">{{ cif?.gender }}</p> <!-- Use safe navigation operator -->
         </div>
       </div>
-      <div class="flex items-start border border-gray-100 rounded-lg p-3 hover:border-gray-200 transition-colors">
-        <i class="pi pi-phone text-indigo-400 mr-2 mt-1"></i>
+      <div class="detail-card">
+        <i class="pi pi-phone"></i>
         <div>
-          <p class="text-sm text-gray-600 font-medium">Phone</p>
-          <p class="text-lg text-gray-800">{{ cif.phoneNumber }}</p>
+          <p class="label">Phone</p>
+          <p class="value">{{ cif?.phoneNumber }}</p> <!-- Use safe navigation operator -->
         </div>
       </div>
-      <div class="flex items-start border border-gray-100 rounded-lg p-3 hover:border-gray-200 transition-colors">
-        <i class="pi pi-envelope text-indigo-400 mr-2 mt-1"></i>
+      <div class="detail-card">
+        <i class="pi pi-envelope"></i>
         <div>
-          <p class="text-sm text-gray-600 font-medium">Email</p>
-          <p class="text-lg text-gray-800">{{ cif.email }}</p>
+          <p class="label">Email</p>
+          <p class="value">{{ cif?.email }}</p> <!-- Use safe navigation operator -->
         </div>
       </div>
-      <div class="md:col-span-2 flex items-start border border-gray-100 rounded-lg p-3 hover:border-gray-200 transition-colors">
-        <i class="pi pi-home text-indigo-400 mr-2 mt-1"></i>
+      <div class="md:col-span-2 detail-card">
+        <i class="pi pi-home"></i>
         <div>
-          <p class="text-sm text-gray-600 font-medium">Address</p>
-          <p class="text-lg text-gray-800">{{ cif.address }}</p>
+          <p class="label">Address</p>
+          <p class="value">{{ cif?.address }}</p> <!-- Use safe navigation operator -->
         </div>
       </div>
-      <div class="flex items-start border border-gray-100 rounded-lg p-3 hover:border-gray-200 transition-colors">
-        <i class="pi pi-heart text-indigo-400 mr-2 mt-1"></i>
+      <div class="detail-card">
+        <i class="pi pi-heart"></i>
         <div>
-          <p class="text-sm text-gray-600 font-medium">Marital Status</p>
-          <p class="text-lg text-gray-800">{{ cif.maritalStatus }}</p>
+          <p class="label">Marital Status</p>
+          <p class="value">{{ cif?.maritalStatus }}</p> <!-- Use safe navigation operator -->
         </div>
       </div>
-      <div class="flex items-start border border-gray-100 rounded-lg p-3 hover:border-gray-200 transition-colors">
-        <i class="pi pi-briefcase text-indigo-400 mr-2 mt-1"></i>
+      <div class="detail-card">
+        <i class="pi pi-briefcase"></i>
         <div>
-          <p class="text-sm text-gray-600 font-medium">Occupation</p>
-          <p class="text-lg text-gray-800">{{ cif.occupation }}</p>
+          <p class="label">Occupation</p>
+          <p class="value">{{ cif?.occupation }}</p> <!-- Use safe navigation operator -->
         </div>
       </div>
-      <div class="flex items-start border border-gray-100 rounded-lg p-3 hover:border-gray-200 transition-colors">
-        <i class="pi pi-dollar text-indigo-400 mr-2 mt-1"></i>
+      <div class="detail-card">
+        <i class="pi pi-dollar"></i>
         <div>
-          <p class="text-sm text-gray-600 font-medium">Income Source</p>
-          <p class="text-lg text-gray-800">{{ cif.incomeSource }}</p>
+          <p class="label">Income Source</p>
+          <p class="value">{{ cif?.incomeSource }}</p> <!-- Use safe navigation operator -->
         </div>
       </div>
-      <div class="flex items-start border border-gray-100 rounded-lg p-3 hover:border-gray-200 transition-colors">
-        <i class="pi pi-clock text-indigo-400 mr-2 mt-1"></i>
+      <div class="detail-card">
+        <i class="pi pi-clock"></i>
         <div>
-          <p class="text-sm text-gray-600 font-medium">Created At</p>
-          <p class="text-lg text-gray-800">{{ cif.createdAt | date: 'long' }}</p>
+          <p class="label">Created At</p>
+          <p class="value">{{ cif?.createdAt | date: 'long' }}</p> <!-- Use safe navigation operator -->
         </div>
       </div>
-      <div class="flex items-start border border-gray-100 rounded-lg p-3 hover:border-gray-200 transition-colors">
-        <i class="pi pi-building text-indigo-400 mr-2 mt-1"></i>
+      <div class="detail-card">
+        <i class="pi pi-building"></i>
         <div>
-          <p class="text-sm text-gray-600 font-medium">Branch ID</p>
-          <p class="text-lg text-gray-800">{{ cif.branchId }}</p>
+          <p class="label">Branch ID</p>
+          <p class="value">{{ cif?.branchId }}</p> <!-- Use safe navigation operator -->
         </div>
       </div>
-      <div class="flex items-start border border-gray-100 rounded-lg p-3 hover:border-gray-200 transition-colors">
-        <i class="pi pi-check-circle text-indigo-400 mr-2 mt-1"></i>
+      <div class="detail-card">
+        <i class="pi pi-check-circle"></i>
         <div>
-          <p class="text-sm text-gray-600 font-medium">Has Current Account</p>
-          <p [ngClass]="cif.hasCurrentAccount ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'">
-            {{ cif.hasCurrentAccount ? 'Yes' : 'No' }}
+          <p class="label">Has Current Account</p>
+          <p [ngClass]="cif?.hasCurrentAccount ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'">
+            {{ cif?.hasCurrentAccount ? 'Yes' : 'No' }}
           </p>
         </div>
       </div>
-    </div> <!-- NRC Images Section -->
+    </div>
+
     <div class="mt-6 border-t pt-6">
       <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
         <i class="pi pi-images text-blue-500 mr-2"></i> NRC Photos
@@ -110,8 +112,8 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="text-center">
           <p class="text-sm font-medium text-gray-600 mb-2">Front NRC</p>
-          <p-image *ngIf="cif.fNrcPhotoUrl; else noFrontNrc"
-                   [src]="cif.fNrcPhotoUrl"
+          <p-image *ngIf="cif?.fNrcPhotoUrl; else noFrontNrc"
+                   [src]="cif?.fNrcPhotoUrl"
                    alt="Front NRC"
                    [preview]="true"
                    width="225"
@@ -126,8 +128,8 @@
         </div>
         <div class="text-center">
           <p class="text-sm font-medium text-gray-600 mb-2">Back NRC</p>
-          <p-image *ngIf="cif.bNrcPhotoUrl; else noBackNrc"
-                   [src]="cif.bNrcPhotoUrl"
+          <p-image *ngIf="cif?.bNrcPhotoUrl; else noBackNrc"
+                   [src]="cif?.bNrcPhotoUrl"
                    alt="Back NRC"
                    [preview]="true"
                    width="225"
@@ -142,16 +144,17 @@
         </div>
       </div>
     </div>
-    <!-- Footer -->
-  <div class="bg-gray-50 p-3 flex justify-end border-t border-gray-200">
-    <button class="bg-blue-600 text-white px-2 py-1 text-sm rounded hover:bg-blue-700 transition-colors duration-200 flex items-center gap-1" (click)="downloadReport('pdf')">
-      <i class="pi pi-file-pdf text-sm"></i> Download PDF
-    </button>
-    <button class="bg-green-600 text-white px-2 py-1 text-sm rounded hover:bg-green-700 transition-colors duration-200 flex items-center gap-1" (click)="downloadReport('excel')">
-      <i class="pi pi-file-excel text-sm"></i> Download Excel
-    </button>
-    <button class="bg-red-600 text-white px-2 py-1 text-sm rounded hover:bg-red-700 transition-colors duration-200 flex items-center gap-1" (click)="closeDialog()">
-      <i class="pi pi-times text-sm"></i> Close
-    </button>
+
+    <div class="bg-gray-50 p-3 flex justify-end border-t border-gray-200">
+      <button class="bg-blue-600 text-white px-2 py-1 text-sm rounded hover:bg-blue-700 transition-colors duration-200 flex items-center gap-1" (click)="downloadReport('pdf')">
+        <i class="pi pi-file-pdf text-sm"></i> Download PDF
+      </button>
+      <button class="bg-green-600 text-white px-2 py-1 text-sm rounded hover:bg-green-700 transition-colors duration-200 flex items-center gap-1" (click)="downloadReport('excel')">
+        <i class="pi pi-file-excel text-sm"></i> Download Excel
+      </button>
+      <button class="bg-red-600 text-white px-2 py-1 text-sm rounded hover:bg-red-700 transition-colors duration-200 flex items-center gap-1" (click)="goBack()">
+        <i class="pi pi-times text-sm"></i> Close
+      </button>
+    </div>
   </div>
 </div>

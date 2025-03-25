@@ -42,7 +42,11 @@ regions: any;
       }),
       currentAccountId: [{ value: '', disabled: this.isEditMode }] // 🔹 Disable in edit mode
     });
-  
+
+    
+    console.log('Dealer Form Initialized:', this.dealerForm.value);
+    console.log('Current Account ID Control:', this.dealerForm.get('currentAccountId'));
+    
     if (this.isEditMode) {
       this.loadDealerData();
     }
@@ -50,10 +54,30 @@ regions: any;
   
   loadDealerData() {
     if (!this.dealerId) return;
+  
     this.dealerService.getDealerById(this.dealerId).subscribe(dealer => {
-      this.dealerForm.patchValue(dealer);
+      if (dealer) {
+        console.log('Raw Dealer Data:', dealer); // Debugging output
+  
+        this.dealerForm.patchValue({
+          companyName: dealer.companyName,
+          phoneNumber: dealer.phoneNumber,
+          status: dealer.status,
+          address: {
+            street: dealer.address?.street || '',
+            region: dealer.address?.region || '',
+            district: dealer.address?.district || '', // Ensure 'district' matches API response
+            township: dealer.address?.township || '',
+          },
+          currentAccountId: dealer.currentAccountId || ''
+        });
+  
+        console.log('Dealer Form After Patch:', this.dealerForm.value);
+      }
     });
   }
+  
+  
   
   onSubmit() {
     if (this.dealerForm.valid) {

@@ -1,0 +1,22 @@
+/* user-create.component.css */
+/* Leverage Bootstrap, so minimal custom CSS is needed */
+
+.form-container {
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.permission-container {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.group-header {
+  cursor: pointer;
+}
+
+.toggle-icon {
+  font-size: 1rem;
+  color: #666;
+}
+

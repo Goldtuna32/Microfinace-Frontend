@@ -1,36 +1,83 @@
-/* src/app/components/loan-list/loan-detail.component.scss */
-.container {
-  @apply mx-auto p-6 max-w-4xl;
+.bg-gradient-primary {
+  background: linear-gradient(90deg, #007bff, #0056b3);
 }
 
 .card {
-  @apply shadow-lg rounded-lg overflow-hidden;
+  border-radius: 0.75rem;
+  overflow: hidden;
 }
 
 .card-header {
-  @apply bg-blue-600 text-white p-4 flex items-center; /* Replaced bg-primary with bg-blue-600 */
+  padding: 1.25rem;
 }
 
-.card-body {
-  @apply p-6;
+.info-item {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  p {
+    margin: 0;
+  }
 }
 
-.card-footer {
-  @apply p-4 bg-gray-50;
+.card.bg-light {
+  background-color: #f8f9fa !important;
 }
 
-.alert {
-  @apply mb-4;
+.table {
+  margin-bottom: 0;
+
+  th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+  }
+
+  td {
+    vertical-align: middle;
+  }
+
+  .img-thumbnail {
+    border: 1px solid #dee2e6;
+    padding: 0.25rem;
+    transition: transform 0.2s;
+  }
 }
 
-.text-muted {
-  @apply text-gray-600;
+.clickable {
+  cursor: pointer;
+
+  &:hover {
+    transform: scale(1.05);
+  }
 }
 
-.fw-bold {
-  @apply font-semibold;
+.btn {
+  transition: all 0.3s;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
 }
 
-.list-group-item {
-  @apply border-0 py-2;
+.badge {
+  font-size: 0.85rem;
+  padding: 0.4em 0.8em;
+}
+
+.modal {
+  .modal-content {
+    border-radius: 0.5rem;
+  }
+
+  .modal-body {
+    padding: 0;
+  }
 }

@@ -5,6 +5,9 @@ export interface SmeLoanRegistration {
   id?: number;
   loanAmount: number;
   interestRate: number;
+  late_fee_rate: number; // Added
+  ninety_day_late_fee_rate: number; // Added
+  one_hundred_and_eighty_day_late_fee_rate: number; // Added
   gracePeriod: number;
   repaymentDuration: number;
   documentFee: number;
@@ -15,6 +18,7 @@ export interface SmeLoanRegistration {
   currentAccountId: number;
   accountNumber?: string;
   cif?: CIF;
+  
   collaterals?: SmeLoanCollateral[];
   totalCollateralAmount?: number;
   }

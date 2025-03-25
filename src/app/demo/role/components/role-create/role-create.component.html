@@ -1,0 +1,50 @@
+<!-- role-create.component.html -->
+<div class="container form-container">
+    <h3 class="mb-4">Create New Role</h3>
+    <form (ngSubmit)="createRole()">
+      <div class="row mb-3">
+        <label for="name" class="col-sm-2 col-form-label">Role Name:</label>
+        <div class="col-sm-10">
+          <input id="name" class="form-control" [(ngModel)]="newRole.name" name="name" required>
+        </div>
+      </div>
+      <div class="row mb-3">
+        <label for="description" class="col-sm-2 col-form-label">Description:</label>
+        <div class="col-sm-10">
+          <input id="description" class="form-control" [(ngModel)]="newRole.description" name="description" required>
+        </div>
+      </div>
+      <div class="row mb-3">
+        <label class="col-sm-2 col-form-label">Permissions:</label>
+        <div class="col-sm-10">
+          <div class="permission-container card">
+            <div class="card-body">
+              <div *ngFor="let group of permissionGroups | keyvalue" class="permission-group mb-3">
+                <div class="group-header d-flex align-items-center p-2 bg-light rounded">
+                  <i class="bi toggle-icon me-2" 
+                     [ngClass]="expandedGroups[group.key] ? 'bi-caret-down-fill' : 'bi-caret-right-fill'" 
+                     (click)="toggleGroup(group.key)"></i>
+                  <h4 class="flex-grow-1 mb-0" (click)="toggleGroup(group.key)">{{ group.key }}</h4>
+                  <div class="form-check select-all ms-2">
+                    <input class="form-check-input" type="checkbox" 
+                           [checked]="isAllSelected(group.key)" 
+                           (change)="onSelectAllToggle(group.key, $event)">
+                    <label class="form-check-label">Select All</label>
+                  </div>
+                </div>
+                <div class="checkbox-group ps-4 pt-2" *ngIf="expandedGroups[group.key]">
+                  <div *ngFor="let perm of group.value" class="form-check">
+                    <input class="form-check-input" type="checkbox" 
+                           [checked]="selectedPermissions.includes(perm)" 
+                           (change)="onPermissionToggle(perm, $event)">
+                    <label class="form-check-label">{{ perm }}</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Create Role</button>
+    </form>
+  </div>

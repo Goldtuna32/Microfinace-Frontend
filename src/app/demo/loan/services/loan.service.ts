@@ -1,15 +1,17 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, map, Observable, throwError } from 'rxjs';
 import { LoanRegistrationRequest } from '../models/LoanRegistrationRequest.model';
 import { SmeLoanRegistration } from '../models/SmeLoanRegistration.model';
 import { SmeLoanCollateral } from '../models/SmeLoanCollateral.model';
+import { CIF } from '../../cif/models/cif.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoanService {
   private baseUrl = 'http://localhost:8080/api/loans';
+  private baseUrl1 = 'http://localhost:8080/api';
   private collateralApiUrl = 'http://localhost:8080/api/collaterals';
   //  // Adjust as needed
 
@@ -33,11 +35,30 @@ export class LoanService {
   }
 
   getPendingLoans(): Observable<SmeLoanRegistration[]> {
-    return this.http.get<SmeLoanRegistration[]>(`${this.baseUrl}/pending`);
+    return this.http.get<any>(`${this.baseUrl}/pending`).pipe(
+      map((page) => {
+        console.log('Pending Loans Response:', page);
+        return page.content || []; // Extract content array
+      })
+    );
+  }
+
+  getCifByCurrentAccountId(currentAccountId: number): Observable<CIF> {
+    return this.http.get<CIF>(`${this.baseUrl1}/cif/current-account/${currentAccountId}`).pipe(
+      map((cif) => {
+        console.log('CIF Data:', cif);
+        return cif;
+      })
+    );
   }
 
   getApprovedLoans(): Observable<SmeLoanRegistration[]> {
-    return this.http.get<SmeLoanRegistration[]>(`${this.baseUrl}/approved`);
+    return this.http.get<any>(`${this.baseUrl}/approved`).pipe(
+      map((page) => {
+        console.log('Approved Loans Response:', page);
+        return page.content || []; // Extract content array
+      })
+    );
   }
 
   approveLoan(id: number): Observable<SmeLoanRegistration> {

@@ -174,11 +174,22 @@ const routes: Routes = [
         path: 'edit-hp-product/:id',
         loadComponent: () => import('./demo/hp-product/components/hp-product-edit/hp-product-edit.component')
           .then(m => m.HpProductEditComponent)
+      },
+      {
+        path: 'create-user',
+        loadComponent: () => import('./demo/users/components/user-create/user-create.component')
+          .then(m => m.UserCreateComponent)
+      },
+      {
+        path: 'create-role',
+        loadComponent: () => import('./demo/role/components/role-create/role-create.component')
+          .then(m => m.RoleCreateComponent)
       }
      
 
     ]
   },
+  
   {
     path: '',
     component: GuestComponent,
@@ -187,10 +198,12 @@ const routes: Routes = [
         path: 'auth/signup',
         loadComponent: () => import('./demo/pages/authentication/sign-up/sign-up.component')
       },
+      
       {
         path: 'auth/signin',
         loadComponent: () => import('./demo/pages/authentication/sign-in/sign-in.component').then(m => m.SignInComponent)
       }
+      
     ]
   }
 ];

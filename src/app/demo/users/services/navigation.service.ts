@@ -10,6 +10,8 @@ export class NavigationService {
 
   private defaultPermissions: string[] = [
     'DASHBOARD_READ',
+    'USER_CREATE',
+    'ROLE_CREATE',
     'BRANCH_CREATE',
     'BRANCH_READ',
     'CIF_READ',
@@ -31,6 +33,7 @@ export class NavigationService {
     'UI_COMPONENT_READ',
     'AUTH_SIGNUP',
     'AUTH_SIGNIN',
+    'USER_CREATE',
     'CHART_READ',
     'FORMS_READ',
     'TABLES_READ',
@@ -76,6 +79,8 @@ export class NavigationService {
   private getRequiredPermission(url: string): string {
       const permissionMap: { [key: string]: string } = {
           '/analytics': 'DASHBOARD_READ',
+          '/create-user': 'USER_CREATE',
+          '/create-role': 'ROLE_CREATE',
           '/branch/create': 'BRANCH_CREATE',
           '/branch/list': 'BRANCH_READ',
           '/cif/list': 'CIF_READ',

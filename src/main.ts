@@ -5,7 +5,7 @@ import { AppRoutingModule } from './app/app-routing.module';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppComponent } from './app/app.component';
-import { AuthInterceptor } from 'src/app/auth/auth.interceptor'; // AuthInterceptor လမ်းကြောင်းမှန်အောင်သွားပါ
+import { AuthInterceptor } from 'src/app/auth/auth.interceptor'; 
 
 if (environment.production) {
   enableProdMode();
@@ -16,9 +16,9 @@ bootstrapApplication(AppComponent, {
     importProvidersFrom(BrowserModule, AppRoutingModule),
     provideAnimations(),
     provideHttpClient(
-      withInterceptorsFromDi() // DI-based interceptors သုံးမယ်လို့ပြောတာ
+      withInterceptorsFromDi() 
     ),
-    // Interceptor ကို Provider အနေနဲ့ထည့်ပါ
+
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

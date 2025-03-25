@@ -1,38 +1,69 @@
-import { HttpInterceptorFn } from '@angular/common/http';
-import { HttpRequest, HttpHandlerFn, HttpEvent, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
-import { inject } from '@angular/core';
-import { AuthService } from '../auth/auth.service';
+import { Injectable } from '@angular/core';
+import {
+  HttpRequest,
+  HttpHandler,
+  HttpEvent,
+  HttpInterceptor,
+  HttpErrorResponse
+} from '@angular/common/http';
+import { Observable, throwError, BehaviorSubject, switchMap, catchError, filter, take } from 'rxjs';
+import { AuthService } from './auth.service';
+import { Router } from '@angular/router';
 
-export const AuthInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> => {
-  const authService = inject(AuthService);
+@Injectable()
+export class AuthInterceptor implements HttpInterceptor {
+  private isRefreshing = false;
+  private refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
-  // Clone the request, allowing credentials (cookies) to be sent
-  const clonedReq = req.clone({
-    withCredentials: true // This ensures cookies are sent
-  });
+  constructor(private auth: AuthService, private router: Router) {}
 
-  return next(clonedReq).pipe(
-    catchError((error: HttpErrorResponse) => {
-      console.error('[AuthInterceptor] Error caught:', error);
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const authReq = this.addToken(req);
+    return next.handle(authReq).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401 && !req.url.includes('/auth/refresh')) {
+          return this.handle401Error(authReq, next);
+        }
+        return throwError(() => error);
+      })
+    );
+  }
 
-      if (error.status === 401) {
-        console.log('[AuthInterceptor] Token expired, attempting refresh...');
+  private addToken(request: HttpRequest<any>): HttpRequest<any> {
+    const token = this.auth.getAccessToken();
+    return token ? request.clone({
+      setHeaders: { Authorization: `Bearer ${token}` }
+    }) : request;
+  }
 
-        return authService.refreshToken().pipe(
-          switchMap(() => {
-            console.log('[AuthInterceptor] Retrying original request...');
-            return next(clonedReq);
-          }),
-          catchError(refreshError => {
-            console.error('[AuthInterceptor] Refresh failed:', refreshError);
-            return throwError(() => refreshError);
-          })
-        );
-      }
+  private handle401Error(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    if (!this.isRefreshing) {
+      this.isRefreshing = true;
+      this.refreshTokenSubject.next(null);
 
-      return throwError(() => error);
-    })
-  );
-};
+      return this.auth.refreshToken().pipe(
+        switchMap(({ accessToken }) => {
+          this.isRefreshing = false;
+          this.refreshTokenSubject.next(accessToken);
+          return next.handle(this.addToken(request));
+        }),
+        catchError((error) => {
+          this.isRefreshing = false;
+          if (error.status === 401) {
+            this.auth.logout();
+            this.router.navigate(['/auth/signin'], {
+              queryParams: { sessionExpired: true }
+            });
+          }
+          return throwError(() => error);
+        })
+      );
+    }
+
+    return this.refreshTokenSubject.pipe(
+      filter(token => token !== null),
+      take(1),
+      switchMap(() => next.handle(this.addToken(request)))
+    );
+  }
+}

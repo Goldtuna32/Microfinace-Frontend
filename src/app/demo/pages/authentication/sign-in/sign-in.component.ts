@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { AuthService } from 'src/app/auth/auth.service'; // Import AuthService
-import { Router, RouterLink } from '@angular/router'; // Import Router
+import { AuthService } from 'src/app/auth/auth.service';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sign-in',
@@ -24,16 +25,30 @@ export class SignInComponent {
     this.loading = true;
 
     const credentials = { email: this.email, password: this.password };
+    
+    this.authService.login(credentials.email, credentials.password)
+      .pipe(
+        finalize(() => this.loading = false)
+      )
+      .subscribe({
+        next: () => {
+        
+          this.router.navigate(['/analytics']);
 
-    this.authService.login(credentials).subscribe({
-      next: (response) => {
-        this.router.navigate(['/analytics']); // Redirect on success
-      },
-      error: (err) => {  
-        console.error('Login Error:', err);
-        this.loading = false;
-        this.errorMessage = 'Login failed. Please check your credentials or try again later.';
-      }
-    });
+     
+        },
+        error: (err) => {  
+          console.error('Login Error:', err);
+          this.errorMessage = this.getErrorMessage(err);
+        }
+      });
+  }
+
+  private getErrorMessage(error: any): string {
+   
+    if (error.status === 401) {
+      return 'Invalid email or password!';
+    }
+    return 'An unexpected error occurred. Please try again later.';
   }
 }

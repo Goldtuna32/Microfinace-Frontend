@@ -1,55 +1,76 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { tap, catchError } from 'rxjs/operators';
+import { BehaviorSubject, throwError, Observable } from 'rxjs';
+import { Router } from '@angular/router';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
+  private apiUrl = 'http://localhost:8080/api/auth';
+  private accessTokenSubject = new BehaviorSubject<string | null>(null);
 
-  private loginUrl = 'http://localhost:8080/api/auth/login'; // Backend URL
-  private refreshTokenUrl = 'http://localhost:8080/api/auth/refresh-token'; // Backend refresh-token URL
-  private logoutUrl = 'http://localhost:8080/api/auth/logout'; // Backend logout URL
-  private checkAuthUrl = 'http://localhost:8080/api/auth/check-auth'; // Backend check-auth URL
+  constructor(private http: HttpClient, private router: Router) {}
 
-  constructor(private http: HttpClient) {}
+  login(email: string, password: string): Observable<{ accessToken: string }> {
+    return this.http.post<{ accessToken: string }>(
+      `${this.apiUrl}/login`, 
+      { email, password },
+      { withCredentials: true }
+    ).pipe(
+      tap(res => this.setAccessToken(res.accessToken))
+    );
+  }
 
-  // Login request
-  login(credentials: { email: string; password: string }): Observable<any> {
-    return this.http.post(this.loginUrl, credentials, { withCredentials: true }).pipe(
+  refreshToken(): Observable<{ accessToken: string }> {
+    return this.http.post<{ accessToken: string }>(
+      `${this.apiUrl}/refresh`,
+      {},
+      { withCredentials: true }
+    ).pipe(
+      tap(res => this.setAccessToken(res.accessToken)),
       catchError(error => {
-        console.error('Login error:', error);
-        throw error; // Rethrow error for further handling if necessary
+        this.logout();
+        return throwError(() => error);
       })
     );
   }
 
-  // Refresh token request
-  refreshToken(): Observable<any> {
-    return this.http.post(this.refreshTokenUrl, {}, { withCredentials: true }).pipe(
-      catchError(error => {
-        console.error('Refresh token error:', error);
-        console.log('Refresh token error:', error);
-        throw error; // Rethrow error for further handling if necessary
-      })
-    );
-  }
-
-  // Logout request
   logout(): void {
-    this.http.post(this.logoutUrl, {}, { withCredentials: true }).subscribe(() => {
-      window.location.href = '/auth/signin'; // Redirect to login page
-    });
+    this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true })
+      .subscribe({
+        complete: () => this.clearSession(),
+        error: () => this.clearSession()
+      });
   }
 
-  // Check if user is authenticated
-  isAuthenticated(): Observable<boolean> {
-    return this.http.get<boolean>(this.checkAuthUrl, { withCredentials: true }).pipe(
-      catchError(error => {
-        console.error('Authentication check error:', error);
-        return new Observable<boolean>((observer) => observer.next(false)); // Return false if error occurs
-      })
-    );
+  getAccessToken(): string | null {
+    return sessionStorage.getItem('accessToken');
+  }
+
+  isAuthenticated(): boolean {
+    return !!this.getAccessToken() && !this.isAccessTokenExpired();
+  }
+
+  private setAccessToken(token: string): void {
+    sessionStorage.setItem('accessToken', token);
+    this.accessTokenSubject.next(token);
+  }
+
+  private clearSession(): void {
+    sessionStorage.removeItem('accessToken');
+    this.accessTokenSubject.next(null);
+    this.router.navigate(['/auth/signin']);
+  }
+
+  isAccessTokenExpired(): boolean {
+    const token = this.getAccessToken();
+    if (!token) return true;
+    
+    try {
+      const expiry = JSON.parse(atob(token.split('.')[1])).exp;
+      return Math.floor(Date.now() / 1000) >= expiry;
+    } catch {
+      return true;
+    }
   }
 }

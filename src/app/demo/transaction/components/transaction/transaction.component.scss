@@ -1,0 +1,19 @@
+.card {
+    border-radius: 1rem; // Rounded corners for the card
+  }
+  
+  .form-label {
+    font-weight: bold; // Make labels bold
+  }
+  
+  .btn {
+    transition: background-color 0.3s ease; // Smooth transition for button hover
+  }
+  
+  .btn:hover {
+    background-color: #0056b3; // Darker blue on hover
+  }
+  
+  .alert {
+    border-radius: 0.5rem; // Rounded corners for alerts
+  }

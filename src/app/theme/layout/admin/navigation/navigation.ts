@@ -35,6 +35,36 @@ export const NavigationItems: NavigationItem[] = [
     ]
   },
   {
+    id: 'User Mangement',
+    title: 'User Mangement',
+    type: 'group',
+    icon: 'bi bi-compass', // Bootstrap compass icon
+    children: [
+      {
+        id: 'User Management',
+        title: 'User Create',
+        type: 'item',
+        url: '/create-user',
+        icon: 'bi bi-speedometer2' // Bootstrap dashboard icon
+      }
+    ]
+  },
+  {
+    id: 'Role Mangement',
+    title: 'Role Mangement',
+    type: 'group',
+    icon: 'bi bi-compass', // Bootstrap compass icon
+    children: [
+      {
+        id: 'User Management',
+        title: 'Role Create',
+        type: 'item',
+        url: '/create-role',
+        icon: 'bi bi-speedometer2' // Bootstrap dashboard icon
+      }
+    ]
+  },
+  {
     id: 'branch',
     title: 'Branch',
     type: 'group',

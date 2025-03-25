@@ -65,7 +65,6 @@
          
         </div>
 
-        <!-- Collaterals -->
         <div class="mb-3">
           <label class="form-label">Collaterals <span class="text-danger">*</span></label>
           <div formArrayName="collaterals" class="space-y-2">
@@ -102,7 +101,7 @@
             <strong>Total Collateral Amount: {{ totalCollateralAmount | currency }}</strong>
           </div>
         </div>
-
+        
         <!-- Loan Amount -->
         <div class="mb-3">
           <label class="form-label">Loan Amount <span class="text-danger">*</span></label>
@@ -138,6 +137,58 @@
             Interest rate is required and must be greater than 0
           </div>
         </div>
+
+        <!-- Inside the form, after Interest Rate -->
+<div class="mb-3">
+  <label class="form-label">Late Fee Rate (%) <span class="text-danger">*</span></label>
+  <input
+    type="number"
+    class="form-control"
+    formControlName="late_fee_rate"
+    placeholder="Enter late fee rate"
+    step="0.01"
+  >
+  <div
+    *ngIf="loanForm.get('late_fee_rate')?.touched && loanForm.get('late_fee_rate')?.invalid"
+    class="text-danger"
+  >
+    Late fee rate is required and must be greater than 0
+  </div>
+</div>
+
+<div class="mb-3">
+  <label class="form-label">90-Day Late Fee Rate (%) <span class="text-danger">*</span></label>
+  <input
+    type="number"
+    class="form-control"
+    formControlName="ninety_day_late_fee_rate"
+    placeholder="Enter 90-day late fee rate"
+    step="0.01"
+  >
+  <div
+    *ngIf="loanForm.get('ninety_day_late_fee_rate')?.touched && loanForm.get('ninety_day_late_fee_rate')?.invalid"
+    class="text-danger"
+  >
+    90-day late fee rate is required and must be greater than 0
+  </div>
+</div>
+
+<div class="mb-3">
+  <label class="form-label">180-Day Late Fee Rate (%) <span class="text-danger">*</span></label>
+  <input
+    type="number"
+    class="form-control"
+    formControlName="one_hundred_and_eighty_late_fee_rate"
+    placeholder="Enter 180-day late fee rate"
+    step="0.01"
+  >
+  <div
+    *ngIf="loanForm.get('one_hundred_and_eighty_late_fee_rate')?.touched && loanForm.get('one_hundred_and_eighty_late_fee_rate')?.invalid"
+    class="text-danger"
+  >
+    180-day late fee rate is required and must be greater than 0
+  </div>
+</div>
 
         <!-- Grace Period -->
         <div class="mb-3">

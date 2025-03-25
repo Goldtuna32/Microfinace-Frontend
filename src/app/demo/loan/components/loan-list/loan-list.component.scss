@@ -1,49 +1,91 @@
-/* src/app/components/loan-list/loan-list.component.scss */
 .container {
-  @apply mx-auto p-4 max-w-7xl;
+  max-width: 1400px;
 }
 
-.alert {
-  @apply mb-4;
+.card {
+  border-radius: 0.5rem;
+  overflow: hidden;
 }
 
-.mat-tab-group {
-  @apply bg-gray-100 rounded-t-lg;
+.nav-tabs {
+  border-bottom: 2px solid #dee2e6;
+
+  .nav-link {
+    color: #495057;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.25rem 0.25rem 0 0;
+    transition: all 0.3s;
+
+    &.active {
+      background-color: #fff;
+      border-color: #dee2e6 #dee2e6 #fff;
+      color: #007bff;
+    }
+
+    &:hover {
+      background-color: #f8f9fa;
+    }
+  }
 }
 
-table {
-  @apply w-full bg-white shadow-md rounded-lg;
+.table {
+  margin-bottom: 0;
+
+  th {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  td {
+    vertical-align: middle;
+  }
 }
 
-th.mat-header-cell {
-  @apply bg-gray-800 text-white p-2 font-bold;
+.dropdown {
+  position: relative; // Ensure dropdown is positioned correctly
+
+  .btn {
+    padding: 0.25rem 0.75rem;
+  }
+
+  .dropdown-menu {
+    min-width: 10rem;
+    z-index: 1000; // Ensure it’s above other elements
+
+    .dropdown-item {
+      padding: 0.5rem 1rem;
+      transition: background-color 0.2s;
+      cursor: pointer;
+
+      i {
+        width: 1.5rem;
+      }
+
+      &:hover {
+        background-color: #f8f9fa;
+      }
+    }
+  }
 }
 
-td.mat-cell {
-  @apply p-2 border-t border-gray-200;
-}
+.pagination {
+  .page-link {
+    color: #007bff;
+    border: none;
+    padding: 0.5rem 1rem;
 
-tr.mat-row:hover {
-  @apply bg-gray-100;
-}
+    &:hover {
+      background-color: #e9ecef;
+    }
+  }
 
-.mat-paginator {
-  @apply mt-4 bg-white p-2 rounded-b-lg shadow-md;
-}
+  .page-item.active .page-link {
+    background-color: #007bff;
+    color: #fff;
+  }
 
-/* Actions Button and Menu Styling */
-.btn-outline-primary {
-  @apply border-blue-600 text-blue-600 hover:bg-blue-50 px-3 py-1 text-sm font-medium rounded transition-colors duration-200 flex items-center;
-}
-
-.mat-menu-panel {
-  @apply w-48 rounded-lg shadow-lg bg-white divide-y divide-gray-200;
-}
-
-.mat-menu-item {
-  @apply flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 transition-colors duration-200 rounded;
-}
-
-.mat-menu-item:hover {
-  @apply bg-opacity-75;
+  .page-item.disabled .page-link {
+    color: #6c757d;
+    cursor: not-allowed;
+  }
 }

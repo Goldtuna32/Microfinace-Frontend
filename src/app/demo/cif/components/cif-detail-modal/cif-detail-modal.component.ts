@@ -4,6 +4,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ImageModule } from 'primeng/image'; 
 import { CIF } from '../../models/cif.model';
 import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CifService } from '../../services/cif.service';
 
 @Component({
   selector: 'app-cif-detail-modal',
@@ -12,19 +14,32 @@ import { HttpClient } from '@angular/common/http';
   styleUrl: './cif-detail-modal.component.scss'
 })
 export class CifDetailModalComponent implements OnInit {
+  cif!: CIF; // CIF data
+  isLoading: boolean = true; // Loading state
+
   constructor(
+    private route: ActivatedRoute,
+    private router: Router, 
     private http: HttpClient,
-    public dialogRef: MatDialogRef<CifDetailModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public cif: CIF
+    private cifService: CifService // Service to fetch CIF data
   ) {}
 
   ngOnInit(): void {
-    console.log('CIF Data:', this.cif);  // This will log the CIF data to the console
+    const cifId = this.route.snapshot.paramMap.get('id');
+    if (cifId) {
+      const numericCifId = Number(cifId); // Convert string to number
+      this.cifService.getCIFById(numericCifId).subscribe(data => {
+        this.cif = data;
+        this.isLoading = false; // Set loading to false when data is loaded
+      }, error => {
+        console.error('Error fetching CIF data:', error);
+        this.isLoading = false; // Set loading to false even on error
+      });
+    }
   }
 
-
-  closeDialog(): void {
-    this.dialogRef.close();
+  goBack(): void {
+    this.router.navigate(['/cif/list']); // Adjust the route to your CIF list page
   }
 
   downloadReport(format: string): void {
@@ -52,6 +67,5 @@ export class CifDetailModalComponent implements OnInit {
       }
     });
   }
-  
 
 }

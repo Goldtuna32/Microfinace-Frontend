@@ -1,150 +1,175 @@
-<!-- src/app/components/loan-list/loan-list.component.html -->
 <div class="container mx-auto p-4">
-    <mat-card class="shadow-lg">
-      <mat-card-content>
-        <div *ngIf="errorMessage" class="alert alert-danger mb-4" role="alert">
-          {{ errorMessage }}
+  <div class="card shadow-lg">
+    <div class="card-body">
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="alert alert-danger mb-4" role="alert">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Tabs -->
+      <ul class="nav nav-tabs bg-gray-100 mb-4" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab" aria-controls="pending" aria-selected="true">
+            Pending Loans (Status: 3)
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved" type="button" role="tab" aria-controls="approved" aria-selected="false">
+            Approved Loans (Status: 4)
+          </button>
+        </li>
+      </ul>
+
+      <!-- Tab Content -->
+      <div class="tab-content">
+        <!-- Pending Loans Tab -->
+        <div class="tab-pane fade show active" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+              <thead class="bg-dark text-blue-400">
+                <tr>
+                  <th scope="col" class="p-3">ID</th>
+                  <th scope="col" class="p-3">Loan Amount</th>
+                  <th scope="col" class="p-3">Interest Rate (%)</th>
+                  <th scope="col" class="p-3">Grace Period (days)</th>
+                  <th scope="col" class="p-3">Repayment Duration (months)</th>
+                  <th scope="col" class="p-3">Document Fee</th>
+                  <th scope="col" class="p-3">Service Charges</th>
+                  <th scope="col" class="p-3">Current Account ID</th>
+                  <th scope="col" class="p-3">Late Fee Rate (%)</th>
+                  <th scope="col" class="p-3">90-Day Late Fee Rate (%)</th>
+                  <th scope="col" class="p-3">180-Day Late Fee Rate (%)</th>
+                  <th scope="col" class="p-3">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let loan of pendingLoansDataSource.data | slice: (pendingPageIndex * pendingPageSize) : ((pendingPageIndex + 1) * pendingPageSize)">
+                  <td class="p-3">{{ loan.id }}</td>
+                  <td class="p-3">{{ loan.loanAmount | currency }}</td>
+                  <td class="p-3">{{ loan.interestRate }}</td>
+                  <td class="p-3">{{ loan.gracePeriod }}</td>
+                  <td class="p-3">{{ loan.repaymentDuration }}</td>
+                  <td class="p-3">{{ loan.documentFee | currency }}</td>
+                  <td class="p-3">{{ loan.serviceCharges | currency }}</td>
+                  <td class="p-3">{{ loan.currentAccountId }}</td>
+                  <td class="p-3">{{ loan.late_fee_rate }}</td>
+                  <td class="p-3">{{ loan.ninety_day_late_fee_rate }}</td>
+                  <td class="p-3">{{ loan.one_hundred_and_eighty_day_late_fee_rate }}</td>
+                  <td class="p-3">
+                    <div class="dropdown" #dropdown>
+                      <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" (click)="toggleDropdown(dropdown)" aria-expanded="false">
+                        <i class="bi bi-gear me-1"></i> Actions
+                      </button>
+                      <ul class="dropdown-menu shadow-sm" [ngClass]="{'show': isDropdownOpen}">
+                        <li><button class="dropdown-item" (click)="editLoan(loan)"><i class="bi bi-pencil text-primary me-2"></i> Edit</button></li>
+                        <li><button class="dropdown-item" (click)="deleteLoan(loan)"><i class="bi bi-trash text-danger me-2"></i> Delete</button></li>
+                        <li *ngIf="loan.status === 3"><button class="dropdown-item" (click)="approveLoan(loan)"><i class="bi bi-check-circle text-success me-2"></i> Approve</button></li>
+                        <li><button class="dropdown-item" (click)="viewDetails(loan)"><i class="bi bi-eye text-teal-600 me-2"></i> View Details</button></li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="!pendingLoansDataSource.data.length">
+                  <td colspan="12" class="text-center p-4">No pending loans found.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- Pagination -->
+          <nav class="mt-4" *ngIf="pendingLoansDataSource.data.length">
+            <ul class="pagination justify-content-center">
+              <li class="page-item" [class.disabled]="pendingPageIndex === 0">
+                <button class="page-link" (click)="pendingPageIndex = 0"><i class="bi bi-chevron-double-left"></i></button>
+              </li>
+              <li class="page-item" [class.disabled]="pendingPageIndex === 0">
+                <button class="page-link" (click)="pendingPageIndex = pendingPageIndex - 1"><i class="bi bi-chevron-left"></i></button>
+              </li>
+              <li class="page-item" *ngFor="let page of getPendingPages()" [class.active]="pendingPageIndex === page">
+                <button class="page-link" (click)="pendingPageIndex = page">{{ page + 1 }}</button>
+              </li>
+              <li class="page-item" [class.disabled]="pendingPageIndex === getPendingTotalPages() - 1">
+                <button class="page-link" (click)="pendingPageIndex = pendingPageIndex + 1"><i class="bi bi-chevron-right"></i></button>
+              </li>
+              <li class="page-item" [class.disabled]="pendingPageIndex === getPendingTotalPages() - 1">
+                <button class="page-link" (click)="pendingPageIndex = getPendingTotalPages() - 1"><i class="bi bi-chevron-double-right"></i></button>
+              </li>
+            </ul>
+          </nav>
         </div>
-  
-        <mat-tab-group class="bg-gray-100">
-          <!-- Pending Loans Tab -->
-          <mat-tab label="Pending Loans (Status: 3)">
-            <div class="p-4">
-              <table mat-table [dataSource]="pendingLoansDataSource" class="w-full bg-white shadow-md rounded-lg">
-                <ng-container matColumnDef="id">
-                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">ID</th>
-                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.id }}</td>
-                </ng-container>
-                <ng-container matColumnDef="loanAmount">
-                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Loan Amount</th>
-                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.loanAmount | currency }}</td>
-                </ng-container>
-                <ng-container matColumnDef="interestRate">
-                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Interest Rate (%)</th>
-                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.interestRate }}</td>
-                </ng-container>
-                <ng-container matColumnDef="gracePeriod">
-                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Grace Period (days)</th>
-                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.gracePeriod }}</td>
-                </ng-container>
-                <ng-container matColumnDef="repaymentDuration">
-                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Repayment Duration (months)</th>
-                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.repaymentDuration }}</td>
-                </ng-container>
-                <ng-container matColumnDef="documentFee">
-                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Document Fee</th>
-                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.documentFee | currency }}</td>
-                </ng-container>
-                <ng-container matColumnDef="serviceCharges">
-                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Service Charges</th>
-                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.serviceCharges | currency }}</td>
-                </ng-container>
-                <ng-container matColumnDef="currentAccountId">
-                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Current Account ID</th>
-                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.currentAccountId }}</td>
-                </ng-container>
-                <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Actions</th>
-                    <td mat-cell *matCellDef="let loan" class="p-2">
-                      <button mat-button [matMenuTriggerFor]="menu" class="btn btn-outline-primary btn-sm flex items-center space-x-2">
-                        <i class="bi bi-gear"></i>
-                        <span>Actions</span>
-                      </button>
-                      <mat-menu #menu="matMenu" class="w-48 rounded-lg shadow-lg bg-white divide-y divide-gray-200">
-                        <button mat-menu-item (click)="editLoan(loan)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-blue-100 rounded transition">
-                          <i class="bi bi-pencil text-blue-600"></i>
-                          <span>Edit</span>
-                        </button>
-                        <button mat-menu-item (click)="deleteLoan(loan)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-red-100 rounded transition">
-                          <i class="bi bi-trash text-red-600"></i>
-                          <span>Delete</span>
-                        </button>
-                        <button mat-menu-item (click)="approveLoan(loan)" *ngIf="loan.status === 3" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-green-100 rounded transition">
-                          <i class="bi bi-check-circle text-green-600"></i>
-                          <span>Approve</span>
-                        </button>
-                        <button mat-menu-item (click)="viewDetails(loan)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-teal-100 rounded transition">
-                          <i class="bi bi-eye text-teal-600"></i>
-                          <span>View Details</span>
-                        </button>
-                      </mat-menu>
-                    </td>
-                  </ng-container>
-                <tr mat-header-row *matHeaderRowDef="displayedColumns" class="border-b"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-gray-100"></tr>
-                <tr class="mat-row" *matNoDataRow>
-                  <td class="mat-cell text-center p-4" colspan="9">No pending loans found.</td>
+
+        <!-- Approved Loans Tab -->
+        <div class="tab-pane fade" id="approved" role="tabpanel " aria-labelledby="approved-tab">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+              <thead class="bg-dark text-blue-400">
+                <tr>
+                  <th scope="col" class="p-3">ID</th>
+                  <th scope="col" class="p-3">Loan Amount</th>
+                  <th scope="col" class="p-3">Interest Rate (%)</th>
+                  <th scope="col" class="p-3">Grace Period (days)</th>
+                  <th scope="col" class="p-3">Repayment Duration (months)</th>
+                  <th scope="col" class="p-3">Document Fee</th>
+                  <th scope="col" class="p-3">Service Charges</th>
+                  <th scope="col" class="p-3">Current Account ID</th>
+                  <th scope="col" class="p-3">Late Fee Rate (%)</th>
+                  <th scope="col" class="p-3">90-Day Late Fee Rate (%)</th>
+                  <th scope="col" class="p-3">180-Day Late Fee Rate (%)</th>
+                  <th scope="col" class="p-3">Actions</th>
                 </tr>
-              </table>
-              <mat-paginator #pendingPaginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons class="mt-4 bg-white p-2 rounded-b-lg"></mat-paginator>
-            </div>
-          </mat-tab>
-  
-          <!-- Approved Loans Tab -->
-          <mat-tab label="Approved Loans (Status: 4)">
-            <div class="p-4">
-              <table mat-table [dataSource]="approvedLoansDataSource" class="w-full bg-white shadow-md rounded-lg">
-                <ng-container matColumnDef="id">
-                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">ID</th>
-                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.id }}</td>
-                </ng-container>
-                <ng-container matColumnDef="loanAmount">
-                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Loan Amount</th>
-                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.loanAmount | currency }}</td>
-                </ng-container>
-                <ng-container matColumnDef="interestRate">
-                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Interest Rate (%)</th>
-                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.interestRate }}</td>
-                </ng-container>
-                <ng-container matColumnDef="gracePeriod">
-                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Grace Period (days)</th>
-                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.gracePeriod }}</td>
-                </ng-container>
-                <ng-container matColumnDef="repaymentDuration">
-                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Repayment Duration (months)</th>
-                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.repaymentDuration }}</td>
-                </ng-container>
-                <ng-container matColumnDef="documentFee">
-                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Document Fee</th>
-                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.documentFee | currency }}</td>
-                </ng-container>
-                <ng-container matColumnDef="serviceCharges">
-                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Service Charges</th>
-                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.serviceCharges | currency }}</td>
-                </ng-container>
-                <ng-container matColumnDef="currentAccountId">
-                  <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Current Account ID</th>
-                  <td mat-cell *matCellDef="let loan" class="p-2">{{ loan.currentAccountId }}</td>
-                </ng-container>
-                <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Actions</th>
-                    <td mat-cell *matCellDef="let loan" class="p-2">
-                      <button mat-button [matMenuTriggerFor]="menu" class="btn btn-outline-primary btn-sm flex items-center space-x-2">
-                        <i class="bi bi-gear"></i>
-                        <span>Actions</span>
+              </thead>
+              <tbody>
+                <tr *ngFor="let loan of approvedLoansDataSource.data | slice: (approvedPageIndex * approvedPageSize) : ((approvedPageIndex + 1) * approvedPageSize)">
+                  <td class="p-3">{{ loan.id }}</td>
+                  <td class="p-3">{{ loan.loanAmount | currency }}</td>
+                  <td class="p-3">{{ loan.interestRate }}</td>
+                  <td class="p-3">{{ loan.gracePeriod }}</td>
+                  <td class="p-3">{{ loan.repaymentDuration }}</td>
+                  <td class="p-3">{{ loan.documentFee | currency }}</td>
+                  <td class="p-3">{{ loan.serviceCharges | currency }}</td>
+                  <td class="p-3">{{ loan.currentAccountId }}</td>
+                  <td class="p-3">{{ loan.late_fee_rate }}</td>
+                  <td class="p-3">{{ loan.ninety_day_late_fee_rate }}</td>
+                  <td class="p-3">{{ loan.one_hundred_and_eighty_day_late_fee_rate }}</td>
+                  <td class="p-3">
+                    <div class="dropdown">
+                      <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-gear me-1"></i> Actions
                       </button>
-                      <mat-menu #menu="matMenu" class="w-48 rounded-lg shadow-lg bg-white divide-y divide-gray-200">
-                        <button mat-menu-item (click)="viewDetails(loan)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-teal-100 rounded transition">
-                          <i class="bi bi-eye text-teal-600"></i>
-                          <span>View Details</span>
-                        </button>
-                        <button mat-menu-item (click)="showRepaymentSchedule(loan)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-purple-100 rounded transition">
-                          <i class="bi bi-calendar text-purple-600"></i>
-                          <span>Show Repayment Schedule</span>
-                        </button>
-                      </mat-menu>
-                    </td>
-                  </ng-container>
-                <tr mat-header-row *matHeaderRowDef="displayedColumns" class="border-b"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-gray-100"></tr>
-                <tr class="mat-row" *matNoDataRow>
-                  <td class="mat-cell text-center p-4" colspan="9">No approved loans found.</td>
+                      <ul class="dropdown-menu shadow-sm">
+                        <li><button class="dropdown-item" (click)="viewDetails(loan)"><i class="bi bi-eye text-teal-600 me-2"></i> View Details</button></li>
+                        <li><button class="dropdown-item" (click)="showRepaymentSchedule(loan)"><i class="bi bi-calendar text-purple-600 me-2"></i> Show Repayment Schedule</button></li>
+                      </ul>
+                    </div>
+                  </td>
                 </tr>
-              </table>
-              <mat-paginator #approvedPaginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons class="mt-4 bg-white p-2 rounded-b-lg"></mat-paginator>
-            </div>
-          </mat-tab>
-        </mat-tab-group>
-      </mat-card-content>
-    </mat-card>
+                <tr *ngIf="!approvedLoansDataSource.data.length">
+                  <td colspan="12" class="text-center p-4">No approved loans found.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- Pagination -->
+          <nav class="mt-4" *ngIf="approvedLoansDataSource.data.length">
+            <ul class="pagination justify-content-center">
+              <li class="page-item" [class.disabled]="approvedPageIndex === 0">
+                <button class="page-link" (click)="approvedPageIndex = 0"><i class="bi bi-chevron-double-left"></i></button>
+              </li>
+              <li class="page-item" [class.disabled]="approvedPageIndex === 0">
+                <button class="page-link" (click)="approvedPageIndex = approvedPageIndex - 1"><i class="bi bi-chevron-left"></i></button>
+              </li>
+              <li class="page-item" *ngFor="let page of getApprovedPages()" [class.active]="approvedPageIndex === page">
+                <button class="page-link" (click)="approvedPageIndex = page">{{ page + 1 }}</button>
+              </li>
+              <li class="page-item" [class.disabled]="approvedPageIndex === getApprovedTotalPages() - 1">
+                <button class="page-link" (click)="approvedPageIndex = approvedPageIndex + 1"><i class="bi bi-chevron-right"></i></button>
+              </li>
+              <li class="page-item" [class.disabled]="approvedPageIndex === getApprovedTotalPages() - 1">
+                <button class="page-link" (click)="approvedPageIndex = getApprovedTotalPages() - 1"><i class="bi bi-chevron-double-right"></i></button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
   </div>
+</div>

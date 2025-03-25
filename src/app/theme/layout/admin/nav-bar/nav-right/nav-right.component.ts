@@ -1,24 +1,18 @@
-// angular import
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { animate, style, transition, trigger } from '@angular/animations';
-
-// bootstrap import
 import { NgbDropdown, NgbDropdownConfig } from '@ng-bootstrap/ng-bootstrap';
-
-// project import
 import { SharedModule } from 'src/app/theme/shared/shared.module';
-import { ChatUserListComponent } from './chat-user-list/chat-user-list.component';
-import { ChatMsgComponent } from './chat-msg/chat-msg.component';
 import { NotificationService } from 'src/app/demo/notification/notification.service';
 import { Notification } from 'src/app/demo/notification/Notification.model';
 import { Router } from '@angular/router';
 import { AlertService } from 'src/app/alertservice/alert.service';
 import { FlowbiteService } from 'src/app/flowbite services/flowbit.service';
 import { initFlowbite } from 'flowbite';
+import { EmailService } from 'src/app/emailservice/email.service';
 
 @Component({
   selector: 'app-nav-right',
-  imports: [SharedModule, ChatUserListComponent, ChatMsgComponent],
+  imports: [SharedModule],
   templateUrl: './nav-right.component.html',
   styleUrls: ['./nav-right.component.scss'],
   providers: [NgbDropdownConfig],
@@ -33,32 +27,147 @@ import { initFlowbite } from 'flowbite';
     ])
   ]
 })
-export class NavRightComponent {
+export class NavRightComponent implements OnInit, OnDestroy {
   @ViewChild('notificationDropdown') notificationDropdown!: NgbDropdown;
 
-  visibleUserList: boolean = false;
-  chatMessage: boolean = false;
-  friendId!: number;
+  visibleEmailList: boolean = false; // Changed from visibleUserList to visibleEmailList
   notifications: Notification[] = [];
   showSuccessAlert: boolean = false;
   successMessage: string = '';
+  emails: any[] = []; // Array to store emails
+  private socket!: WebSocket; // WebSocket connection
+  showComposeForm: boolean = false;
+  emailTo: string = '';
+  emailSubject: string = '';
+  emailBody: string = '';
+  
 
   constructor(
     private notificationService: NotificationService,
     private router: Router,
-    private alertService: AlertService, // Inject AlertService
-    private flowbiteService: FlowbiteService // Inject FlowbiteService
-  ) {
+    private alertService: AlertService,
+    private flowbiteService: FlowbiteService,
+    private emailService: EmailService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit() {
     this.loadNotifications();
-    
+    this.connectWebSocket();
+    this.loadEmailList();
+    document.addEventListener('click', this.onClickOutside.bind(this));
+
     this.alertService.successAlert$.subscribe((message) => {
       this.successMessage = message;
       this.showSuccessAlert = true;
       setTimeout(() => {
         this.showSuccessAlert = false;
-      }, 5000); // Hide after 5 seconds
+      }, 5000);
     });
   }
+
+  toggleComposeForm(event: Event) {
+    event.stopPropagation(); // Prevent toggling email list
+    this.showComposeForm = !this.showComposeForm;
+    if (!this.showComposeForm) {
+      this.emailTo = '';
+      this.emailSubject = '';
+      this.emailBody = ''; // Reset form when closing
+    }
+  }
+
+  connectWebSocket() {
+    this.socket = new WebSocket('ws://localhost:8080/email-websocket');
+    
+    this.socket.onopen = (event) => {
+        console.log('WebSocket connection established at:', new Date().toISOString(), event);
+        // Send a ping to keep it alive
+        this.socket.send('Ping from Angular');
+    };
+    
+
+    this.socket.onmessage = (event) => {
+      console.log('Received:', event.data);
+      const emailData = JSON.parse(event.data);
+      this.emails.unshift(emailData);
+      
+      this.cdr.detectChanges(); // Force UI update
+    };
+    
+    this.socket.onclose = (event) => {
+        console.log('WebSocket connection closed at:', new Date().toISOString(), 
+            'Code:', event.code, 
+            'Reason:', event.reason, 
+            'Was clean:', event.wasClean, 
+            'Remote:', event.wasClean ? 'Server' : 'Client or Network');
+        setTimeout(() => this.connectWebSocket(), 2000); // Reconnect
+    };
+    
+    this.socket.onerror = (error) => {
+        console.error('WebSocket error at:', new Date().toISOString(), error);
+    };
+}
+
+ngOnDestroy() {
+    if (this.socket) {
+        this.socket.close();
+        console.log('WebSocket manually closed in ngOnDestroy');
+    }
+  }
+
+  sendEmail() {
+    if (this.emailTo && this.emailSubject && this.emailBody) {
+      this.emailService.sendEmail(this.emailTo, this.emailSubject, this.emailBody).subscribe(
+        (response) => {
+          console.log(response);
+          this.alertService.showSuccess('Email sent successfully!');
+          this.emailTo = '';
+          this.emailSubject = '';
+          this.emailBody = ''; // Reset form
+        },
+        (error) => {
+          console.error('Error sending email:', error);
+          this.alertService.showError('Failed to send email');
+        }
+      );
+    } else {
+      this.alertService.showError('Please fill all email fields');
+    }
+  }
+
+  loadEmailList() {
+    this.emailService.getEmailList().subscribe(
+      (emails) => {
+        console.log('Received email list from backend:', emails); // Debug log
+        this.emails = emails || []; // Ensure emails is an array, even if empty
+        console.log('Updated emails array:', this.emails);
+        this.cdr.detectChanges();
+      },
+      (error) => {
+        console.error('Error loading email list:', error);
+      }
+    );
+  }
+
+  onClickOutside(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const emailListElement = document.querySelector('.header-user-list');
+    const emailToggleElement = document.querySelector('.displayChatbox');
+  
+    if (emailListElement && !emailListElement.contains(target) && emailToggleElement && !emailToggleElement.contains(target)) {
+      this.visibleEmailList = false; // Close the email list
+    }
+  }
+
+  refreshEmailList(event: Event) {
+    event.stopPropagation();
+    console.log('Refreshing email list');
+    this.loadEmailList();
+  }
+toggleEmailList() {
+  this.visibleEmailList = !this.visibleEmailList;
+  console.log('Visible email list:', this.visibleEmailList);
+}
 
   loadNotifications() {
     this.notificationService.getAllUnreadNotifications().subscribe(
@@ -92,16 +201,14 @@ export class NavRightComponent {
   navigateToPendingLoans(notification: Notification) {
     if (notification.type === 'PENDING_LOAN') {
       this.router.navigate(['/loan/list']);
-      this.closeNotificationDropdown(); // Close dropdown after navigation
+      this.closeNotificationDropdown();
     }
-  }
-
-  onChatToggle(friendId: any) {
-    this.friendId = friendId;
-    this.chatMessage = !this.chatMessage;
   }
 
   dismissAlert() {
     this.showSuccessAlert = false;
   }
+
+  // Remove chat-related methods since we're replacing with email list
+  // onChatToggle(friendId: any) { ... }
 }

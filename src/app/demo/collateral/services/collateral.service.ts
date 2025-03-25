@@ -53,7 +53,7 @@ export class CollateralService {
   }
 
   getAllCifs(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/cifs/active`).pipe( // Adjust endpoint as needed
+    return this.http.get<any[]>(`${this.baseUrl}/cifs/activeCIFS`).pipe( // Adjust endpoint as needed
       catchError(error => {
         console.error('Failed to fetch CIFs:', error.statusText);
         return throwError(() => new Error(error.statusText));

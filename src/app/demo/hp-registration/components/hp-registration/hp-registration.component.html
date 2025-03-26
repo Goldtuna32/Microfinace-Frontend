@@ -1,0 +1,81 @@
+<div class="container mt-4">
+  <h2 class="mb-3">HP Registration</h2>
+
+  <form #hpForm="ngForm" (ngSubmit)="onSubmit()">
+    <!-- HP Number -->
+    <div class="mb-3">
+      <label for="hpNumber" class="form-label">HP Number</label>
+      <input type="text" id="hpNumber" class="form-control" [(ngModel)]="hp.hpNumber" name="hpNumber" required>
+    </div>
+
+    <!-- Loan Amount -->
+    <div class="mb-3">
+      <label for="loanAmount" class="form-label">Loan Amount</label>
+      <input type="number" id="loanAmount" class="form-control" [(ngModel)]="hp.loanAmount" name="loanAmount" required>
+    </div>
+
+    <!-- Down Payment -->
+    <div class="mb-3">
+      <label for="downPayment" class="form-label">Down Payment</label>
+      <input type="number" id="downPayment" class="form-control" [(ngModel)]="hp.downPayment" name="downPayment" required>
+    </div>
+
+    <!-- Loan Term -->
+    <div class="mb-3">
+      <label for="loanTerm" class="form-label">Loan Term (Months)</label>
+      <input type="number" id="loanTerm" class="form-control" [(ngModel)]="hp.loanTerm" name="loanTerm" required>
+    </div>
+
+    <!-- Interest Rate -->
+    <div class="mb-3">
+      <label for="interestRate" class="form-label">Interest Rate (%)</label>
+      <input type="text" id="interestRate" class="form-control" [(ngModel)]="hp.interestRate" name="interestRate" required>
+    </div>
+
+    <!-- Start Date -->
+    <div class="mb-3">
+      <label for="startDate" class="form-label">Start Date</label>
+      <input type="date" id="startDate" class="form-control" [(ngModel)]="hp.startDate" name="startDate" required>
+    </div>
+
+    <!-- End Date -->
+    <div class="mb-3">
+      <label for="endDate" class="form-label">End Date</label>
+      <input type="date" id="endDate" class="form-control" [(ngModel)]="hp.endDate" name="endDate" required>
+    </div>
+
+    <!-- Status -->
+    <div class="mb-3">
+      <label for="status" class="form-label">Status</label>
+      <select id="status" class="form-control" [(ngModel)]="hp.status" name="status" required>
+        <option [value]="1">Pending</option>
+        <option [value]="2">Approved</option>
+        <option [value]="3">Rejected</option>
+        <option [value]="4">Active</option>
+      </select>
+    </div>
+
+    <!-- Current Account Dropdown -->
+    <div class="mb-3">
+      <label for="currentAccount" class="form-label">Current Account</label>
+      <select id="currentAccount" class="form-control" [(ngModel)]="hp.currentAccount" name="currentAccount" required>
+        <option *ngFor="let account of currentAccounts" [value]="account.id">
+          {{ account.accountNumber }} - {{ account.customerName }}
+        </option>
+      </select>
+    </div>
+
+    <!-- HP Product Dropdown -->
+    <div class="mb-3">
+      <label for="hpProduct" class="form-label">HP Product</label>
+      <select id="hpProduct" class="form-control" [(ngModel)]="hp.hpProduct" name="hpProduct" required>
+        <option *ngFor="let product of hpProducts" [value]="product.id">
+          {{ product.name }} - {{ product.category }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+</div>

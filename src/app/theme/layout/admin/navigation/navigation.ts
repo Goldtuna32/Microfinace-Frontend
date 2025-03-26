@@ -282,6 +282,39 @@ export const NavigationItems: NavigationItem[] = [
       }
     ]
   },
+
+
+  {
+    id: 'hp-registration',
+    title: 'Hp Registration',
+    type: 'group',
+    icon: 'icon-group',
+    children: [
+      {
+        id: 'Hp Registration',
+        title: 'Hp Registration',
+        type: 'collapse',
+        icon: 'feather icon-box',
+        children: [
+          {
+            id: 'hp-registration List',
+            title: 'Hp-Registration List',
+            type: 'item',
+            url: '/hp-registration/list',    
+            icon: 'feather icon-list'
+          },
+          {
+            id: 'Add Hp-Registration',
+            title: 'Add Hp-Registration',
+            type: 'item',
+            url: '/hp-registration',
+            icon: 'feather icon-plus'
+          },
+        ]
+      }
+    ]
+  },
+
   {
     id: 'Product-Type',
     title: 'Product Type',

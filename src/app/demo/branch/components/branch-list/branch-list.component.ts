@@ -157,15 +157,8 @@ export class BranchListComponent implements AfterViewInit {
     this.selectedBranch = null;
   }
 
-  openBranchDetailDialog(branch: Branch): void {
-    this.dialog.open(BranchDetailComponent, {
-      width: '90%',
-      maxWidth: '900px',
-      height: 'auto',
-      maxHeight: '90vh',
-      panelClass: 'custom-dialog-container',
-      data: branch
-    });
+  openBranchDetailPage(branch: Branch): void {
+    this.router.navigate(['/branches', branch.id]);
   }
 
  applyFilter(): void {

@@ -1,0 +1,108 @@
+<!-- user-list.component.html -->
+<div class="user-list-container animate__animated animate__fadeIn">
+  <div class="container-fluid p-4">
+    <div class="card shadow-lg">
+      <div class="card-header bg-primary text-white">
+        <div class="d-flex justify-content-between align-items-center">
+          <h2 class="mb-0">
+            <i class="bi bi-people-fill me-2"></i>User Management
+          </h2>
+          <div>
+            <button (click)="toggleInactive()" class="btn btn-outline-light toggle-btn">
+              <i class="bi" [class.bi-eye-fill]="showInactive" [class.bi-eye-slash-fill]="!showInactive"></i>
+              {{ showInactive ? ' Show Active Users' : ' Show Inactive Users' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover table-striped mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th class="ps-4"><i class="bi bi-person-badge"></i> Username</th>
+                <th><i class="bi bi-envelope"></i> Email</th>
+                <th><i class="bi bi-telephone"></i> Phone</th>
+                <th><i class="bi bi-calendar"></i> DOB</th>
+                <th><i class="bi bi-person-rolodex"></i> Role</th>
+                <th><i class="bi bi-building"></i> Branch</th>
+                <th><i class="bi bi-circle-fill"></i> Status</th>
+                <th class="text-end pe-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of showInactive ? inactiveUsers : users" 
+                  class="animate__animated animate__fadeIn" 
+                  [ngClass]="{'table-danger': user.status !== 1}">
+                <td class="ps-4 fw-bold">{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.phoneNumber || 'N/A' }}</td>
+                <td>{{ user.dob | date:'mediumDate' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'bg-primary': user.roleId === 1,
+                    'bg-success': user.roleId === 2,
+                    'bg-info': user.roleId === 3,
+                    'bg-warning': user.roleId === 4
+                  }">
+                    {{ getRoleName(user.roleId) }}
+                  </span>
+                </td>
+                <td>{{ getBranchName(user.branchId) }}</td>
+                <td>
+                  <span class="badge" [ngClass]="{
+                    'bg-success': user.status === 1,
+                    'bg-secondary': user.status !== 1
+                  }">
+                    <i class="bi" [class.bi-check-circle]="user.status === 1" [class.bi-x-circle]="user.status !== 1"></i>
+                    {{ user.status === 1 ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td class="text-end pe-4">
+                  <div class="btn-group" role="group">
+                    <button (click)="editUser(user.id)" class="btn btn-sm btn-outline-primary" 
+                            title="Edit" data-bs-toggle="tooltip">
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <button [class.btn-outline-success]="user.status !== 1" 
+                            [class.btn-outline-secondary]="user.status === 1"
+                            title="{{user.status === 1 ? 'Deactivate' : 'Activate'}}" data-bs-toggle="tooltip">
+                      <i class="bi" [class.bi-person-check]="user.status !== 1" [class.bi-person-x]="user.status === 1"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" 
+                            title="Delete" data-bs-toggle="tooltip">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="(showInactive ? inactiveUsers : users)?.length === 0" class="text-center">
+                <td colspan="8" class="py-4 text-muted">
+                  <i class="bi bi-exclamation-triangle me-2"></i>
+                  No {{ showInactive ? 'inactive' : 'active' }} users found
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card-footer bg-light">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="form-group mb-0">
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input type="text" class="form-control" placeholder="Search users..." 
+                     [(ngModel)]="searchTerm" (input)="filterUsers()">
+            </div>
+          </div>
+          <div class="text-muted small">
+            Showing {{ (showInactive ? inactiveUsers : users)?.length }} 
+            {{ showInactive ? 'inactive' : 'active' }} users
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,189 +1,211 @@
-<div class="container mt-4">
-    <!-- Success Message -->
-    <div *ngIf="showSuccessMessage" class="alert alert-success alert-dismissible fade show mb-3" role="alert">
-      Collateral created successfully!
-      <button type="button" class="btn-close" (click)="showSuccessMessage = false"></button>
+<!-- Enhanced HTML Structure -->
+<div class="collateral-container">
+  <!-- Success Message -->
+  <div *ngIf="showSuccessMessage" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+    <i class="bi bi-check-circle-fill"></i>
+    <div>
+      <h5 class="alert-heading mb-1">Success!</h5>
+      <p class="mb-0">Collateral created successfully!</p>
     </div>
-  
-    <div class="card shadow-lg">
-      <div class="card-header bg-primary text-white">
-        <h4 class="mb-0">Create Collateral</h4>
-      </div>
-      <div class="card-body">
-        <form [formGroup]="collateralForm" (ngSubmit)="onSubmit()">
-          <!-- CIF Selection -->
-          <div class="mb-3">
-            <label class="form-label">Select CIF <span class="text-danger">*</span></label>
-            <div class="dropdown-container">
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Search CIF by name or NRC number"
-                [(ngModel)]="cifSearchInput"
-                (input)="filterCifs($event)"
-                (click)="toggleCifDropdown()"
-                (blur)="closeDropdowns()"
-                [ngModelOptions]="{standalone: true}"
-              >
-              <div *ngIf="showCifDropdown" class="dropdown-menu show w-100">
-                <div class="dropdown-items">
-                  <div *ngFor="let cif of filteredCifs" class="dropdown-item" (click)="selectCif(cif)">
-                    <div>{{ cif.name }}</div>
-                    <div class="text-muted small">{{ cif.nrcNumber }}</div>
-                  </div>
-                  <div *ngIf="filteredCifs.length === 0" class="dropdown-item text-muted">
-                    No matching CIFs found
-                  </div>
+    <button type="button" class="btn-close" (click)="showSuccessMessage = false"></button>
+  </div>
+
+  <div class="collateral-card">
+    <!-- Card Header -->
+    <div class="card-header text-white">
+      <h4>
+        <i class="bi bi-file-earmark-lock-fill"></i> Create New Collateral
+      </h4>
+    </div>
+
+    <!-- Card Body -->
+    <div class="card-body">
+      <form [formGroup]="collateralForm" (ngSubmit)="onSubmit()">
+        <!-- CIF Selection -->
+        <div class="form-section">
+          <label class="form-label">
+            <i class="bi bi-person-badge"></i> Select CIF <span class="required-star">*</span>
+          </label>
+          <div class="dropdown-container">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search CIF by name or NRC number"
+              [(ngModel)]="cifSearchInput"
+              (input)="filterCifs($event)"
+              (click)="toggleCifDropdown()"
+              (blur)="closeDropdowns()"
+              [ngModelOptions]="{standalone: true}"
+            >
+            <div *ngIf="showCifDropdown" class="dropdown-menu show">
+              <div class="dropdown-items">
+                <div *ngFor="let cif of filteredCifs" 
+                     class="dropdown-item" 
+                     (click)="selectCif(cif)">
+                  <div class="fw-semibold">{{ cif.name }}</div>
+                  <div class="text-muted">{{ cif.nrcNumber }}</div>
+                </div>
+                <div *ngIf="filteredCifs.length === 0" class="dropdown-item text-muted">
+                  <i class="bi bi-search me-2"></i> No matching CIFs found
                 </div>
               </div>
             </div>
-            <div
-              *ngIf="collateralForm.get('cifId')?.touched && collateralForm.get('cifId')?.invalid"
-              class="text-danger"
-            >
-              CIF is required
-            </div>
           </div>
-  
-          <!-- Collateral Type Selection -->
-          <div class="mb-3">
-            <label class="form-label">Select Collateral Type <span class="text-danger">*</span></label>
-            <div class="dropdown-container">
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Search collateral type by name"
-                [(ngModel)]="collateralTypeSearchInput"
-                (input)="filterCollateralTypes($event)"
-                (click)="toggleCollateralTypeDropdown()"
-                (blur)="closeDropdowns()"
-                [ngModelOptions]="{standalone: true}"
-              >
-              <div *ngIf="showCollateralTypeDropdown" class="dropdown-menu show w-100">
-                <div class="dropdown-items">
-                  <div
-                    *ngFor="let type of filteredCollateralTypes"
-                    class="dropdown-item"
-                    (click)="selectCollateralType(type)"
-                  >
-                    {{ type.name }}
-                  </div>
-                  <div *ngIf="filteredCollateralTypes.length === 0" class="dropdown-item text-muted">
-                    No matching collateral types found
-                  </div>
+          <div *ngIf="collateralForm.get('cifId')?.touched && collateralForm.get('cifId')?.invalid" class="error-text">
+            <i class="bi bi-exclamation-circle-fill"></i> CIF is required
+          </div>
+        </div>
+
+        <!-- Collateral Type Selection -->
+        <div class="form-section">
+          <label class="form-label">
+            <i class="bi bi-tags"></i> Select Collateral Type <span class="required-star">*</span>
+          </label>
+          <div class="dropdown-container">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search collateral type by name"
+              [(ngModel)]="collateralTypeSearchInput"
+              (input)="filterCollateralTypes($event)"
+              (click)="toggleCollateralTypeDropdown()"
+              (blur)="closeDropdowns()"
+              [ngModelOptions]="{standalone: true}"
+            >
+            <div *ngIf="showCollateralTypeDropdown" class="dropdown-menu show">
+              <div class="dropdown-items">
+                <div *ngFor="let type of filteredCollateralTypes" 
+                     class="dropdown-item" 
+                     (click)="selectCollateralType(type)">
+                  {{ type.name }}
+                </div>
+                <div *ngIf="filteredCollateralTypes.length === 0" class="dropdown-item text-muted">
+                  <i class="bi bi-search me-2"></i> No matching collateral types found
                 </div>
               </div>
             </div>
-            <div
-              *ngIf="collateralForm.get('collateralTypeId')?.touched && collateralForm.get('collateralTypeId')?.invalid"
-              class="text-danger"
-            >
-              Collateral Type is required
-            </div>
           </div>
-  
-          <!-- Collateral Value -->
-          <div class="mb-3">
-            <label class="form-label">Value <span class="text-danger">*</span></label>
+          <div *ngIf="collateralForm.get('collateralTypeId')?.touched && collateralForm.get('collateralTypeId')?.invalid" class="error-text">
+            <i class="bi bi-exclamation-circle-fill"></i> Collateral Type is required
+          </div>
+        </div>
+
+        <!-- Collateral Value -->
+        <div class="form-section">
+          <label class="form-label">
+            <i class="bi bi-cash-stack"></i> Value <span class="required-star">*</span>
+          </label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-currency-dollar"></i>
+            </span>
             <input
               type="number"
               class="form-control"
               formControlName="value"
               placeholder="Enter collateral value"
               step="0.01"
+              min="0"
             >
-            <div
-              *ngIf="collateralForm.get('value')?.touched && collateralForm.get('value')?.invalid"
-              class="text-danger"
-            >
-              Value is required and must be greater than 0
-            </div>
           </div>
-  
-          <!-- Description -->
-          <div class="mb-3">
-            <label class="form-label">Description <span class="text-danger">*</span></label>
-            <textarea
-              class="form-control"
-              formControlName="description"
-              rows="3"
-              placeholder="Enter collateral description"
-            ></textarea>
-            <div
-              *ngIf="collateralForm.get('description')?.touched && collateralForm.get('description')?.invalid"
-              class="text-danger"
-            >
-              Description is required and must not exceed 1000 characters
-            </div>
+          <div *ngIf="collateralForm.get('value')?.touched && collateralForm.get('value')?.invalid" class="error-text">
+            <i class="bi bi-exclamation-circle-fill"></i> 
+            <span *ngIf="collateralForm.get('value')?.errors?.['required']">Value is required</span>
+            <span *ngIf="collateralForm.get('value')?.errors?.['min']">Value must be greater than 0</span>
           </div>
-  
+        </div>
+
+        <!-- Description -->
+        <div class="form-section">
+          <label class="form-label">
+            <i class="bi bi-card-text"></i> Description <span class="required-star">*</span>
+          </label>
+          <textarea
+            class="form-control"
+            formControlName="description"
+            rows="3"
+            placeholder="Enter collateral description"
+          ></textarea>
+          <div *ngIf="collateralForm.get('description')?.touched && collateralForm.get('description')?.invalid" class="error-text">
+            <i class="bi bi-exclamation-circle-fill"></i> 
+            <span *ngIf="collateralForm.get('description')?.errors?.['required']">Description is required</span>
+            <span *ngIf="collateralForm.get('description')?.errors?.['maxlength']">Description must not exceed 1000 characters</span>
+          </div>
+        </div>
+
+        <!-- Photos Section -->
+        <div class="row">
           <!-- Front Collateral Photo -->
-          <div class="mb-3">
-            <label class="form-label">Front Photo <span class="text-danger">*</span></label>
-            <div class="input-group">
+          <div class="col-md-6 form-section">
+            <label class="form-label">
+              <i class="bi bi-camera"></i> Front Photo <span class="required-star">*</span>
+            </label>
+            <div class="file-input-group">
+              <label class="file-label">
+                <span>
+                  <i class="bi bi-upload me-2"></i>
+                  {{ frontPhotoPreview ? 'Change Front Photo' : 'Upload Front Photo' }}
+                </span>
+                <i class="bi bi-image"></i>
+              </label>
               <input
                 type="file"
-                class="form-control"
+                class="file-input"
                 (change)="onFrontPhotoSelected($event)"
                 accept="image/*"
                 #frontPhotoInput
               >
-              <button
-                class="btn btn-outline-secondary"
-                type="button"
-                (click)="frontPhotoInput.click()"
-              >
-                Browse
-              </button>
             </div>
-            <div *ngIf="frontPhotoPreview" class="mt-2">
-              <img [src]="frontPhotoPreview" class="img-thumbnail" style="max-height: 200px">
+            <div *ngIf="frontPhotoPreview" class="image-preview">
+              <img [src]="frontPhotoPreview" class="img-fluid rounded">
             </div>
-            <div
-              *ngIf="collateralForm.get('F_collateralPhoto')?.touched && collateralForm.get('F_collateralPhoto')?.invalid"
-              class="text-danger"
-            >
-              Front photo is required
+            <div *ngIf="collateralForm.get('F_collateralPhoto')?.touched && collateralForm.get('F_collateralPhoto')?.invalid" class="error-text">
+              <i class="bi bi-exclamation-circle-fill"></i> Front photo is required
             </div>
           </div>
-  
+
           <!-- Back Collateral Photo -->
-          <div class="mb-3">
-            <label class="form-label">Back Photo <span class="text-danger">*</span></label>
-            <div class="input-group">
+          <div class="col-md-6 form-section">
+            <label class="form-label">
+              <i class="bi bi-camera-reels"></i> Back Photo <span class="required-star">*</span>
+            </label>
+            <div class="file-input-group">
+              <label class="file-label">
+                <span>
+                  <i class="bi bi-upload me-2"></i>
+                  {{ backPhotoPreview ? 'Change Back Photo' : 'Upload Back Photo' }}
+                </span>
+                <i class="bi bi-image"></i>
+              </label>
               <input
                 type="file"
-                class="form-control"
+                class="file-input"
                 (change)="onBackPhotoSelected($event)"
                 accept="image/*"
                 #backPhotoInput
               >
-              <button
-                class="btn btn-outline-secondary"
-                type="button"
-                (click)="backPhotoInput.click()"
-              >
-                Browse
-              </button>
             </div>
-            <div *ngIf="backPhotoPreview" class="mt-2">
-              <img [src]="backPhotoPreview" class="img-thumbnail" style="max-height: 200px">
+            <div *ngIf="backPhotoPreview" class="image-preview">
+              <img [src]="backPhotoPreview" class="img-fluid rounded">
             </div>
-            <div
-              *ngIf="collateralForm.get('B_collateralPhoto')?.touched && collateralForm.get('B_collateralPhoto')?.invalid"
-              class="text-danger"
-            >
-              Back photo is required
+            <div *ngIf="collateralForm.get('B_collateralPhoto')?.touched && collateralForm.get('B_collateralPhoto')?.invalid" class="error-text">
+              <i class="bi bi-exclamation-circle-fill"></i> Back photo is required
             </div>
           </div>
-  
-          <!-- Submit Button -->
-          <div class="text-end">
-            <button type="submit" class="btn btn-primary" [disabled]="collateralForm.invalid">
-              Create Collateral
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="text-end mt-4">
+          <button 
+            type="submit" 
+            class="btn btn-primary btn-submit" 
+            [disabled]="collateralForm.invalid"
+            [class.pulse-animation]="collateralForm.valid"
+          >
+            <i class="bi bi-save-fill me-2"></i> Create Collateral
+          </button>
+        </div>
+      </form>
     </div>
   </div>
+</div>

@@ -35,17 +35,32 @@ export const NavigationItems: NavigationItem[] = [
     ]
   },
   {
-    id: 'User Mangement',
-    title: 'User Mangement',
+    id: 'User Management',
+    title: 'User Management',
     type: 'group',
-    icon: 'bi bi-compass', // Bootstrap compass icon
+    icon: 'flowbite:building-outline', // Flowbite building icon
     children: [
       {
-        id: 'User Management',
-        title: 'User Create',
-        type: 'item',
-        url: '/create-user',
-        icon: 'bi bi-speedometer2' // Bootstrap dashboard icon
+        id: 'Uesr Management',
+        title: 'User Management',
+        type: 'collapse',
+        icon: 'bi bi-diagram-3', // Bootstrap branches icon
+        children: [
+          {
+            id: 'Create User',
+            title: 'Create User',
+            type: 'item',
+            url: '/create-user',
+            icon: 'bi bi-plus-circle'
+          },
+          {
+            id: 'User List',
+            title: 'User List',
+            type: 'item',
+            url: '/users',
+            icon: 'bi bi-list-ul'
+          },
+        ]
       }
     ]
   },
@@ -59,9 +74,17 @@ export const NavigationItems: NavigationItem[] = [
         id: 'User Management',
         title: 'Role Create',
         type: 'item',
-        url: '/create-role',
+        url: '/create-role-permission',
         icon: 'bi bi-speedometer2' // Bootstrap dashboard icon
-      }
+      },
+      {
+        id: 'User Management',
+        title: 'Role List',
+        type: 'item',
+        url: '/role-permissions',
+        icon: 'bi bi-speedometer2' // Bootstrap dashboard icon
+      },
+      
     ]
   },
   {
@@ -370,6 +393,36 @@ export const NavigationItems: NavigationItem[] = [
             type: 'item',
             url: '/add-hp-product',
             icon: 'bi bi-cart-plus'
+          },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'Hp Registratino',
+    title: 'Hp Registration',
+    type: 'group',
+    icon: 'flowbite:building-outline', // Flowbite building icon
+    children: [
+      {
+        id: 'Hp Registration',
+        title: 'Hp Registration',
+        type: 'collapse',
+        icon: 'bi bi-diagram-3', // Bootstrap branches icon
+        children: [
+          {
+            id: 'Hp Register',
+            title: 'Hp Register',
+            type: 'item',
+            url: '/hp-registration',
+            icon: 'bi bi-plus-circle'
+          },
+          {
+            id: 'HP Registration List',
+            title: 'HP Registration List',
+            type: 'item',
+            url: '/hp-registration/list',
+            icon: 'bi bi-list-ul'
           },
         ]
       }

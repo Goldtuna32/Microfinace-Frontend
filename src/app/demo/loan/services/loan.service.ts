@@ -80,4 +80,20 @@ export class LoanService {
   getCollateralsByLoanId(loanId: number): Observable<SmeLoanCollateral[]> {
     return this.http.get<SmeLoanCollateral[]>(`${this.collateralApiUrl}/loan/${loanId}`);
   }
+
+  getLoanDetails(loanId: string): Observable<SmeLoanRegistration> {
+    return this.http.get<SmeLoanRegistration>(`${this.baseUrl}/${loanId}`);
+  }
+
+  downloadLoanPdfReport(loanId: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl1}/reports/loan/detail/${loanId}/pdf`, {
+      responseType: 'blob'
+    });
+  }
+
+  downloadLoanExcelReport(loanId: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl1}/reports/loan/detail/${loanId}/excel`, {
+      responseType: 'blob'
+    });
+  }
 }

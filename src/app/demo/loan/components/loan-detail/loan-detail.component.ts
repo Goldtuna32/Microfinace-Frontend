@@ -13,78 +13,88 @@ import { CIF } from 'src/app/demo/cif/models/cif.model';
   styleUrl: './loan-detail.component.scss'
 })
 export class LoanDetailComponent implements OnInit{
-  loan: SmeLoanRegistration | null = null;
-  cif: CIF | null = null;
-  collaterals: Collateral[] = []; // To store detailed collateral data
-  errorMessage: string | null = null;
-  selectedCollateralPhoto: string | null = null;
+  loan!: SmeLoanRegistration;
+  isLoading = false;
+  error = '';
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
     private loanService: LoanService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    if (id) {
-      this.loadLoanDetails(id);
-      this.loadCollaterals(id); // Fetch detailed collaterals
-    } else {
-      this.errorMessage = 'Invalid loan ID';
-    }
+    this.loadLoanDetails();
   }
 
-  showCollateralPhoto(photoUrl: string): void {
-    this.selectedCollateralPhoto = photoUrl;
-  }
-
-  closeModal(): void {
-    this.selectedCollateralPhoto = null;
-  }
-
-  loadCifDetails(currentAccountId: number): void {
-    this.loanService.getCifByCurrentAccountId(currentAccountId).subscribe({
-      next: (cif) => {
-        this.cif = cif;
-        console.log('CIF Data:', cif);  
-      },
-      error: (error) => this.errorMessage = 'Failed to load CIF details: ' + error.message
-    });
-  }
-
-  loadLoanDetails(id: number): void {
-    this.loanService.getLoanById(id).subscribe({
-      next: (loan) => {
-        this.loan = loan;
-        console.log('Loan Data:', loan);
-        // After loan is loaded, fetch CIF using currentAccountId
-        if (loan.currentAccountId) {
-          this.loadCifDetails(loan.currentAccountId);
-        } else {
-          this.errorMessage = 'No currentAccountId found for this loan';
+  loadLoanDetails(): void {
+    this.isLoading = true;
+    const loanId = this.route.snapshot.paramMap.get('id');
+    
+    if (loanId) {
+      this.loanService.getLoanDetails(loanId).subscribe({
+        next: (data) => {
+          this.loan = data;
+          // Ensure cif is available in the expected location
+          if (data.cifDetails && !data.cif) {
+            this.loan.cif = data.cifDetails;
+          }
+          this.isLoading = false;
+        },
+        error: (error) => {
+          this.error = 'Failed to load loan details';
+          this.isLoading = false;
         }
-      },
-      error: (error) => this.errorMessage = 'Failed to load loan details: ' + error.message
-    });
-  }
-
-  loadCollaterals(loanId: number): void {
-    this.loanService.getCollateralsByLoanId(loanId).subscribe({
-      next: (collaterals) => {
-        this.collaterals = collaterals;
-      },
-      error: (error) => this.errorMessage = 'Failed to load collaterals: ' + error.message
-    });
-  }
-
-  goBack(): void {
-    this.router.navigate(['/loan/list']);
-  }
-
-  viewCollateralDetail(collateralId: number | undefined): void {
-    if (collateralId) {
-      this.router.navigate(['/collateral', collateralId]); // Assuming a route for collateral details
+      });
+    } else {
+      this.error = 'Loan ID not found';
+      this.isLoading = false;
     }
+  }
+
+  getStatusText(status: number): string {
+    const statusMap: { [key: number]: string } = {
+      0: 'Pending',
+      1: 'Approved',
+      2: 'Rejected',
+      3: 'Active',
+      4: 'Completed',
+      5: 'Defaulted'
+    };
+    return statusMap[status] || 'Unknown';
+  }
+
+  getCollateralStatusText(status: number): string {
+    const statusMap: { [key: number]: string } = {
+      0: 'Pending',
+      1: 'Verified',
+      2: 'Rejected',
+      3: 'Expired'
+    };
+    return statusMap[status] || 'Unknown';
+  }
+
+  downloadReport(format: string): void {
+    if (!this.loan?.id) return;
+    
+    const download$ = format === 'pdf' 
+      ? this.loanService.downloadLoanPdfReport(this.loan.id)
+      : this.loanService.downloadLoanExcelReport(this.loan.id);
+  
+    download$.subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `loan_detail_${this.loan.id}.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      },
+      error: (err) => {
+        console.error('Error downloading report:', err);
+        this.error = 'Failed to download report';
+      }
+    });
   }
 }

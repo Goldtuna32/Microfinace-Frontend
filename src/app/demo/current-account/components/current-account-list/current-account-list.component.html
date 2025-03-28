@@ -1,121 +1,164 @@
-<!-- current-account-list.component.html -->
-<div class="container mx-auto mt-6 p-6 bg-white shadow-lg rounded-lg">
-  <h2 class="text-2xl font-semibold text-gray-700 mb-4">Current Account List</h2>
+<div class="container-fluid py-4 animate__animated animate__fadeIn">
+  <div class="card border-0 shadow-lg animate__animated animate__zoomIn">
+    <!-- Card Header with gradient background -->
+    <div class="card-header bg-primary bg-gradient text-white py-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="m-0">
+          <i class="bi bi-bank2 me-2"></i> Current Accounts Management
+        </h2>
+      </div>
+    </div>
 
-  <!-- Show loading spinner -->
-  <div *ngIf="loading" class="flex justify-center my-6">
-    <mat-spinner color="primary"></mat-spinner>
-  </div>
+    <div class="card-body p-4">
+      <!-- Loading Spinner -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3 text-muted">Loading accounts...</p>
+      </div>
 
-  <!-- Show error message if loading fails -->
-  <div *ngIf="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-    {{ errorMessage }}
-  </div>
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+      </div>
 
-  <!-- Search Input -->
-  <div class="mb-4">
-    <input 
-      type="text" 
-      class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" 
-      placeholder="Search..." 
-      (keyup)="applyFilter($event)">
-  </div>
-
-  <!-- Angular Material Data Table -->
-  <div class="overflow-x-auto">
-    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 w-full border border-gray-200 shadow-md">
-      
-      <!-- ID Column -->
-      <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="py-2 px-4">ID</th>
-        <td mat-cell *matCellDef="let row" class="py-2 px-4">{{ row.id }}</td>
-      </ng-container>
-
-      <!-- Account Number Column -->
-      <ng-container matColumnDef="accountNumber">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="py-2 px-4">Account Number</th>
-        <td mat-cell *matCellDef="let row" class="py-2 px-4">{{ row.accountNumber }}</td>
-      </ng-container>
-
-      <!-- Balance Column -->
-      <ng-container matColumnDef="balance">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="py-2 px-4">Balance</th>
-        <td mat-cell *matCellDef="let row" class="py-2 px-4">{{ row.balance | currency }}</td>
-      </ng-container>
-
-      <!-- Status Column -->
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="py-2 px-4">Status</th>
-        <td mat-cell *matCellDef="let row" class="py-2 px-4">
-          <span class="px-2 py-1 rounded text-white" 
-                [ngClass]="row.status === 1 ? 'badge m-r-5 badge-pill bg-success' : 'badge m-r-5 badge-pill bg-danger'">
-            {{ row.status === 1 ? 'Active' : 'Inactive' }}
-          </span>
-        </td>
-      </ng-container>
-
-      <!-- Date Created Column -->
-      <ng-container matColumnDef="dateCreated">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="py-2 px-4">Date Created</th>
-        <td mat-cell *matCellDef="let row" class="py-2 px-4">{{ row.dateCreated | date: 'shortDate' }}</td>
-      </ng-container>
-
-      <!-- CIF ID Column -->
-      <ng-container matColumnDef="cifId">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header class="py-2 px-4">CIF ID</th>
-        <td mat-cell *matCellDef="let row" class="py-2 px-4">{{ row.cifId }}</td>
-      </ng-container>
-
-      <!-- Actions Column -->
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef class="py-2 px-4 text-center">Actions</th>
-        <td mat-cell *matCellDef="let row" class="py-2 px-4 text-center">
-          <div class="action-buttons flex justify-center gap-2">
-            <button type="button" 
-                    class="btn btn-danger btn-sm rounded-pill" 
-                    (click)="deleteCurrentAccount(row.id)"
-                    matTooltip="Freeze Account">
-              <i class="feather icon-slash me-1"></i>
-              Freeze
-            </button>
-            <button type="button" 
-                    class="btn btn-primary btn-sm rounded-pill" 
-                    (click)="navigateToTransactionHistory(row.id)"
-                    matTooltip="View Transaction History">
-              <i class="bi bi-clock-history me-1"></i>
-              History
-            </button>
+      <!-- Search and Filter Section -->
+      <div class="row mb-4 g-3">
+        <div class="col-md-6">
+          <div class="input-group">
+            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control form-control-lg" 
+                   placeholder="Search by account number, CIF ID..." 
+                   (keyup)="applyFilter($event)">
           </div>
-        </td>
-      </ng-container>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" (change)="filterByStatus($event)">
+            <option value="">All Statuses</option>
+            <option value="1">Active</option>
+            <option value="0">Inactive</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <button class="btn btn-outline-secondary w-100" (click)="resetFilters()">
+            <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+          </button>
+        </div>
+      </div>
 
-      <!-- Header and Row Definitions -->
-      <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-gray-100"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
+      <!-- Accounts Table -->
+      <div class="table-responsive">
+        <table mat-table [dataSource]="dataSource" matSort class="table table-hover align-middle">
+          
+          <!-- ID Column -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-primary text-white">ID</th>
+            <td mat-cell *matCellDef="let row" class="fw-bold">{{ row.id }}</td>
+          </ng-container>
+
+          <!-- Account Number Column -->
+          <ng-container matColumnDef="accountNumber">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-primary text-white">Account Number</th>
+            <td mat-cell *matCellDef="let row" class="text-primary">
+              <i class="bi bi-credit-card me-1"></i>{{ row.accountNumber }}
+            </td>
+          </ng-container>
+
+          <!-- Balance Column -->
+          <ng-container matColumnDef="balance">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-primary text-white">Balance</th>
+            <td mat-cell *matCellDef="let row" class="fw-bold" 
+                [ngClass]="{'text-success': row.balance >= 0, 'text-danger': row.balance < 0}">
+              {{ row.balance | currency }}
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-primary text-white">Status</th>
+            <td mat-cell *matCellDef="let row">
+              <span class="badge rounded-pill py-2 px-3" 
+                    [ngClass]="row.status === 1 ? 'bg-success' : 'bg-danger'">
+                <i class="bi me-1" [class.bi-check-circle]="row.status === 1" [class.bi-x-circle]="row.status === 0"></i>
+                {{ row.status === 1 ? 'Active' : 'Frozen' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Date Created Column -->
+          <ng-container matColumnDef="dateCreated">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-primary text-white">Date Created</th>
+            <td mat-cell *matCellDef="let row">
+              <i class="bi bi-calendar-date me-1 text-muted"></i>
+              {{ row.dateCreated | date: 'mediumDate' }}
+            </td>
+          </ng-container>
+
+          <!-- CIF ID Column -->
+          <ng-container matColumnDef="cifId">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-primary text-white">Customer ID</th>
+            <td mat-cell *matCellDef="let row">
+                <i class="bi bi-person-badge me-1"></i>{{ row.cifId }}
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="bg-primary text-white text-center">Actions</th>
+            <td mat-cell *matCellDef="let row" class="text-center">
+              <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn btn-outline-danger" 
+                        (click)="deleteCurrentAccount(row.id)"
+                        matTooltip="Freeze Account"
+                        placement="top">
+                  <i class="bi bi-slash-circle me-1"></i> Freeze
+                </button>
+                <button type="button" class="btn btn-outline-primary" 
+                        (click)="navigateToTransactionHistory(row.id)"
+                        matTooltip="Transaction History"
+                        placement="top">
+                  <i class="bi bi-clock-history me-1"></i> History
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Header and Row Definitions -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
+              class="animate__animated animate__fadeIn"></tr>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="dataSource.filteredData.length === 0 && !loading" class="text-center py-5">
+        <i class="bi bi-database-exclamation text-muted" style="font-size: 3rem;"></i>
+        <h5 class="mt-3 text-muted">No accounts found</h5>
+        <p class="text-muted">Try adjusting your search or create a new account</p>
+      </div>
+
+      <!-- Pagination -->
+      <nav *ngIf="dataSource.filteredData.length > 0" aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" href="javascript:" (click)="previousPage()">
+              <i class="bi bi-chevron-left"></i>
+            </a>
+          </li>
+          <li class="page-item" *ngFor="let page of getPageNumbers()" 
+              [class.active]="currentPage === page">
+            <a class="page-link" href="javascript:" (click)="goToPage(page)">{{page}}</a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" href="javascript:" (click)="nextPage()">
+              <i class="bi bi-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
   </div>
-
-  <!-- Custom Pagination -->
-  <nav aria-label="Page navigation example" class="mt-4">
-    <ul class="pagination justify-center">
-      <li class="page-item" [class.disabled]="currentPage === 1">
-        <a class="page-link" href="javascript:" aria-label="Previous" (click)="previousPage()">
-          <span aria-hidden="true">«</span>
-          <span class="sr-only">Previous</span>
-        </a>
-      </li>
-      
-      <li class="page-item" *ngFor="let page of getPageNumbers()" 
-          [class.active]="currentPage === page">
-        <a class="page-link" href="javascript:" (click)="goToPage(page)">{{page}}</a>
-      </li>
-      
-      <li class="page-item" [class.disabled]="currentPage === totalPages">
-        <a class="page-link" href="javascript:" aria-label="Next" (click)="nextPage()">
-          <span aria-hidden="true">»</span>
-          <span class="sr-only">Next</span>
-        </a>
-      </li>
-    </ul>
-  </nav>
 </div>

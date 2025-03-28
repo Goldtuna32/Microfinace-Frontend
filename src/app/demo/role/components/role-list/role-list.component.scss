@@ -1,0 +1,52 @@
+/* Add these styles to your component's CSS file */
+@import "~animate.css/animate.min.css";
+@import "~bootstrap-icons/font/bootstrap-icons.css";
+
+.role-permission-table tr {
+  transition: all 0.2s ease;
+}
+
+.role-permission-table tr:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+  transform: translateX(2px);
+}
+
+.badge {
+  font-size: 0.85em;
+  letter-spacing: 0.5px;
+}
+
+.table-responsive {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.card {
+  border: none;
+  border-radius: 0.75rem;
+}
+
+.code {
+  font-family: 'Courier New', Courier, monospace;
+  background-color: #f8f9fa;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+}
+
+.page-item {
+  cursor: pointer;
+}
+
+/* Animation delays for table rows */
+.animate__animated.animate__fadeIn {
+  --animate-duration: 0.3s;
+}
+
+.animate__animated.animate__fadeIn:nth-child(odd) {
+  --animate-delay: 0.05s;
+}
+
+.animate__animated.animate__fadeIn:nth-child(even) {
+  --animate-delay: 0.1s;
+}

@@ -23,6 +23,7 @@ import { FormsModule } from '@angular/forms';
 import { FlowbiteService } from 'src/app/flowbite services/flowbit.service';
 import {initFlowbite} from "flowbite";
 import { AlertService } from 'src/app/alertservice/alert.service';
+import { BranchService } from 'src/app/demo/branch/services/branch.service';
 
 @Component({
   selector: 'app-cif-list',
@@ -48,6 +49,13 @@ export class CifListComponent implements OnInit {
   isDeletedView = false;
   showSuccessAlert: boolean = false;
 
+  branchFilter: number | null = null;
+  availableBranches: any[] = [];
+
+  Math = Math;
+  isDropdownOpen = false;
+  currentDropdownId: number | null = null;
+  totalItems: number = 0;
   // Pagination variables
   pageSize = 10;
   currentPage = 0; // 0-based for backend
@@ -63,7 +71,8 @@ export class CifListComponent implements OnInit {
     private dialog: MatDialog,
     private currentAccountService: CurrentAccountService,
     private http: HttpClient,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private branchService: BranchService // Add BranchService
   ) {}
 
   ngOnInit(): void {
@@ -113,6 +122,30 @@ export class CifListComponent implements OnInit {
     });
   }
 
+  toggleDropdown(cifId: number): void {
+    // First close all dropdowns
+    this.dataSource.data.forEach(item => {
+      item.isDropdownOpen = false;
+    });
+    
+    // Then toggle the clicked one
+    const cif = this.dataSource.data.find(item => item.id === cifId);
+    if (cif) {
+      cif.isDropdownOpen = !cif.isDropdownOpen;
+    }
+  }
+  
+  isDropdownActive(cifId: number): boolean {
+    const cif = this.dataSource.data.find(item => item.id === cifId);
+    return cif?.isDropdownOpen || false;
+  }
+  
+  closeDropdowns(): void {
+    this.dataSource.data.forEach(item => {
+      item.isDropdownOpen = false;
+    });
+  }
+  
   toggleView(): void {
     this.isDeletedView = !this.isDeletedView;
     this.currentPage = 0;

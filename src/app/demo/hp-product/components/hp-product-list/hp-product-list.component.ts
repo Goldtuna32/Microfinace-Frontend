@@ -4,10 +4,11 @@ import { HpProduct } from '../../models/hp-product';
 import { HpProductService } from '../../services/hp-product.service';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-hp-product-list',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, FormsModule],
   templateUrl: './hp-product-list.component.html',
   styleUrl: './hp-product-list.component.scss'
 })
@@ -17,10 +18,11 @@ export class HpProductListComponent {
   pageSize = 5;
   currentPage = 0;
   isInactiveView = false;
+  hoveredRow: number | null = null; // Track hover state by ID instead of adding property to model
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private hpProductService: HpProductService) {}
+  constructor(private hpProductService: HpProductService, private router: Router) {}
 
   ngOnInit(): void {
     this.loadHpProducts();
@@ -42,11 +44,11 @@ export class HpProductListComponent {
   }
 
   updateFilteredHpProducts(filterValue: string = ''): void {
-    this.filteredHpProducts = this.hpProducts.filter(pt => {
+    this.filteredHpProducts = this.hpProducts.filter(product => {
       const matchesStatus = this.isInactiveView 
-        ? pt.status === 0 || pt.status === 2
-        : pt.status === 1;
-      const matchesFilter = pt.name?.toLowerCase().includes(filterValue.toLowerCase()) ?? true;
+        ? product.status === 0 || product.status === 2
+        : product.status === 1;
+      const matchesFilter = product.name?.toLowerCase().includes(filterValue.toLowerCase()) ?? true;
       return matchesStatus && matchesFilter;
     });
     if (this.paginator) {
@@ -111,8 +113,8 @@ export class HpProductListComponent {
     if (confirm('Are you sure you want to delete this HP product?')) {
       this.hpProductService.deleteHpProduct(id).subscribe({
         next: () => {
-          this.hpProducts = this.hpProducts.map(pt => 
-            pt.id === id ? { ...pt, status: 0 } : pt
+          this.hpProducts = this.hpProducts.map(product => 
+            product.id === id ? { ...product, status: 0 } : product
           );
           this.updateFilteredHpProducts();
           if (this.paginator) {
@@ -131,7 +133,7 @@ export class HpProductListComponent {
     if (confirm('Are you sure you want to restore this HP product?')) {
       this.hpProductService.restoreHpProduct(id).subscribe({
         next: (response) => {
-          const index = this.hpProducts.findIndex(pt => pt.id === id);
+          const index = this.hpProducts.findIndex(product => product.id === id);
           if (index !== -1) {
             this.hpProducts[index] = response;
             this.updateFilteredHpProducts();
@@ -147,6 +149,6 @@ export class HpProductListComponent {
 
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    img.src = 'https://via.placeholder.com/48?text=No+Image'; // Fallback image
+    img.src = 'https://via.placeholder.com/100?text=No+Image';
   }
 }

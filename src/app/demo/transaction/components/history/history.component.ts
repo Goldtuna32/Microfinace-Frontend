@@ -28,6 +28,7 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./history.component.scss']
 })
 export class HistoryComponent implements AfterViewInit {
+  currentDate = new Date();
   accountId!: number;
   dataSource = new MatTableDataSource<AccountTransaction>([]);
   displayedColumns: string[] = ['id', 'transactionDate', 'amount', 'status'];

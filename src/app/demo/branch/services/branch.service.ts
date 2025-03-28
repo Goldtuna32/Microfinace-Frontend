@@ -28,6 +28,10 @@ export class BranchService {
     return this.http.get<any>(this.baseUrl);
   }
 
+  getBranchDetails(branchId: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/${branchId}/details`);
+  }
+
   // Create a new branch
   createBranch(branchData: any): Observable<any> {
     return this.http.post<any>(this.baseUrl, branchData);

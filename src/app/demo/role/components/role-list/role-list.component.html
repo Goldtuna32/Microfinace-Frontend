@@ -1,0 +1,42 @@
+<!-- role-permission-list.component.html -->
+<div class="role-permission-list-container">
+    <h2>Role Permissions</h2>
+  
+    <div class="filter-group">
+      <label for="roleFilter">Filter by Role:</label>
+      <select 
+        id="roleFilter" 
+        [(ngModel)]="selectedRoleId" 
+        (change)="filterByRole()"
+        class="form-control"
+      >
+        <option [ngValue]="undefined">All Roles</option>
+        <option *ngFor="let role of roles" [ngValue]="role.id">
+          {{ role.name }}
+        </option>
+      </select>
+    </div>
+  
+    <table class="role-permission-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Role</th>
+          <th>Permission</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let rp of rolePermissions">
+          <td>{{ rp.id }}</td>
+          <td>{{ rp.role.name }}</td>
+          <td>{{ rp.permission.name }} ({{ rp.permission.permissionFunction }})</td>
+          <td>
+            <button (click)="viewDetails(rp.id)" class="details-btn">Details</button>
+            <button (click)="editRolePermission(rp.id)" class="edit-btn">Edit</button>
+            <button (click)="deleteRolePermission(rp.id)" class="delete-btn">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>

@@ -16,6 +16,10 @@ export class DealerRegistrationListComponent implements OnInit {
   filteredDealers: any[] = [];
   searchText: string = '';
 
+  currentPage = 1;
+  pageSize = 10;
+  totalPages = 0;
+
   constructor(private dealerService: DealerRegistrationService) {}
 
   ngOnInit(): void {
@@ -47,6 +51,39 @@ export class DealerRegistrationListComponent implements OnInit {
     }
   }
 
+  filterByStatus(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const status = select.value ? Number(select.value) : null;
+    // Implement your status filtering logic here
+    this.filterDealers();
+  }
+  
+  getPageNumbers(): number[] {
+    const pages = [];
+    for (let i = 1; i <= this.totalPages; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+  
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      // Implement your pagination logic
+    }
+  }
+  
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      // Implement your pagination logic
+    }
+  }
+  
+  goToPage(page: number): void {
+    this.currentPage = page;
+    // Implement your pagination logic
+  }
   
  
 }

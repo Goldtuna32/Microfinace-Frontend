@@ -183,9 +183,24 @@ export const routes: Routes = [
           .then(m => m.UserCreateComponent)
       },
       {
-        path: 'create-role',
+        path: 'users',
+        loadComponent: () => import('./demo/users/components/user-list/user-list.component')
+         .then(m => m.UserListComponent)
+      },
+      {
+        path: 'users/edit/:id',
+        loadComponent: () => import('./demo/users/components/user-edit/user-edit.component')
+         .then(m => m.UserEditComponent)
+      },
+      {
+        path: 'create-role-permission',
         loadComponent: () => import('./demo/role/components/role-create/role-create.component')
           .then(m => m.RoleCreateComponent)
+      },
+      {
+        path: 'role-permissions',
+        loadComponent: () => import('./demo/role/components/role-list/role-list.component')
+        .then(m => m.RoleListComponent)
       }
      
 

@@ -1,0 +1,154 @@
+<!-- user-edit.component.html -->
+<div class="user-edit-container animate__animated animate__fadeIn">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 col-xl-6">
+        <div class="card shadow-lg border-0">
+          <div class="card-header bg-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <h2 class="h4 mb-0">
+                <i class="bi bi-person-gear me-2"></i>
+                {{ userId ? 'Edit User' : 'Create New User' }}
+              </h2>
+              <button (click)="cancel()" class="btn btn-sm btn-outline-light" title="Close">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="card-body p-4">
+            <form #userForm="ngForm" (ngSubmit)="saveUser()" class="needs-validation" novalidate>
+              <div class="row g-3">
+                <!-- Profile Picture Section -->
+                <div class="col-12 text-center mb-4">
+                  <div class="position-relative d-inline-block">
+                    <img [src]="user.profilePicture || 'assets/images/default-avatar.jpg'" 
+                         class="profile-preview rounded-circle shadow-sm border" 
+                         width="120" height="120"
+                         [ngClass]="{'border-success': user.status === 1, 'border-secondary': user.status !== 1}">
+                    <label for="file" class="btn btn-sm btn-primary rounded-circle position-absolute bottom-0 end-0" 
+                           title="Upload photo">
+                      <i class="bi bi-camera"></i>
+                      <input id="file" type="file" (change)="onFileSelected($event)" class="d-none" accept="image/*">
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Left Column -->
+                <div class="col-md-6">
+                  <!-- Username -->
+                  <div class="form-floating mb-3">
+                    <input id="username" name="username" type="text" class="form-control"
+                           [(ngModel)]="user.username" required placeholder="Username"
+                           [ngClass]="{'is-invalid': userForm.submitted && !userForm.controls['username']?.valid}">
+                    <label for="username">
+                      <i class="bi bi-person-fill text-primary me-2"></i>Username
+                    </label>
+                    <div class="invalid-feedback">Username is required</div>
+                  </div>
+
+                  <!-- Email -->
+                  <div class="form-floating mb-3">
+                    <input id="email" name="email" type="email" class="form-control"
+                           [(ngModel)]="user.email" required placeholder="Email"
+                           [ngClass]="{'is-invalid': userForm.submitted && !userForm.controls['email']?.valid}">
+                    <label for="email">
+                      <i class="bi bi-envelope-fill text-primary me-2"></i>Email
+                    </label>
+                    <div class="invalid-feedback">Valid email is required</div>
+                  </div>
+
+                  <!-- Password -->
+                  <div class="form-floating mb-3">
+                    <input id="password" name="password" type="password" class="form-control"
+                           [(ngModel)]="user.password" [required]="!userId" placeholder="Password"
+                           [ngClass]="{'is-invalid': userForm.submitted && !userForm.controls['password']?.valid}">
+                    <label for="password">
+                      <i class="bi bi-lock-fill text-primary me-2"></i>Password
+                    </label>
+                    <div class="invalid-feedback">Password is required</div>
+                    <small class="text-muted" *ngIf="userId">Leave blank to keep current password</small>
+                  </div>
+
+                  <!-- Phone -->
+                  <div class="form-floating mb-3">
+                    <input id="phoneNumber" name="phoneNumber" type="tel" class="form-control"
+                           [(ngModel)]="user.phoneNumber" required placeholder="Phone"
+                           [ngClass]="{'is-invalid': userForm.submitted && !userForm.controls['phoneNumber']?.valid}">
+                    <label for="phoneNumber">
+                      <i class="bi bi-telephone-fill text-primary me-2"></i>Phone Number
+                    </label>
+                    <div class="invalid-feedback">Phone number is required</div>
+                  </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-md-6">
+                  <!-- Date of Birth -->
+                  <div class="form-floating mb-3">
+                    <input id="dob" name="dob" type="date" class="form-control"
+                           [(ngModel)]="user.dob" placeholder="Date of Birth">
+                    <label for="dob">
+                      <i class="bi bi-calendar-date-fill text-primary me-2"></i>Date of Birth
+                    </label>
+                  </div>
+
+                  <!-- Role -->
+                  <div class="form-floating mb-3">
+                    <select id="roleId" name="roleId" class="form-select"
+                            [(ngModel)]="user.roleId" required
+                            [ngClass]="{'is-invalid': userForm.submitted && !userForm.controls['roleId']?.valid}">
+                      <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
+                    </select>
+                    <label for="roleId">
+                      <i class="bi bi-person-badge-fill text-primary me-2"></i>Role
+                    </label>
+                    <div class="invalid-feedback">Please select a role</div>
+                  </div>
+
+                  <!-- Branch -->
+                  <div class="form-floating mb-3">
+                    <select id="branchId" name="branchId" class="form-select"
+                            [(ngModel)]="user.branchId" required
+                            [ngClass]="{'is-invalid': userForm.submitted && !userForm.controls['branchId']?.valid}">
+                      <option *ngFor="let branch of branches" [value]="branch.id">{{ branch.name }}</option>
+                    </select>
+                    <label for="branchId">
+                      <i class="bi bi-building-fill text-primary me-2"></i>Branch
+                    </label>
+                    <div class="invalid-feedback">Please select a branch</div>
+                  </div>
+
+                  <!-- Status -->
+                  <div class="form-floating mb-3">
+                    <select id="status" name="status" class="form-select"
+                            [(ngModel)]="user.status"
+                            [ngClass]="{'border-success': user.status === 1, 'border-secondary': user.status !== 1}">
+                      <option [value]="1">Active</option>
+                      <option [value]="0">Inactive</option>
+                    </select>
+                    <label for="status">
+                      <i class="bi bi-circle-fill text-primary me-2"></i>Status
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Form Actions -->
+              <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                <button type="button" (click)="cancel()" class="btn btn-outline-secondary px-4">
+                  <i class="bi bi-arrow-left me-2"></i>Cancel
+                </button>
+                <button type="submit" [disabled]="!userForm.valid" class="btn btn-primary px-4"
+                        [ngClass]="{'btn-success': userForm.valid}">
+                  <i class="bi" [class.bi-save]="userId" [class.bi-plus-lg]="!userId"></i>
+                  {{ userId ? 'Save Changes' : 'Create User' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

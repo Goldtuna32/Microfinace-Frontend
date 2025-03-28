@@ -50,6 +50,11 @@ export class CurrentAccountListComponent implements OnInit, AfterViewInit {
   totalItems = 0;
   totalPages = 0;
   allData: CurrentAccount[] = []; // Store all data for pagination
+  filteredData: CurrentAccount[] = []; // Store filtered data
+  
+  // Filter properties
+  currentSearchTerm = '';
+  currentStatusFilter: number | null = null;
 
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -71,6 +76,7 @@ export class CurrentAccountListComponent implements OnInit, AfterViewInit {
     this.currentAccountService.getAllCurrentAccounts().subscribe({
       next: (data) => {
         this.allData = data; // Store all data
+        this.applyAllFilters();
         this.totalItems = data.length;
         this.totalPages = Math.ceil(this.totalItems / this.pageSize);
         this.updatePaginatedData();
@@ -83,6 +89,63 @@ export class CurrentAccountListComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+  applyAllFilters(): void {
+    this.filteredData = [...this.allData];
+    
+    // Apply status filter if active
+    if (this.currentStatusFilter !== null) {
+      this.filteredData = this.filteredData.filter(account => account.status === this.currentStatusFilter);
+    }
+    
+    // Apply search filter if active
+    if (this.currentSearchTerm) {
+      const searchTerm = this.currentSearchTerm.toLowerCase();
+      this.filteredData = this.filteredData.filter(account => 
+        account.accountNumber.toLowerCase().includes(searchTerm) ||
+        account.cifId.toString().includes(searchTerm)
+      );
+    }
+    
+    // Update pagination
+    this.totalItems = this.filteredData.length;
+    this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+    this.currentPage = 1; // Reset to first page
+    this.updatePaginatedData();
+  }
+
+  filterByStatus(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const statusValue = selectElement.value;
+    
+    if (statusValue === '') {
+      this.currentStatusFilter = null;
+    } else {
+      this.currentStatusFilter = parseInt(statusValue, 10);
+    }
+    
+    this.applyAllFilters();
+  }
+
+  // New method to reset all filters
+  resetFilters(): void {
+    this.currentSearchTerm = '';
+    this.currentStatusFilter = null;
+    this.applyAllFilters();
+    
+    // Reset the search input field if needed
+    const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement;
+    if (searchInput) {
+      searchInput.value = '';
+    }
+    
+    // Reset the status dropdown
+    const statusSelect = document.querySelector('select') as HTMLSelectElement;
+    if (statusSelect) {
+      statusSelect.value = '';
+    }
+  }
+
 
   updatePaginatedData(): void {
     const startIndex = (this.currentPage - 1) * this.pageSize;

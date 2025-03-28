@@ -1,0 +1,15 @@
+<!-- role-permission-details.component.html -->
+<div class="role-permission-details-container">
+    <h2>Role Permission Details</h2>
+  
+    <div *ngIf="rolePermission" class="details">
+      <p><strong>ID:</strong> {{ rolePermission?.id }}</p>
+      <p><strong>Role:</strong> {{ rolePermission?.role?.name }}</p>
+      <p><strong>Permission:</strong> {{ rolePermission?.permission?.name }}</p>
+      <p><strong>Permission Function:</strong> {{ rolePermission?.permission?.permissionFunction }}</p>
+      <p><strong>Description:</strong> {{ rolePermission?.permission?.description }}</p>
+      <p><strong>Created At:</strong> {{ rolePermission?.permission?.createdAt }}</p>
+    </div>
+  
+    <button (click)="backToList()" class="back-btn">Back to List</button>
+  </div>

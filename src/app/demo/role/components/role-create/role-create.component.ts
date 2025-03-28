@@ -1,13 +1,31 @@
 import { Component } from '@angular/core';
-import { RoleDTO, RoleService } from '../../services/role.service';
+import { trigger, transition, style, animate, state } from '@angular/animations';
+import { RoleService } from '../../services/role.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RoleDTO } from '../../models/role-permission';
 
 @Component({
   selector: 'app-role-create',
   imports: [CommonModule,ReactiveFormsModule, FormsModule],
   templateUrl: './role-create.component.html',
-  styleUrl: './role-create.component.scss'
+  styleUrl: './role-create.component.scss',
+  animations: [
+    trigger('expandCollapse', [
+      state('collapsed', style({
+        height: '0',
+        opacity: '0',
+        overflow: 'hidden'
+      })),
+      state('expanded', style({
+        height: '*',
+        opacity: '1'
+      })),
+      transition('collapsed <=> expanded', [
+        animate('300ms ease-in-out')
+      ])
+    ])
+  ]
 })
 export class RoleCreateComponent {
   newRole: RoleDTO = {
@@ -26,7 +44,10 @@ export class RoleCreateComponent {
     'LOAN': ['LOAN_CREATE', 'LOAN_READ', 'LOAN_UPDATE', 'LOAN_DELETE'],
     'DEALER': ['DEALER_CREATE', 'DEALER_READ', 'DEALER_UPDATE', 'DEALER_DELETE'],
     'PRODUCT_TYPE': ['PRODUCT_TYPE_CREATE', 'PRODUCT_TYPE_READ', 'PRODUCT_TYPE_UPDATE', 'PRODUCT_TYPE_DELETE'],
-    'HP_PRODUCT': ['HP_PRODUCT_CREATE', 'HP_PRODUCT_READ', 'HP_PRODUCT_UPDATE', 'HP_PRODUCT_DELETE']
+    'HP_PRODUCT': ['HP_PRODUCT_CREATE', 'HP_PRODUCT_READ', 'HP_PRODUCT_UPDATE', 'HP_PRODUCT_DELETE'],
+    'HP_REGISTER': ['HP_REGISTER_CREATE', 'HP_REGISTER_READ', 'HP_REGISTER_UPDATE', 'HP_REGISTER_DELETE'],
+    'USER': ['USER_CREATE', 'USER_READ', 'USER_UPDATE', 'USER_DELETE'],
+
   };
   expandedGroups: { [key: string]: boolean } = {};
 
@@ -96,6 +117,12 @@ export class RoleCreateComponent {
       error: (err) => console.error('Error creating role:', err)
     });
   }
+
+  isCriticalPermission(perm: string): boolean {
+    // Add logic to determine if a permission is critical
+    return perm.includes('delete') || perm.includes('admin');
+  }
+  
 
   resetForm(): void {
     this.newRole = {

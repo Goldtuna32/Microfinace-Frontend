@@ -35,17 +35,32 @@ export const NavigationItems: NavigationItem[] = [
     ]
   },
   {
-    id: 'User Mangement',
-    title: 'User Mangement',
+    id: 'User Management',
+    title: 'User Management',
     type: 'group',
-    icon: 'bi bi-compass', // Bootstrap compass icon
+    icon: 'flowbite:building-outline', // Flowbite building icon
     children: [
       {
-        id: 'User Management',
-        title: 'User Create',
-        type: 'item',
-        url: '/create-user',
-        icon: 'bi bi-speedometer2' // Bootstrap dashboard icon
+        id: 'Uesr Management',
+        title: 'User Management',
+        type: 'collapse',
+        icon: 'bi bi-diagram-3', // Bootstrap branches icon
+        children: [
+          {
+            id: 'Create User',
+            title: 'Create User',
+            type: 'item',
+            url: '/create-user',
+            icon: 'bi bi-plus-circle'
+          },
+          {
+            id: 'User List',
+            title: 'User List',
+            type: 'item',
+            url: '/users',
+            icon: 'bi bi-list-ul'
+          },
+        ]
       }
     ]
   },

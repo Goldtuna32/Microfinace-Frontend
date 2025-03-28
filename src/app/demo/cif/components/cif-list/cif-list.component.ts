@@ -48,6 +48,10 @@ export class CifListComponent implements OnInit {
   isDeletedView = false;
   showSuccessAlert: boolean = false;
 
+  Math = Math;
+  isDropdownOpen = false;
+  currentDropdownId: number | null = null;
+  totalItems: number = 0;
   // Pagination variables
   pageSize = 10;
   currentPage = 0; // 0-based for backend
@@ -111,6 +115,24 @@ export class CifListComponent implements OnInit {
         this.totalPages = 0;
       }
     });
+  }
+
+  toggleDropdown(cifId: number): void {
+    if (this.currentDropdownId === cifId) {
+      this.isDropdownOpen = !this.isDropdownOpen;
+    } else {
+      this.currentDropdownId = cifId;
+      this.isDropdownOpen = true;
+    }
+  }
+
+  closeDropdown(): void {
+    this.isDropdownOpen = false;
+    this.currentDropdownId = null;
+  }
+
+  isDropdownActive(cifId: number): boolean {
+    return this.isDropdownOpen && this.currentDropdownId === cifId;
   }
 
   toggleView(): void {

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from '../models/User.model';
-import { RoleDTO } from '../../role/services/role.service';
+import { RoleDTO } from '../../role/models/role-permission';
 
 export interface UserDTO {
   id?: number;
@@ -28,6 +28,7 @@ export interface PermissionDTO {
 export interface Branch {
   id: number;
   name: string;
+  code: string;
 }
 
 @Injectable({
@@ -49,14 +50,8 @@ export class UserService {
       this.currentUserSubject.next(user);
   }
 
-  createUser(user: UserDTO, file?: File): Observable<UserDTO> {
-    const formData = new FormData();
-    formData.append('user', JSON.stringify(user));
-    if (file) {
-      formData.append('file', file);
-    }
-    console.log('Sending FormData:', user.permissions);
-    return this.http.post<UserDTO>(`${this.apiUrl}/register`, formData);
+  createUser(userData: FormData): Observable<UserDTO> {
+    return this.http.post<UserDTO>(`${this.apiUrl}/register`, userData);
   }
 
   getAllRoles(): Observable<RoleDTO[]> {
@@ -65,5 +60,17 @@ export class UserService {
 
   getAllPermissions(): Observable<PermissionDTO[]> {
     return this.http.get<PermissionDTO[]>(`${this.apiUrl}/permissions`);
+  }
+
+  getAllUsers(): Observable<UserDTO[]> {
+    return this.http.get<UserDTO[]>(this.apiUrl);
+  }
+
+  getUserById(id: number): Observable<UserDTO> {
+    return this.http.get<UserDTO>(`${this.apiUrl}/${id}`);
+  }
+
+  updateUser(id: number, userData: FormData): Observable<UserDTO> {
+    return this.http.put<UserDTO>(`${this.apiUrl}/${id}`, userData);
   }
 }

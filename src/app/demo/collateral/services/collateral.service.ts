@@ -26,6 +26,10 @@ export class CollateralService {
     return this.http.post<any>(`${this.baseUrl}/collaterals`, formData);
   }
 
+  getCollateralById(id: string): Observable<Collateral> {
+    return this.http.get<Collateral>(`${this.baseUrl}/collaterals/${id}`);
+  }
+
   getAllCollaterals(page: number = 0, size: number = 10, sortBy: string = 'id', direction: string = 'asc'): Observable<{ content: Collateral[], totalPages: number, totalElements: number }> {
     return this.http.get<{ content: Collateral[], totalPages: number, totalElements: number }>(
       `${this.baseUrl}/collaterals/active?page=${page}&size=${size}&sortBy=${sortBy}&direction=${direction}`

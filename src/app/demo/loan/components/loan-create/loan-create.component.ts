@@ -39,6 +39,11 @@ export class LoanCreateComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     this.loadCifs();
+
+     // Add this to watch loan amount changes
+  this.loanForm.get('loanAmount')?.valueChanges.subscribe(() => {
+    this.calculateLTV();
+  });
   }
 
   private initForm(): void {
@@ -86,6 +91,29 @@ export class LoanCreateComponent implements OnInit {
     const collateral = this.collaterals.find(c => c.id === collateralId);
     return collateral ? Number(collateral.value) : undefined;
   }
+
+  // Enhanced version with validation
+calculateLTV(): number {
+  const loanAmount = Number(this.loanForm.get('loanAmount')?.value) || 0;
+  const totalCollateral = this.totalCollateralAmount;
+  
+  // Prevent division by zero
+  if (totalCollateral <= 0) {
+    return 0;
+  }
+  
+  const ltv = loanAmount / totalCollateral;
+  
+  // Validate against maximum acceptable LTV (e.g., 80%)
+  const maxLtv = 0.8; // 80%
+  if (ltv > maxLtv) {
+    this.errorMessage = `Warning: LTV ratio (${(ltv * 100).toFixed(2)}%) exceeds maximum recommended (${maxLtv * 100}%)`;
+  } else {
+    this.errorMessage = null;
+  }
+  
+  return ltv;
+}
 
   getAvailableCollaterals(index: number): any[] {
     const selectedIds = this.collateralControls
@@ -244,9 +272,13 @@ export class LoanCreateComponent implements OnInit {
   updateTotalCollateralAmount(): void {
     const total = this.totalCollateralAmount;
     const loanAmount = Number(this.loanForm.get('loanAmount')?.value);
+    
+    // Calculate LTV
+    this.calculateLTV();
+    
     if (loanAmount && loanAmount > total) {
-      this.errorMessage = 'Loan amount cannot exceed total collateral amount: ' + total.toLocaleString();
-    } else {
+      this.errorMessage = `Loan amount cannot exceed total collateral amount: ${total.toLocaleString()}`;
+    } else if (!this.errorMessage) { // Only clear if there's no LTV error
       this.errorMessage = null;
     }
   }

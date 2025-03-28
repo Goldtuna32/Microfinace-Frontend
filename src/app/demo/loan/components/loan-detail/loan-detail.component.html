@@ -1,168 +1,297 @@
-<div class="container mx-auto p-6">
-  <div class="card shadow-lg border-0">
-    <div class="card-header bg-gradient-primary text-white d-flex align-items-center justify-content-between">
-      <div class="d-flex align-items-center">
-        <i class="bi bi-info-circle-fill me-2"></i>
-        <h2 class="h4 mb-0 fw-bold">Loan Details - ID: {{ loan?.id }}</h2>
-      </div>
-      <button class="btn btn-light btn-sm" (click)="goBack()">
-        <i class="bi bi-arrow-left me-2"></i>Back
+<div class="container-fluid py-4" *ngIf="loan">
+  <!-- Header with Back Button -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-auto">
+      <button class="btn btn-outline-secondary" routerLink="/loans">
+        <i class="bi bi-arrow-left me-2"></i>Back to Loans
       </button>
     </div>
-
-    <div class="card-body">
-      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        {{ errorMessage }}
-        <button type="button" class="btn-close" (click)="errorMessage = null" aria-label="Close"></button>
+    <div class="col">
+      <h2 class="mb-0 text-gradient text-primary">
+        <i class="bi bi-file-earmark-text me-2"></i>Loan Details
+      </h2>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="btn-group" role="group">
+        <button class="btn btn-outline-primary" (click)="downloadReport('pdf')">
+          <i class="bi bi-file-earmark-pdf me-2"></i>PDF Report
+        </button>
+        <button class="btn btn-outline-success" (click)="downloadReport('excel')">
+          <i class="bi bi-file-earmark-excel me-2"></i>Excel Report
+        </button>
       </div>
+    </div>
+  </div>
 
-      <div *ngIf="loan" class="row g-4">
-        <!-- Loan Information (unchanged) -->
-        <div class="col-12">
-          <h3 class="h5 fw-semibold text-primary mb-3"><i class="bi bi-file-earmark-text me-2"></i>Loan Information</h3>
+  <!-- Main Content -->
+  <div class="row g-4">
+    <!-- Loan Summary Card -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm border-0 h-100 animate__animated animate__fadeInLeft">
+        <div class="card-header bg-gradient-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>Loan Summary</h5>
         </div>
-        <div class="col-md-4 col-sm-6">
-          <div class="info-item"><p class="fw-bold mb-1"><i class="bi bi-currency-dollar me-2 text-primary"></i>Loan Amount</p><p class="text-muted mb-0">{{ loan.loanAmount | currency }}</p></div>
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <div class="info-item"><p class="fw-bold mb-1"><i class="bi bi-percent me-2 text-primary"></i>Interest Rate</p><p class="text-muted mb-0">{{ loan.interestRate }}%</p></div>
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <div class="info-item"><p class="fw-bold mb-1"><i class="bi bi-clock me-2 text-primary"></i>Grace Period</p><p class="text-muted mb-0">{{ loan.gracePeriod }} days</p></div>
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <div class="info-item"><p class="fw-bold mb-1"><i class="bi bi-calendar-month me-2 text-primary"></i>Repayment Duration</p><p class="text-muted mb-0">{{ loan.repaymentDuration }} months</p></div>
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <div class="info-item"><p class="fw-bold mb-1"><i class="bi bi-file-earmark-text me-2 text-primary"></i>Document Fee</p><p class="text-muted mb-0">{{ loan.documentFee | currency }}</p></div>
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <div class="info-item"><p class="fw-bold mb-1"><i class="bi bi-gear me-2 text-primary"></i>Service Charges</p><p class="text-muted mb-0">{{ loan.serviceCharges | currency }}</p></div>
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <div class="info-item"><p class="fw-bold mb-1"><i class="bi bi-check-circle me-2 text-primary"></i>Status</p><p class="text-muted mb-0"><span [ngClass]="loan.status === 3 ? 'badge bg-warning' : 'badge bg-success'">{{ loan.status === 3 ? 'Pending' : 'Approved' }}</span></p></div>
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <div class="info-item"><p class="fw-bold mb-1"><i class="bi bi-bank me-2 text-primary"></i>Current Account ID</p><p class="text-muted mb-0">{{ loan.currentAccountId }}</p></div>
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <div class="info-item"><p class="fw-bold mb-1"><i class="bi bi-card-text me-2 text-primary"></i>Account Number</p><p class="text-muted mb-0">{{ loan.accountNumber || 'N/A' }}</p></div>
-        </div>
+        <div class="card-body">
+          <div class="d-flex flex-column gap-3">
+            <div class="info-item animate__animated animate__fadeIn" style="animation-delay: 0.1s">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Loan Amount</span>
+                <span class="badge bg-primary rounded-pill">{{ loan.loanAmount | currency }}</span>
+              </div>
+            </div>
 
-        <!-- CIF Details -->
-<div class="col-12 mt-5">
-  <h3 class="h5 fw-semibold text-primary mb-3"><i class="bi bi-person-fill me-2"></i>CIF Details</h3>
-  <div *ngIf="cif; else noCif" class="card bg-light p-4 border-0 shadow-sm">
-    <div class="row g-3">
-      <div class="col-md-6">
-        <p class="mb-2"><strong>Name:</strong> {{ cif.name }}</p>
-        <p class="mb-2"><strong>CIF Code:</strong> {{ cif.serialNumber }}</p>
-        <p class="mb-2"><strong>NRC Number:</strong> {{ cif.nrcNumber }}</p>
-        <p class="mb-2"><strong>Email:</strong> {{ cif.email }}</p>
-        <p class="mb-2"><strong>Phone:</strong> {{ cif.phoneNumber }}</p>
+            <div class="info-item animate__animated animate__fadeIn" style="animation-delay: 0.2s">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Interest Rate</span>
+                <span class="badge bg-info rounded-pill">{{ loan.interestRate }}%</span>
+              </div>
+            </div>
+
+            <div class="info-item animate__animated animate__fadeIn" style="animation-delay: 0.3s">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Status</span>
+                <span class="badge" [ngClass]="{
+                  'bg-warning': loan.status === 0,
+                  'bg-success': loan.status === 1,
+                  'bg-danger': loan.status === 2,
+                  'bg-primary': loan.status === 3,
+                  'bg-secondary': loan.status === 4
+                }">
+                  {{ getStatusText(loan.status) }}
+                </span>
+              </div>
+            </div>
+
+            <div class="info-item animate__animated animate__fadeIn" style="animation-delay: 0.4s">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Grace Period</span>
+                <span>{{ loan.gracePeriod }} days</span>
+              </div>
+            </div>
+
+            <div class="info-item animate__animated animate__fadeIn" style="animation-delay: 0.5s">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Duration</span>
+                <span>{{ loan.repaymentDuration }} days</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="col-md-6">
-        <p class="mb-2"><strong>Date of Birth:</strong> {{ cif.dob }}</p>
-        <p class="mb-2"><strong>Gender:</strong> {{ cif.gender }}</p>
-        <p class="mb-2"><strong>Address:</strong> {{ cif.address }}</p>
-        <p class="mb-2"><strong>Occupation:</strong> {{ cif.occupation }}</p>
-        <p class="mb-2"><strong>Marital Status:</strong> {{ cif.maritalStatus }}</p>
+    </div>
+
+    <!-- Customer & Account Info -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm border-0 h-100 animate__animated animate__fadeInUp">
+        <div class="card-header bg-gradient-info text-white">
+          <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Customer & Account</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex flex-column gap-3">
+            <!-- Customer Info -->
+            <div class="info-item animate__animated animate__fadeIn" style="animation-delay: 0.2s" *ngIf="loan.cifDetails || loan.cif">
+              <h6 class="fw-bold text-info mb-3"><i class="bi bi-person-circle me-2"></i>Customer Details</h6>
+              <div class="row g-2">
+                <div class="col-12">
+                  <p class="mb-1"><strong>Name:</strong> {{ (loan.cif || loan.cifDetails)?.name }}</p>
+                </div>
+                <div class="col-md-6">
+                  <p class="mb-1"><strong>Phone:</strong> {{ (loan.cif || loan.cifDetails)?.phoneNumber }}</p>
+                </div>
+                <div class="col-md-6">
+                  <p class="mb-1"><strong>NRC:</strong> {{ (loan.cif || loan.cifDetails)?.nrcNumber }}</p>
+                </div>
+                <div class="col-12">
+                  <p class="mb-0"><strong>Address:</strong> {{ (loan.cif || loan.cifDetails)?.address }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Account Info -->
+            <div class="info-item animate__animated animate__fadeIn" style="animation-delay: 0.3s" *ngIf="loan.accountNumber">
+              <h6 class="fw-bold text-info mb-3"><i class="bi bi-bank me-2"></i>Account Details</h6>
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <p class="mb-1"><strong>Account No:</strong> {{ loan.accountNumber }}</p>
+                </div>
+                <div class="col-md-6" *ngIf="loan.currentAccountDetails?.balance">
+                  <p class="mb-1"><strong>Balance:</strong> {{ loan.currentAccountDetails?.balance | currency }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="col-12">
-        <div class="mt-3">
-          <strong>NRC Photos:</strong>
-          <div class="d-flex gap-3 mt-2">
-            <img *ngIf="cif.fNrcPhotoUrl" [src]="cif.fNrcPhotoUrl" alt="Front NRC" class="img-thumbnail clickable" style="max-width: 150px;" (click)="showCollateralPhoto(cif.fNrcPhotoUrl)">
-            <img *ngIf="cif.bNrcPhotoUrl" [src]="cif.bNrcPhotoUrl" alt="Back NRC" class="img-thumbnail clickable" style="max-width: 150px;" (click)="showCollateralPhoto(cif.bNrcPhotoUrl)">
+    </div>
+
+    <!-- Fees & Charges -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm border-0 h-100 animate__animated animate__fadeInRight">
+        <div class="card-header bg-gradient-success text-white">
+          <h5 class="mb-0"><i class="bi bi-cash-stack me-2"></i>Fees & Charges</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex flex-column gap-3">
+            <div class="info-item animate__animated animate__fadeIn" style="animation-delay: 0.1s">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Document Fee</span>
+                <span>{{ loan.documentFee | currency }}</span>
+              </div>
+            </div>
+
+            <div class="info-item animate__animated animate__fadeIn" style="animation-delay: 0.2s">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Service Charges</span>
+                <span>{{ loan.serviceCharges | currency }}</span>
+              </div>
+            </div>
+
+            <div class="info-item animate__animated animate__fadeIn" style="animation-delay: 0.3s">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Late Fee Rate</span>
+                <span>{{ loan.late_fee_rate }}%</span>
+              </div>
+            </div>
+
+            <div class="info-item animate__animated animate__fadeIn" style="animation-delay: 0.4s">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">90-Day Late Fee</span>
+                <span>{{ loan.ninety_day_late_fee_rate }}%</span>
+              </div>
+            </div>
+
+            <div class="info-item animate__animated animate__fadeIn" style="animation-delay: 0.5s">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">180-Day Late Fee</span>
+                <span>{{ loan.one_hundred_and_eighty_day_late_fee_rate }}%</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <ng-template #noCif>
-    <div class="alert alert-info mb-0">
-      <i class="bi bi-info-circle me-2"></i>No CIF details available.
+
+  <!-- Collateral Section -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0 animate__animated animate__fadeInUp">
+        <div class="card-header bg-gradient-warning text-dark">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Collateral Information</h5>
+            <span class="badge bg-dark rounded-pill">
+              Total: {{ loan.totalCollateralAmount | currency }}
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th class="text-nowrap"><i class="bi bi-upc-scan me-2"></i>Code</th>
+                  <th><i class="bi bi-card-text me-2"></i>Description</th>
+                  <th class="text-end"><i class="bi bi-currency-dollar me-2"></i>Amount</th>
+                  <th class="text-end"><i class="bi bi-graph-up me-2"></i>Value</th>
+                  <th class="text-center"><i class="bi bi-info-circle me-2"></i>Status</th>
+                  <th class="text-center"><i class="bi bi-activity me-2"></i>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let collateral of loan.collaterals" class="animate__animated animate__fadeIn">
+                  <td class="fw-bold">{{ collateral.collateralCode }}</td>
+                  <td>{{ collateral.description }}</td>
+                  <td class="text-end">{{ collateral.collateralAmount | currency }}</td>
+                  <td class="text-end">{{ collateral.value | currency }}</td>
+                  <td class="text-center">
+                    <span class="badge" [ngClass]="{
+                      'bg-warning': collateral.status === 0,
+                      'bg-success': collateral.status === 1,
+                      'bg-danger': collateral.status === 1
+                    }">
+                      {{ getCollateralStatusText(collateral.status) }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <button class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-eye"></i> View
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="!loan.collaterals || loan.collaterals.length === 0" class="animate__animated animate__fadeIn">
+                  <td colspan="6" class="text-center py-4 text-muted">
+                    <i class="bi bi-exclamation-circle display-6 d-block mb-2"></i>
+                    No collateral information available
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
-  </ng-template>
+  </div>
+
+  <!-- Timeline Section -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0 animate__animated animate__fadeInUp">
+        <div class="card-header bg-gradient-secondary text-white">
+          <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Loan Timeline</h5>
+        </div>
+        <div class="card-body">
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-badge bg-primary"><i class="bi bi-file-earmark-text"></i></div>
+              <div class="timeline-content">
+                <h6>Loan Created</h6>
+                <p class="text-muted small mb-0">{{ loan.repaymentStartDate | date:'mediumDate' }}</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-badge bg-info"><i class="bi bi-calendar-check"></i></div>
+              <div class="timeline-content">
+                <h6>Repayment Start Date</h6>
+                <p class="text-muted small mb-0">{{ loan.repaymentStartDate | date:'mediumDate' }}</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-badge bg-warning"><i class="bi bi-exclamation-triangle"></i></div>
+              <div class="timeline-content">
+                <h6>Due Date</h6>
+                <p class="text-muted small mb-0">{{ loan.dueDate | date:'mediumDate' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-        <!-- Collaterals -->
-        <div class="col-12 mt-5">
-          <h3 class="h5 fw-semibold text-primary mb-3"><i class="bi bi-shield-lock-fill me-2"></i>Collaterals</h3>
-          <div *ngIf="collaterals && collaterals.length > 0; else noCollaterals" class="card bg-light p-4 border-0 shadow-sm">
-            <div class="table-responsive">
-              <table class="table table-hover align-middle">
-                <thead class="bg-primary text-white">
-                  <tr>
-                    <th scope="col">Code</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Value</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Date</th>
-                    <th scope="col">Photos</th>
-                    <th scope="col">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let coll of collaterals">
-                    <td>{{ coll.collateralCode }}</td>
-                    <td>{{ coll.description }}</td>
-                    <td>{{ coll.value | currency }}</td>
-                    <td>
-                      <span [ngClass]="coll.status === 1 ? 'badge bg-success' : 'badge bg-secondary'">
-                        {{ coll.status === 1 ? 'Active' : 'Inactive' }}
-                      </span>
-                    </td>
-                    <td>{{ coll.date }}</td>
-                    <td>
-                      <div class="d-flex gap-2">
-                        <img *ngIf="coll.f_collateral_photo" [src]="coll.f_collateral_photo" alt="Front Photo" class="img-thumbnail clickable" style="max-width: 100px;" (click)="showCollateralPhoto(coll.f_collateral_photo)">
-                        <img *ngIf="coll.b_collateral_photo" [src]="coll.b_collateral_photo" alt="Back Photo" class="img-thumbnail clickable" style="max-width: 100px;" (click)="showCollateralPhoto(coll.b_collateral_photo)">
-                      </div>
-                    </td>
-                    <td>
-                      <button class="btn btn-outline-primary btn-sm" (click)="viewCollateralDetail(coll.id)">
-                        <i class="bi bi-eye me-1"></i>View
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <ng-template #noCollaterals>
-            <div class="alert alert-info mb-0">
-              <i class="bi bi-info-circle me-2"></i>No collaterals available.
-            </div>
-          </ng-template>
-        </div>
-
-        <!-- Total Collateral Amount -->
-        <div class="col-12 mt-5">
-          <div class="card bg-light p-3 border-0 shadow-sm">
-            <p class="fw-bold mb-0"><i class="bi bi-wallet2 me-2 text-primary"></i>Total Collateral Amount: <span class="text-success">{{ loan.totalCollateralAmount | currency }}</span></p>
-          </div>
-        </div>
-      </div>
+<!-- Loading State -->
+<div *ngIf="isLoading" class="d-flex justify-content-center align-items-center vh-100">
+  <div class="text-center">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Loading...</span>
     </div>
+    <h4 class="mt-3 text-primary">Loading Loan Details...</h4>
   </div>
+</div>
 
-  <!-- Modal for Full-Size Photo -->
-  <div *ngIf="selectedCollateralPhoto" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Collateral Photo</h5>
-          <button type="button" class="btn-close" (click)="closeModal()" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-center">
-          <img [src]="selectedCollateralPhoto" alt="Full-size Photo" class="img-fluid" style="max-height: 70vh;">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="closeModal()">Close</button>
-        </div>
+<!-- Error State -->
+<div *ngIf="error && !isLoading" class="d-flex justify-content-center align-items-center vh-100">
+  <div class="alert alert-danger shadow animate__animated animate__shakeX" style="max-width: 500px;">
+    <div class="d-flex align-items-center">
+      <i class="bi bi-exclamation-triangle-fill me-3 fs-3"></i>
+      <div>
+        <h4 class="alert-heading">Error Loading Loan</h4>
+        <p class="mb-0">{{ error }}</p>
       </div>
     </div>
+    <hr>
+    <button class="btn btn-outline-danger" (click)="loadLoanDetails()">
+      <i class="bi bi-arrow-repeat me-2"></i>Try Again
+    </button>
   </div>
 </div>

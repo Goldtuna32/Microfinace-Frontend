@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, Pipe, PipeTransform, ViewChild } from '@angular/core';
 import { LoanService } from '../../services/loan.service';
 import { SmeLoanRegistration } from '../../models/SmeLoanRegistration.model';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -10,6 +10,14 @@ import { Router } from '@angular/router';
 import { MatMenu, MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 
 declare const bootstrap: any;
+
+@Pipe({ name: 'truncate' })
+export class TruncatePipe implements PipeTransform {
+  transform(value: string, limit: number = 10): string {
+    if (!value) return '';
+    return value.length > limit ? value.substring(0, limit) + '...' : value;
+  }
+}
 
 @Component({
   selector: 'app-loan-list',

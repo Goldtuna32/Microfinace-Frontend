@@ -83,6 +83,8 @@ export class NavigationService {
       '/analytics': 'BRANCH_CREATE', // Frontend-only, no permission check
       '/create-user': 'BRANCH_CREATE',
       '/users': 'BRANCH_CREATE',
+      '/hp-registration': 'BRANCH_CREATE',
+      '/hp-registration/list': 'BRANCH_CREATE',
       '/create-role': 'ROLE_CREATE',
       '/branch/create': 'BRANCH_CREATE',
       '/branch/list': 'BRANCH_READ',
@@ -91,6 +93,8 @@ export class NavigationService {
       '/current-account/list': 'CURRENT_ACCOUNT_READ',
       '/transaction': 'TRANSACTION_READ',
       '/collateralType/list': 'COLLATERAL_TYPE_READ',
+      '/create-role-permission': 'BRANCH_CREATE',
+      '/role-permissions': 'BRANCH_CREATE',
       '/collateralType/create': 'COLLATERAL_TYPE_CREATE',
       '/collateral': 'COLLATERAL_READ',
       '/collateral/add': 'COLLATERAL_CREATE',

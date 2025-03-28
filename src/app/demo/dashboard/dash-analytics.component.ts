@@ -8,6 +8,9 @@ import { ProductSaleComponent } from './product-sale/product-sale.component';
 // 3rd party import
 
 import { ApexOptions, ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
+import { DashboardService } from './services/dashboard.service';
+import { BranchComparisonStats, BranchdashboardService, BranchDashboardStats } from './services/branchdashboard.service';
+
 @Component({
   selector: 'app-dash-analytics',
   standalone: true,
@@ -16,251 +19,192 @@ import { ApexOptions, ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
   styleUrls: ['./dash-analytics.component.scss']
 })
 export default class DashAnalyticsComponent {
-  // public props
-  chart = viewChild<ChartComponent>('chart');
-  customerChart = viewChild<ChartComponent>('customerChart');
-  chartOptions!: Partial<ApexOptions>;
-  chartOptions_1!: Partial<ApexOptions>;
-  chartOptions_2!: Partial<ApexOptions>;
-  chartOptions_3!: Partial<ApexOptions>;
+  stats: BranchDashboardStats | null = null;
+  branchComparison: BranchComparisonStats[] = [];
+  loading = true;
+  isAdmin = false;
+  currentDate = new Date();
 
-  // constructor
-  constructor() {
-    this.chartOptions = {
-      chart: {
-        height: 205,
-        type: 'line',
-        toolbar: {
-          show: false
-        }
+  // Chart configurations
+  loanStatusChart: any = {};
+  branchComparisonChart: any = {};
+  activityTimeline: any[] = [
+    { time: '10:42 AM', activity: 'New SME loan application', icon: 'bi-file-earmark-text', color: 'primary' },
+    { time: '10:30 AM', activity: 'HP product added', icon: 'bi-cart-plus', color: 'success' },
+    { time: 'Yesterday', activity: '3 new customers registered', icon: 'bi-person-plus', color: 'info' },
+    { time: 'Mar 28', activity: 'System maintenance completed', icon: 'bi-gear', color: 'warning' }
+  ];
+
+  constructor(private dashboardService: BranchdashboardService) {}
+
+  ngOnInit(): void {
+    this.loadDashboardData();
+    if (this.isAdmin) {
+      this.loadComparisonData();
+    }
+  }
+
+  loadDashboardData(): void {
+    this.loading = true;
+    this.dashboardService.getBranchStats().subscribe({
+      next: (data) => {
+        this.stats = data;
+        this.initLoanStatusChart();
+        setTimeout(() => {
+          this.loading = false;
+        }, 800); // Slight delay for smooth transition
       },
-      dataLabels: {
-        enabled: false
-      },
-      stroke: {
-        width: 2,
-        curve: 'smooth'
-      },
-      series: [
-        {
-          name: 'Arts',
-          data: [20, 50, 30, 60, 30, 50]
-        },
-        {
-          name: 'Commerce',
-          data: [60, 30, 65, 45, 67, 35]
-        }
-      ],
-      legend: {
-        position: 'top'
-      },
-      xaxis: {
-        type: 'datetime',
-        categories: ['1/11/2000', '2/11/2000', '3/11/2000', '4/11/2000', '5/11/2000', '6/11/2000'],
-        axisBorder: {
-          show: false
-        }
-      },
-      yaxis: {
-        show: true,
-        min: 10,
-        max: 70
-      },
-      colors: ['#73b4ff', '#59e0c5'],
-      fill: {
-        type: 'gradient',
-        gradient: {
-          shade: 'light',
-          gradientToColors: ['#4099ff', '#2ed8b6'],
-          shadeIntensity: 0.5,
-          type: 'horizontal',
-          opacityFrom: 1,
-          opacityTo: 1,
-          stops: [0, 100]
-        }
-      },
-      grid: {
-        borderColor: '#cccccc3b'
+      error: () => {
+        this.loading = false;
       }
-    };
-    this.chartOptions_1 = {
+    });
+  }
+
+  loadComparisonData(): void {
+    this.dashboardService.getAllBranchesComparison().subscribe(data => {
+      this.branchComparison = data;
+      this.initComparisonChart();
+    });
+  }
+
+  initLoanStatusChart(): void {
+    if (!this.stats) return;
+    
+    this.loanStatusChart = {
+      series: [
+        this.stats.activeSmeLoanCount,
+        this.stats.pendingSmeLoanCount,
+        this.stats.smeLoanCount - this.stats.activeSmeLoanCount - this.stats.pendingSmeLoanCount
+      ],
       chart: {
-        height: 150,
-        type: 'donut'
-      },
-      dataLabels: {
-        enabled: false
-      },
-      plotOptions: {
-        pie: {
-          donut: {
-            size: '75%'
+        type: 'donut',
+        height: 350,
+        animations: {
+          enabled: true,
+          easing: 'easeout',
+          speed: 800,
+          animateGradually: {
+            enabled: true,
+            delay: 150
           }
         }
       },
-      labels: ['New', 'Return'],
-      series: [39, 10],
+      labels: ['Active Loans', 'Pending Loans', 'Other Status'],
+      colors: ['#2ed8b6', '#FFB64D', '#FF5370'],
       legend: {
-        show: false
-      },
-      tooltip: {
-        theme: 'dark'
-      },
-      grid: {
-        padding: {
-          top: 20,
-          right: 0,
-          bottom: 0,
-          left: 0
+        position: 'bottom',
+        itemMargin: {
+          horizontal: 10,
+          vertical: 5
         }
       },
-      colors: ['#4680ff', '#2ed8b6'],
-      fill: {
-        opacity: [1, 1]
-      },
-      stroke: {
-        width: 0
-      }
-    };
-    this.chartOptions_2 = {
-      chart: {
-        height: 150,
-        type: 'donut'
-      },
-      dataLabels: {
-        enabled: false
-      },
+      responsive: [{
+        breakpoint: 480,
+        options: {
+          chart: {
+            width: 200
+          },
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }],
       plotOptions: {
         pie: {
           donut: {
-            size: '75%'
+            labels: {
+              show: true,
+              total: {
+                show: true,
+                label: 'Total Loans',
+                color: '#6c757d'
+              }
+            }
           }
-        }
-      },
-      labels: ['New', 'Return'],
-      series: [20, 15],
-      legend: {
-        show: false
-      },
-      tooltip: {
-        theme: 'dark'
-      },
-      grid: {
-        padding: {
-          top: 20,
-          right: 0,
-          bottom: 0,
-          left: 0
-        }
-      },
-      colors: ['#fff', '#2ed8b6'],
-      fill: {
-        opacity: [1, 1]
-      },
-      stroke: {
-        width: 0
-      }
-    };
-    this.chartOptions_3 = {
-      chart: {
-        type: 'area',
-        height: 145,
-        sparkline: {
-          enabled: true
-        }
-      },
-      dataLabels: {
-        enabled: false
-      },
-      colors: ['#ff5370'],
-      fill: {
-        type: 'gradient',
-        gradient: {
-          shade: 'dark',
-          gradientToColors: ['#ff869a'],
-          shadeIntensity: 1,
-          type: 'horizontal',
-          opacityFrom: 1,
-          opacityTo: 0.8,
-          stops: [0, 100, 100, 100]
-        }
-      },
-      stroke: {
-        curve: 'smooth',
-        width: 2
-      },
-      series: [
-        {
-          data: [45, 35, 60, 50, 85, 70]
-        }
-      ],
-      yaxis: {
-        min: 5,
-        max: 90
-      },
-      tooltip: {
-        fixed: {
-          enabled: false
-        },
-        x: {
-          show: false
-        },
-        marker: {
-          show: false
         }
       }
     };
   }
-  cards = [
-    {
-      background: 'bg-c-blue',
-      title: 'Orders Received',
-      icon: 'icon-shopping-cart',
-      text: 'Completed Orders',
-      number: '486',
-      no: '351'
-    },
-    {
-      background: 'bg-c-green',
-      title: 'Total Sales',
-      icon: 'icon-tag',
-      text: 'This Month',
-      number: '1641',
-      no: '213'
-    },
-    {
-      background: 'bg-c-yellow',
-      title: 'Revenue',
-      icon: 'icon-repeat',
-      text: 'This Month',
-      number: '$42,56',
-      no: '$5,032'
-    },
-    {
-      background: 'bg-c-red',
-      title: 'Total Profit',
-      icon: 'icon-shopping-cart',
-      text: 'This Month',
-      number: '$9,562',
-      no: '$542'
-    }
-  ];
 
-  images = [
-    {
-      src: 'assets/images/gallery-grid/img-grd-gal-1.jpg',
-      title: 'Old Scooter',
-      size: 'PNG-100KB'
-    },
-    {
-      src: 'assets/images/gallery-grid/img-grd-gal-2.jpg',
-      title: 'Wall Art',
-      size: 'PNG-150KB'
-    },
-    {
-      src: 'assets/images/gallery-grid/img-grd-gal-3.jpg',
-      title: 'Microphone',
-      size: 'PNG-150KB'
-    }
-  ];
+  initComparisonChart(): void {
+    this.branchComparisonChart = {
+      series: [
+        {
+          name: 'Customers',
+          data: this.branchComparison.map(b => b.cifCount)
+        },
+        {
+          name: 'Active Customers',
+          data: this.branchComparison.map(b => b.activeCifCount)
+        },
+        {
+          name: 'SME Loans',
+          data: this.branchComparison.map(b => b.smeLoanCount)
+        },
+        {
+          name: 'HP Registrations',
+          data: this.branchComparison.map(b => b.hpRegistrationCount)
+        }
+      ],
+      chart: {
+        type: 'bar',
+        height: 350,
+        stacked: false,
+        animations: {
+          enabled: true,
+          easing: 'easeinout',
+          speed: 800
+        }
+      },
+      plotOptions: {
+        bar: {
+          horizontal: false,
+          columnWidth: '55%',
+          borderRadius: 4,
+          borderRadiusApplication: 'end'
+        }
+      },
+      dataLabels: {
+        enabled: false
+      },
+      stroke: {
+        show: true,
+        width: 2,
+        colors: ['transparent']
+      },
+      xaxis: {
+        categories: this.branchComparison.map(b => b.branchName)
+      },
+      yaxis: {
+        title: {
+          text: 'Count',
+          style: {
+            color: '#6c757d'
+          }
+        }
+      },
+      fill: {
+        opacity: 1,
+        colors: ['#5e72e4', '#2dce89', '#fb6340', '#11cdef']
+      },
+      tooltip: {
+        y: {
+          formatter: function(val: number) {
+            return val.toString();
+          }
+        }
+      }
+    };
+  }
+
+  getStatusPercentage(current: number, total: number): string {
+    return total > 0 ? ((current / total) * 100).toFixed(1) + '%' : '0%';
+  }
+
+  getStatusClass(percentage: string): string {
+    const value = parseFloat(percentage);
+    if (value >= 70) return 'bg-success';
+    if (value >= 40) return 'bg-info';
+    return 'bg-warning';
+  }
 }

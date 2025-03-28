@@ -1,0 +1,189 @@
+<div class="container mt-4 animate__animated animate__fadeIn">
+  <div class="card shadow-lg">
+    <div class="card-header bg-primary text-white">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">
+          <i class="bi bi-file-earmark-text me-2"></i>HP Registration
+        </h2>
+        <i class="bi bi-pencil-square fs-4"></i>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <form #hpForm="ngForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
+        <!-- First Row -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <div class="form-floating">
+              <input type="text" id="hpNumber" class="form-control" [(ngModel)]="hp.hpNumber" name="hpNumber" 
+                     required placeholder="HP Number">
+              <label for="hpNumber" class="text-primary">
+                <i class="bi bi-123 me-2"></i>HP Number
+              </label>
+              <div class="invalid-feedback">
+                Please provide a valid HP number.
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="form-floating">
+              <input type="number" id="gracePeriod" class="form-control" [(ngModel)]="hp.gracePeriod" 
+                     name="gracePeriod" required placeholder="Grace Period">
+              <label for="gracePeriod" class="text-primary">
+                <i class="bi bi-calendar-range me-2"></i>Grace Period (days)
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Second Row - Financial Details -->
+        <div class="row mb-4">
+          <div class="col-md-4">
+            <div class="form-floating">
+              <input type="number" id="loanAmount" class="form-control" [(ngModel)]="hp.loanAmount" 
+                     name="loanAmount" required placeholder="Loan Amount">
+              <label for="loanAmount" class="text-primary">
+                <i class="bi bi-currency-dollar me-2"></i>Loan Amount
+              </label>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="form-floating">
+              <input type="number" id="downPayment" class="form-control" [(ngModel)]="hp.downPayment" 
+                     name="downPayment" required placeholder="Down Payment">
+              <label for="downPayment" class="text-primary">
+                <i class="bi bi-cash-coin me-2"></i>Down Payment
+              </label>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="form-floating">
+              <input type="number" id="loanTerm" class="form-control" [(ngModel)]="hp.loanTerm" 
+                     name="loanTerm" required placeholder="Loan Term">
+              <label for="loanTerm" class="text-primary">
+                <i class="bi bi-calendar-month me-2"></i>Loan Term (Months)
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Third Row - Interest and Late Fees -->
+        <div class="row mb-4">
+          <div class="col-md-4">
+            <div class="form-floating">
+              <input type="text" id="interestRate" class="form-control" [(ngModel)]="hp.interestRate" 
+                     name="interestRate" required placeholder="Interest Rate">
+              <label for="interestRate" class="text-primary">
+                <i class="bi bi-percent me-2"></i>Interest Rate (%)
+              </label>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="form-floating">
+              <input type="number" step="0.01" id="lateFeeRate" class="form-control" 
+                     [(ngModel)]="hp.lateFeeRate" name="lateFeeRate" required placeholder="Late Fee Rate">
+              <label for="lateFeeRate" class="text-primary">
+                <i class="bi bi-exclamation-triangle me-2"></i>Late Fee Rate
+              </label>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="form-floating">
+              <input type="number" step="0.01" id="ninetyDayLateFeeRate" class="form-control" 
+                     [(ngModel)]="hp.ninetyDayLateFeeRate" name="ninetyDayLateFeeRate" required 
+                     placeholder="90-Day Late Fee">
+              <label for="ninetyDayLateFeeRate" class="text-primary">
+                <i class="bi bi-exclamation-diamond me-2"></i>90-Day Late Fee
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fourth Row - Dates -->
+        <div class="row mb-4">
+          <div class="col-md-4">
+            <div class="form-floating">
+              <input type="date" id="startDate" class="form-control" [(ngModel)]="hp.startDate" 
+                     name="startDate" required placeholder="Start Date">
+              <label for="startDate" class="text-primary">
+                <i class="bi bi-calendar-plus me-2"></i>Start Date
+              </label>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="form-floating">
+              <input type="date" id="endDate" class="form-control" [(ngModel)]="hp.endDate" 
+                     name="endDate" required placeholder="End Date">
+              <label for="endDate" class="text-primary">
+                <i class="bi bi-calendar-check me-2"></i>End Date
+              </label>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="form-floating">
+              <select id="status" class="form-select" [(ngModel)]="hp.status" name="status" required>
+                <option [value]="1">Pending</option>
+                <option [value]="2">Approved</option>
+                <option [value]="3">Rejected</option>
+                <option [value]="4">Active</option>
+              </select>
+              <label for="status" class="text-primary">
+                <i class="bi bi-list-check me-2"></i>Status
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fifth Row - Dropdowns -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <div class="form-floating">
+              <select id="currentAccount" class="form-select" [(ngModel)]="hp.currentAccountId" 
+                      name="currentAccountId" required>
+                <option value="" disabled selected>Select an account</option>
+                <option *ngFor="let account of currentAccounts" [value]="account.id">
+                  {{ account.accountNumber }} - {{ account.customerName }}
+                </option>
+              </select>
+              <label for="currentAccount" class="text-primary">
+                <i class="bi bi-bank me-2"></i>Current Account
+              </label>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="form-floating">
+              <select id="hpProduct" class="form-select" [(ngModel)]="hp.hpProductId" 
+                      name="hpProductId" required>
+                <option value="" disabled selected>Select a product</option>
+                <option *ngFor="let product of hpProducts" [value]="product.id">
+                  {{ product.name }} - {{ product.category }}
+                </option>
+              </select>
+              <label for="hpProduct" class="text-primary">
+                <i class="bi bi-box-seam me-2"></i>HP Product
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+          <button type="reset" class="btn btn-outline-secondary me-md-2">
+            <i class="bi bi-arrow-counterclockwise me-2"></i>Reset
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save me-2"></i>Submit
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -201,7 +201,18 @@ export const routes: Routes = [
         path: 'role-permissions',
         loadComponent: () => import('./demo/role/components/role-list/role-list.component')
         .then(m => m.RoleListComponent)
-      }
+      },
+      {
+        path: 'hp-registration',
+        loadComponent: () => import('./demo/hp-registration/components/hp-registration/hp-registration.component')
+          .then(m => m.HpRegistrationComponent)
+      },
+
+      {
+        path: 'hp-registration/list',
+        loadComponent: () => import('./demo/hp-registration/components/hp-registration-list/hp-registration-list.component')
+          .then(m => m.HpRegistrationListComponent)
+      },
      
 
     ]

@@ -43,4 +43,12 @@ export class RoleService {
   getAllPermissions(): Observable<PermissionDTO[]> {
     return this.http.get<PermissionDTO[]>('http://localhost:8080/api/permissions');
   }
+
+  addPermissionToRole(roleId: number, permissionId: number): Observable<any> {
+    return this.http.post(`/api/roles/${roleId}/permissions`, { permissionId });
+  }
+
+  deleteRole(roleId: number): Observable<any> {
+    return this.http.delete(`/api/roles/${roleId}`);
+  }
 }

@@ -1,42 +1,167 @@
-<!-- role-permission-list.component.html -->
-<div class="role-permission-list-container">
-    <h2>Role Permissions</h2>
-  
-    <div class="filter-group">
-      <label for="roleFilter">Filter by Role:</label>
-      <select 
-        id="roleFilter" 
-        [(ngModel)]="selectedRoleId" 
-        (change)="filterByRole()"
-        class="form-control"
-      >
-        <option [ngValue]="undefined">All Roles</option>
-        <option *ngFor="let role of roles" [ngValue]="role.id">
-          {{ role.name }}
-        </option>
-      </select>
+<div class="container-fluid py-4">
+  <div class="card shadow-sm animate__animated animate__fadeIn">
+    <div class="card-header bg-primary text-white">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="h5 mb-0">
+          <i class="bi bi-shield-lock me-2"></i>Role Management
+        </h2>
+      </div>
     </div>
-  
-    <table class="role-permission-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Role</th>
-          <th>Permission</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let rp of rolePermissions">
-          <td>{{ rp.id }}</td>
-          <td>{{ rp.role.name }}</td>
-          <td>{{ rp.permission.name }} ({{ rp.permission.permissionFunction }})</td>
-          <td>
-            <button (click)="viewDetails(rp.id)" class="details-btn">Details</button>
-            <button (click)="editRolePermission(rp.id)" class="edit-btn">Edit</button>
-            <button (click)="deleteRolePermission(rp.id)" class="delete-btn">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-dark">
+            <tr>
+              <th scope="col" class="text-nowrap">#ID</th>
+              <th scope="col" class="text-nowrap"><i class="bi bi-person-badge me-1"></i> Role Name</th>
+              <th scope="col" class="text-nowrap"><i class="bi bi-key me-1"></i> Permissions</th>
+              <th scope="col" class="text-nowrap text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let role of roles" class="animate__animated animate__fadeIn">
+              <td class="fw-bold">{{ role.id }}</td>
+              <td>
+                <span class="badge bg-primary">{{ role.name }}</span>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-outline-info" (click)="viewRolePermissions(role.id!)">
+                  <i class="bi bi-eye me-1"></i> View Permissions
+                </button>
+              </td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm" role="group">
+                  <button 
+                    (click)="editRole(role.id!)" 
+                    class="btn btn-outline-warning"
+                    title="Edit"
+                    data-bs-toggle="tooltip"
+                  >
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                  <button 
+                    (click)="deleteRole(role.id!)" 
+                    class="btn btn-outline-danger"
+                    title="Delete"
+                    data-bs-toggle="tooltip"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="roles.length === 0">
+              <td colspan="4" class="text-center py-4 text-muted">
+                <i class="bi bi-exclamation-circle fs-4"></i>
+                <p class="mt-2">No roles found</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card-footer bg-light">
+      <div class="d-flex justify-content-between align-items-center">
+        <small class="text-muted">Showing {{roles.length}} entries</small>
+        <nav *ngIf="totalPages > 1">
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <a class="page-link" (click)="changePage(currentPage - 1)">Previous</a>
+            </li>
+            <li *ngFor="let page of getPages()" class="page-item" [class.active]="page === currentPage">
+              <a class="page-link" (click)="changePage(page)">{{page}}</a>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <a class="page-link" (click)="changePage(currentPage + 1)">Next</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
   </div>
+
+  <!-- Role Permissions Modal -->
+  <div class="modal fade" id="rolePermissionsModal" tabindex="-1" aria-labelledby="rolePermissionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="rolePermissionsModalLabel">
+            <i class="bi bi-shield-check me-2"></i>
+            Permissions for {{selectedRole?.name}}
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div *ngIf="selectedRolePermissions.length > 0; else noPermissions">
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Permission</th>
+                    <th>Function</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let rp of selectedRolePermissions">
+                    <td>{{ rp.permission.name }}</td>
+                    <td><code>{{ rp.permission.permissionFunction }}</code></td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-outline-danger" (click)="removePermissionFromRole(rp.id!)">
+                        <i class="bi bi-trash"></i> Remove
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <ng-template #noPermissions>
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle me-2"></i>This role doesn't have any permissions assigned.
+            </div>
+          </ng-template>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" (click)="openAddPermissionModal()">
+            <i class="bi bi-plus-circle me-1"></i> Add Permission
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Permission Modal -->
+  <div class="modal fade" id="addPermissionModal" tabindex="-1" aria-labelledby="addPermissionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title" id="addPermissionModalLabel">
+            <i class="bi bi-plus-circle me-2"></i>
+            Add Permission to {{selectedRole?.name}}
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="permissionSelect" class="form-label">Select Permission</label>
+            <select id="permissionSelect" class="form-select" [(ngModel)]="selectedPermissionId">
+              <option *ngFor="let permission of availablePermissions" [ngValue]="permission.id">
+                {{ permission.name }} ({{ permission.permissionFunction }})
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-success" (click)="addPermissionToRole()">
+            <i class="bi bi-check-circle me-1"></i> Add Permission
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

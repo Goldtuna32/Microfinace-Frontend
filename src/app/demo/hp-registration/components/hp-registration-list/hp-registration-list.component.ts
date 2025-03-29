@@ -5,11 +5,13 @@ import { RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { HpRegistration } from '../../models/hp-registration';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-hp-registration-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatTableModule],
+  imports: [CommonModule, RouterModule, MatTableModule, FormsModule, ReactiveFormsModule],
   templateUrl:'./hp-registration-list.component.html',
   styleUrls: ['./hp-registration-list.component.scss']
 })
@@ -19,11 +21,13 @@ export class HpRegistrationListComponent implements OnInit {
   loading: boolean = true;
   error: string | null = null;
   currentPage: number = 1;
-  pageSize: number = 5; // Default page size
+  pageSize: number = 5;
   sortColumn: keyof HpRegistration | null = null;
   sortDirection: 'asc' | 'desc' = 'asc';
-  showDeleted = true;
-console: any;
+  currentTab: string = 'all';
+  pendingCount: number = 0;
+  approvedCount: number = 0;
+  showDeleted: boolean = false;
 
   constructor(
     private hpService: HpRegistrationService,
@@ -36,15 +40,38 @@ console: any;
 
   loadHpRegistrations(): void {
     this.loading = true;
+    this.error = null;
+  
+    // Determine which API call to make based on current tab
+    let apiCall: Observable<HpRegistration[]>;
     
-    const serviceCall = this.hpService.getAllHpRegistrations();
-    
-    serviceCall.subscribe({
-      next: (response: HpRegistration[]) => {  // Adjust to handle an array response
-        this.hpRegistrations = response;
+    switch(this.currentTab) {
+      case 'pending':
+        apiCall = this.hpService.getAllPendingHP();
+        break;
+      case 'approved':
+        apiCall = this.hpService.getAllApprovedHP();
+        break;
+      default:
+        apiCall = this.hpService.getAllPendingHP();
+        break;
+    }
+  
+    apiCall.subscribe({
+      next: (response: HpRegistration[]) => {
+        this.hpRegistrations = response.map(hp => ({
+          ...hp,
+          bankPortion: hp.loanAmount - hp.downPayment
+        }));
+  
+        // Update counts (only when showing all)
+        if (this.currentTab === 'all') {
+          this.pendingCount = this.hpRegistrations.filter(hp => hp.status === 3).length;
+          this.approvedCount = this.hpRegistrations.filter(hp => hp.status === 4).length;
+        }
+  
         this.updatePagination();
         this.loading = false;
-        this.error = null;
       },
       error: (error) => {
         this.error = 'Error loading HP registrations. Please try again later.';
@@ -52,7 +79,7 @@ console: any;
         console.error('Error:', error);
       }
     });
-  }
+}
   
   
 
@@ -132,6 +159,33 @@ console: any;
     });
   }
 
+  getStatusText(status: number): string {
+    switch(status) {
+      case 1: return 'Active';
+      case 2: return 'Deleted';
+      case 3: return 'Pending';
+      case 4: return 'Approved';
+      default: return 'Unknown';
+    }
+  }
+
+  filterByTab(): void {
+    if (this.currentTab === 'pending') {
+      this.paginatedHpRegistrations = this.hpRegistrations.filter(hp => hp.status === 3);
+    } else if (this.currentTab === 'approved') {
+      this.paginatedHpRegistrations = this.hpRegistrations.filter(hp => hp.status === 4);
+    } else {
+      this.paginatedHpRegistrations = [...this.hpRegistrations];
+    }
+  }
+
+  setTab(tab: string): void {
+    this.currentTab = tab;
+    this.currentPage = 1;
+    this.filterByTab();
+    this.updatePagination();
+  }
+
   // Restore a soft-deleted registration (set status to 1)
   restoreHpRegistration(id?: number): void {
     console.log('restoreHpRegistration function called with ID:', id);
@@ -149,10 +203,30 @@ console: any;
     } else {
       console.warn('HP ID is undefined');
     }
+
+    
   }
-  
+  approveHpRegistration(hp: HpRegistration): void {
+    if (!hp.id) {
+      this.error = 'Invalid HP registration';
+      return;
+    }
 
+    // Calculate bank portion if not set
+    const bankPortion = hp.bankPortion || (hp.loanAmount - hp.downPayment);
 
-
-  
+    if (confirm(`Are you sure you want to approve HP registration ${hp.hpNumber}?`)) {
+      this.loading = true;
+      this.hpService.approveHpRegistration(hp.id, bankPortion).subscribe({
+        next: () => {
+          this.loadHpRegistrations();
+          this.loading = false;
+        },
+        error: (error) => {
+          this.error = 'Error approving HP registration: ' + error.message;
+          this.loading = false;
+        }
+      });
+    }
+  }
 }

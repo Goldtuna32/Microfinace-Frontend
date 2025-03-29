@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { HpRegistration } from '../models/hp-registration';
 
@@ -14,6 +14,10 @@ export class HpRegistrationService {
 
   getAll(): Observable<HpRegistration[]> {
     return this.http.get<HpRegistration[]>(this.apiUrl); 
+  }
+
+  approveHpRegistration(id: number, bankPortion: number): Observable<HpRegistration> {
+    return this.http.put<HpRegistration>(`${this.apiUrl}/${id}/approve`, { bankPortion });
   }
 
   getById(id: number): Observable<HpRegistration> {
@@ -45,8 +49,24 @@ getDeletedHpRegistrations(): Observable<{ content: HpRegistration[]; totalPages:
     return this.http.put<void>(`${this.apiUrl}/${id}/restore`, {});
   }
 
-  getAllHpRegistrations(): Observable<HpRegistration[]> {
-    return this.http.get<HpRegistration[]>(this.apiUrl); // Ensure this returns an Observable
+  getAllPendingHP(branchId?: number): Observable<HpRegistration[]> {
+    let params = new HttpParams();
+    if (branchId !== undefined && branchId !== null) {
+      params = params.set('branchId', branchId.toString());
+    }
+    
+
+    return this.http.get<HpRegistration[]>(`${this.apiUrl}/pendingHP`, { params });
+  }
+
+  getAllApprovedHP(branchId?: number): Observable<HpRegistration[]> {
+    let params = new HttpParams();
+    if (branchId !== undefined && branchId !== null) {
+      params = params.set('branchId', branchId.toString());
+    }
+  
+
+    return this.http.get<HpRegistration[]>(`${this.apiUrl}/approvedHP`, { params });
   }
   updateHpRegistrationStatus(id: number, status: string): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/${id}/status`, { status });

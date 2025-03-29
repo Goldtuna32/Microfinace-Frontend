@@ -46,7 +46,8 @@ export class CurrentAccountListComponent implements OnInit, AfterViewInit {
   branchId: number | null = null;
   errorMessage = '';
   showSuccessAlert: boolean = false;
-  
+  currentAccounts: CurrentAccount[] = [];
+filteredCurrentAccounts: CurrentAccount[] = [];
   // Pagination properties
   currentPage = 1;
   pageSize = 10; // You can adjust this value
@@ -99,34 +100,47 @@ export class CurrentAccountListComponent implements OnInit, AfterViewInit {
     }
   }
 
+  loadBranchId(): void {
+    // Get branch ID from service or localStorage
+    const storedBranch = localStorage.getItem('currentBranch');
+    this.branchId = storedBranch ? JSON.parse(storedBranch).id : null;
+    this.loadCurrentAccounts();
+  }
+
   ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
   }
 
-  loadCurrentAccounts(): void {
+  loadCurrentAccounts(showActive: boolean = true, branchId?: number): void {
     this.loading = true;
     this.errorMessage = '';
 
-    const currentObservable = this.isDeletedView
-    ? this.currentAccountService.getAllCurrentAccountByBranch(this.branchId ?? undefined)
-    : this.currentAccountService.getFreezeCurrentAccountByBranch(this.branchId ?? undefined);
+    const currentAccountObservable = showActive
+        ? this.currentAccountService.getAllCurrentAccountByBranch(branchId)
+        : this.currentAccountService.getFreezeCurrentAccountByBranch(branchId);
 
-    currentObservable.subscribe({
-      next: (current: CurrentAccount[]) => {
-        this.dataSource.data = current;
-        this.applyAllFilters();
-        this.totalItems = current.length;
-        this.totalPages = Math.ceil(this.totalItems / this.pageSize);
-        this.updatePaginatedData();
-        this.loading = false;
-      },
-      error: (error) => {
-        this.errorMessage = 'Failed to load current accounts.';
-        console.error('Error fetching current accounts:', error);
-        this.loading = false;
-      }
+    currentAccountObservable.subscribe({
+        next: (data: CurrentAccount[]) => {
+            this.currentAccounts = data;
+            this.filteredCurrentAccounts = data; // Initialize with all loaded accounts
+            this.dataSource.data = data; // If you're using Material Table
+            this.applyAllFilters(); // Apply any existing filters
+            this.updatePagination(data.length); // Handle pagination
+            this.loading = false;
+        },
+        error: (error) => {
+            this.errorMessage = 'Failed to load current accounts. Please try again.';
+            this.loading = false;
+            console.error('Error loading current accounts:', error);
+        }
     });
-  }
+}
+
+private updatePagination(totalItems: number): void {
+  this.totalItems = totalItems;
+  this.totalPages = Math.ceil(totalItems / this.pageSize);
+  this.updatePaginatedData();
+}
 
   applyAllFilters(): void {
     this.filteredData = [...this.allData];

@@ -5,6 +5,9 @@ import { HpProductService } from '../../services/hp-product.service';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { UserService } from 'src/app/demo/users/services/user.service';
+import { MatTableDataSource } from '@angular/material/table';
+import { AlertService } from 'src/app/alertservice/alert.service';
 
 @Component({
   selector: 'app-hp-product-list',
@@ -15,31 +18,85 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 export class HpProductListComponent {
   hpProducts: HpProduct[] = [];
   filteredHpProducts: HpProduct[] = [];
+  dataSource = new MatTableDataSource<HpProduct>([]);
   pageSize = 5;
   currentPage = 0;
   isInactiveView = false;
+  loading = true;
+  errorMessage = '';
+  isDeletedView = false;
+  branchId: number | null = null;
+  totalItems = 0;
   hoveredRow: number | null = null; // Track hover state by ID instead of adding property to model
+  showSuccessAlert: boolean = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private hpProductService: HpProductService, private router: Router) {}
+  constructor(private hpProductService: HpProductService, private router: Router, private userService: UserService,
+    private alertService: AlertService
+  ) {}
+
+  
 
   ngOnInit(): void {
+    this.loadCurrentUserBranch();
+  
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state?.['success']) {
+      this.showSuccessAlert = true;
+      setTimeout(() => {
+        this.showSuccessAlert = false;
+      }, 5000);
+    }
+  }
+
+  loadCurrentUserBranch(): void {
+    this.userService.currentUser$.subscribe({
+      next: (user) => {
+        this.branchId = user?.branchId || null;
+        this.loadHpProducts();
+      },
+      error: (error) => {
+        console.error('Failed to load user branch', error);
+        this.loadHpProducts(); // Still load CIFs without branch filter
+      }
+    });
+
+    // If user data isn't loaded yet, trigger a refresh
+    if (!this.userService.currentUserSubject.value) {
+      this.userService.getCurrentUser().subscribe();
+    }
+  }
+
+  loadBranchId(): void {
+    // Get branch ID from service or localStorage
+    const storedBranch = localStorage.getItem('currentBranch');
+    this.branchId = storedBranch ? JSON.parse(storedBranch).id : null;
     this.loadHpProducts();
   }
 
+   
   loadHpProducts(): void {
-    this.hpProductService.getAllHpProducts().subscribe({
-      next: (data) => {
-        this.hpProducts = data;
-        this.updateFilteredHpProducts();
-        if (this.paginator) {
-          this.paginator.length = this.filteredHpProducts.length;
-          this.paginator.pageIndex = this.currentPage;
-          this.paginator.pageSize = this.pageSize;
-        }
+    this.loading = true;
+    this.errorMessage = '';
+  
+    const cifObservable = this.isDeletedView
+      ? this.hpProductService.getAllActiveProducts(this.branchId ?? undefined)
+      : this.hpProductService.getAllInactiveProducts(this.branchId ?? undefined);
+  
+    cifObservable.subscribe({
+      next: (hps: HpProduct[]) => {
+        this.dataSource.data = hps;
+        this.totalItems = hps.length;
+         this.loading = false;
       },
-      error: (error) => console.error('Error loading HP products', error)
+      error: (error) => {
+        this.alertService.showError("Failed to load CIF List");
+        this.loading = false;
+        this.errorMessage = 'Failed to load CIF list.';
+        this.dataSource.data = [];
+        this.totalItems = 0;
+      }
     });
   }
 

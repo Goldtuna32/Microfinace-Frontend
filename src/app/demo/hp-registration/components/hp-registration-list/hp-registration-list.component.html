@@ -1,49 +1,92 @@
-<table *ngIf="!loading && hpRegistrations.length" class="table table-bordered table-striped mt-3">
-  <thead>
-    <tr>
-      <th (click)="sort('id')">ID</th>
-      <th (click)="sort('hpNumber')">HP Number</th>
-      <th (click)="sort('loanAmount')">Loan Amount</th>
-      <th (click)="sort('downPayment')">Down Payment</th>
-      <th (click)="sort('loanTerm')">Loan Term</th>
-      <th (click)="sort('interestRate')">Interest Rate</th>
-      <th>Status</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let hp of paginatedHpRegistrations">
-      <td>{{ hp.id }}</td>
-      <td>{{ hp.hpNumber }}</td>
-      <td>{{ hp.loanAmount | currency }}</td>
-      <td>{{ hp.downPayment | currency }}</td>
-      <td>{{ hp.loanTerm }} months</td>
-      <td>{{ hp.interestRate }}%</td>
-      <td>
-        <span class="px-2 py-1 rounded text-white"
-              [ngClass]="hp.status === 1 ? 'badge m-r-5 badge-pill bg-success' : 'badge m-r-5 badge-pill bg-danger'">
-          {{ hp.status === 1 ? 'Active' : 'Inactive' }}
-        </span>
-      </td>
-      <td>
-        <button *ngIf="hp.status === 1" class="btn btn-danger btn-sm" (click)="hp.id && softDelete(hp.id)" >
-          Delete
-        </button>
-        <button *ngIf=" hp.status !== 1" class="btn btn-primary btn-sm" 
-        (click)="restoreHpRegistration(hp.id)">
-  Restore
-</button>
-      </td>
-    </tr>
-    
-  </tbody>
-</table>
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h3>HP Registrations</h3>
+      <ul class="nav nav-tabs card-header-tabs">
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="currentTab === 'all'" (click)="setTab('all')">All</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="currentTab === 'pending'" (click)="setTab('pending')">Pending ({{pendingCount}})</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="currentTab === 'approved'" (click)="setTab('approved')">Approved ({{approvedCount}})</a>
+        </li>
+      </ul>
+    </div>
 
-<!-- Pagination Controls -->
-<div *ngIf="!loading && getTotalPages() > 1" class="pagination">
-  <button (click)="goToPreviousPage()" [disabled]="currentPage === 1">Previous</button>
-  <span *ngFor="let page of getPageNumbers()" (click)="goToPage(page+1)">
-    {{ page+1 }}
-  </span>
-  <button (click)="goToNextPage()" [disabled]="currentPage === getTotalPages()">Next</button>
+    <div class="card-body">
+      <table *ngIf="!loading && hpRegistrations.length" class="table table-bordered table-striped mt-3">
+        <thead>
+          <tr>
+            <th (click)="sort('id')">ID</th>
+            <th (click)="sort('hpNumber')">HP Number</th>
+            <th (click)="sort('loanAmount')">Loan Amount</th>
+            <th (click)="sort('downPayment')">Down Payment</th>
+            <th>Bank Portion</th>
+            <th (click)="sort('loanTerm')">Loan Term</th>
+            <th (click)="sort('interestRate')">Interest Rate</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let hp of paginatedHpRegistrations">
+            <td>{{ hp.id }}</td>
+            <td>{{ hp.hpNumber }}</td>
+            <td>{{ hp.loanAmount | currency }}</td>
+            <td>{{ hp.downPayment | currency }}</td>
+            <td>
+              <span *ngIf="hp.status === 4">{{ hp.loanAmount - hp.downPayment | currency }}</span>
+              <input *ngIf="hp.status === 3" type="number" class="form-control form-control-sm" 
+                     [(ngModel)]="hp.bankPortion" 
+                     [value]="hp.loanAmount - hp.downPayment"
+                     [disabled]="hp.status !== 3">
+            </td>
+            <td>{{ hp.loanTerm }} months</td>
+            <td>{{ hp.interestRate }}%</td>
+            <td>
+              <span class="px-2 py-1 rounded text-white"
+                    [ngClass]="{
+                      'badge bg-success': hp.status === 4,
+                      'badge bg-warning': hp.status === 3,
+                      'badge bg-danger': hp.status === 2
+                    }">
+                {{ getStatusText(hp.status) }}
+              </span>
+            </td>
+            <td>
+              <button *ngIf="hp.status === 3" class="btn btn-success btn-sm me-2" 
+                      (click)="approveHpRegistration(hp)">
+                Approve
+              </button>
+              <button *ngIf="hp.status === 1" class="btn btn-danger btn-sm" 
+                      (click)="hp.id && softDelete(hp.id)">
+                Delete
+              </button>
+              <button *ngIf="hp.status !== 1" class="btn btn-primary btn-sm" 
+                      (click)="restoreHpRegistration(hp.id)">
+                Restore
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination Controls -->
+      <div *ngIf="!loading && getTotalPages() > 1" class="pagination mt-3">
+        <button class="btn btn-outline-primary me-2" (click)="goToPreviousPage()" [disabled]="currentPage === 1">
+          Previous
+        </button>
+        <span *ngFor="let page of getPageNumbers()" class="page-number" 
+              [class.active]="currentPage === page + 1"
+              (click)="goToPage(page + 1)">
+          {{ page + 1 }}
+        </span>
+        <button class="btn btn-outline-primary ms-2" (click)="goToNextPage()" [disabled]="currentPage === getTotalPages()">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

@@ -21,9 +21,7 @@ export class HpRegistrationComponent implements OnInit {
     interestRate: '',
     lateFeeRate: 0,
     ninetyDayLateFeeRate: 0,
-    oneHundredAndEightyLateFeeRate: 0,
-    startDate: '',
-    endDate: '',
+    one_hundred_and_eighty_late_fee_rate: 0,
     status: 1,
     currentAccountId: 0,
     hpProductId: 0
@@ -65,9 +63,7 @@ export class HpRegistrationComponent implements OnInit {
       interestRate: this.hp.interestRate,
       late_fee_rate: this.hp.lateFeeRate,
       ninety_day_late_fee_rate: this.hp.ninetyDayLateFeeRate,
-      one_hundred_and_eighty_day_late_fee_rate: this.hp.oneHundredAndEightyLateFeeRate,
-      startDate: this.hp.startDate,
-      endDate: this.hp.endDate,
+      one_hundred_and_eighty_late_fee_rate: this.hp.one_hundred_and_eighty_late_fee_rate,
       status: this.hp.status,
       currentAccount: { id: this.hp.currentAccountId }, // Send as object with id
       hpProductId: this.hp.hpProductId

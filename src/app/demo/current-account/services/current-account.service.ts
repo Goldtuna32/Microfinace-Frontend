@@ -1,6 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { CurrentAccount } from '../components/current-account-list/current-account-list.component';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,24 @@ export class CurrentAccountService {
 
   getAllCurrentAccounts(): Observable<any> {
     return this.http.get(`${this.baseUrl}`);
+  }
+
+  getAllCurrentAccountByBranch(branchId?: number): Observable<CurrentAccount[]> {
+    let params = new HttpParams();
+    if (branchId !== undefined && branchId !== null) {
+      params = params.set('branchId', branchId.toString());
+    }
+    
+    return this.http.get<CurrentAccount[]>(`${this.baseUrl}/activeCurrentAccount`, { params });
+  }
+
+  getFreezeCurrentAccountByBranch(branchId?: number): Observable<CurrentAccount[]> {
+    let params = new HttpParams();
+    if (branchId !== undefined && branchId !== null) {
+      params = params.set('branchId', branchId.toString());
+    }
+
+    return this.http.get<CurrentAccount[]>(`${this.baseUrl}/freezeCurrentAccount`, { params });
   }
 
   getCurrentAccountById(id: number): Observable<any> {

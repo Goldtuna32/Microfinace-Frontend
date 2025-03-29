@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+  import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Collateral } from '../models/collateral.model';
@@ -26,6 +26,10 @@ export class CollateralService {
     return this.http.post<any>(`${this.baseUrl}/collaterals`, formData);
   }
 
+  getCollateralById(id: string): Observable<Collateral> {
+    return this.http.get<Collateral>(`${this.baseUrl}/collaterals/${id}`);
+  }
+
   getAllCollaterals(page: number = 0, size: number = 10, sortBy: string = 'id', direction: string = 'asc'): Observable<{ content: Collateral[], totalPages: number, totalElements: number }> {
     return this.http.get<{ content: Collateral[], totalPages: number, totalElements: number }>(
       `${this.baseUrl}/collaterals/active?page=${page}&size=${size}&sortBy=${sortBy}&direction=${direction}`
@@ -37,6 +41,8 @@ export class CollateralService {
       `${this.baseUrl}/collaterals/deleted?page=${page}&size=${size}&sortBy=${sortBy}&direction=${direction}`
     );
   }
+
+  
 
   
   getAllActiveCollateralTypes(): Observable<CollateralType[]> {
@@ -53,7 +59,7 @@ export class CollateralService {
   }
 
   getAllCifs(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/cifs/active`).pipe( // Adjust endpoint as needed
+    return this.http.get<any[]>(`${this.baseUrl}/cifs/activeCIFS`).pipe( // Adjust endpoint as needed
       catchError(error => {
         console.error('Failed to fetch CIFs:', error.statusText);
         return throwError(() => new Error(error.statusText));

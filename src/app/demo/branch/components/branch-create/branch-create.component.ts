@@ -4,6 +4,9 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
  import { HttpClient } from '@angular/common/http';
 import { BranchService } from '../../services/branch.service';
+import { AlertService } from 'src/app/alertservice/alert.service';
+import { Router } from '@angular/router';
+import { Address, Branch } from '../../models/branch.model';
 
 @Component({
   selector: 'app-branch-create',
@@ -19,7 +22,9 @@ export class BranchCreateComponent {
   townships: string[] = [];
   locationData: any = {}; // Store the JSON data
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private branchService: BranchService) {}
+  constructor(private fb: FormBuilder, private http: HttpClient, private branchService: BranchService, private alertService: AlertService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.branchForm = this.fb.group({
@@ -37,8 +42,44 @@ export class BranchCreateComponent {
       this.locationData = data;
       this.regions = Object.keys(data); 
     });
+
+    this.branchForm.valueChanges.subscribe(() => {
+      this.checkDuplicates();
+    });
   }
  
+  checkDuplicates(): void {
+    const branchData: Partial<Branch> = {
+      branchName: this.branchForm.value.branchName,
+      phoneNumber: this.branchForm.value.phoneNumber,
+      email: this.branchForm.value.email,
+      address: {
+        region: this.branchForm.value.region,
+        district: this.branchForm.value.district,
+        township: this.branchForm.value.township,
+        street: this.branchForm.value.street
+      } as Address
+    };
+
+    this.branchService.checkDuplicate(branchData).subscribe({
+      next: (isDuplicate) => {
+        if (isDuplicate) {
+          this.branchForm.get('branchName')?.setErrors({ duplicate: true });
+          this.branchForm.get('phoneNumber')?.setErrors({ duplicate: true });
+          this.branchForm.get('email')?.setErrors({ duplicate: true });
+        } else {
+          this.branchForm.get('branchName')?.setErrors(null);
+          this.branchForm.get('phoneNumber')?.setErrors(null);
+          this.branchForm.get('email')?.setErrors(null);
+        }
+      },
+      error: (err) => {
+        console.error('Error checking duplicates:', err);
+        this.alertService.showError('Failed to check duplicates. Please try again.');
+      }
+    });
+  }
+
   onRegionChange() {
     const selectedRegion = this.branchForm.value.region;
     this.districts = selectedRegion ? Object.keys(this.locationData[selectedRegion]) : [];
@@ -85,12 +126,12 @@ export class BranchCreateComponent {
       this.branchService.createBranch(formData).subscribe({
         next: response => {
           console.log("Branch Created:", response);
-          alert("Branch Created Successfully");
+          this.alertService.showSuccess("Branch Created Successfully");
+          this.router.navigate(['/branch/list']);
           this.branchForm.reset();
         },
         error: error => {
-          console.error("Error Creating Branch:", error);
-          alert("Failed to create branch");
+          this.alertService.showError("Branch Creation Failed "+ error.error.message);
         }
       });
     }

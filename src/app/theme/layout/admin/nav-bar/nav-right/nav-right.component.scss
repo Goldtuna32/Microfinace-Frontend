@@ -1,0 +1,195 @@
+// src/app/nav-right/nav-right.component.scss
+
+.notification {
+    max-height: 400px; // Limit the overall dropdown height
+    width: 300px; // Optional: Set a fixed width for consistency
+    overflow: hidden; // Prevent content from spilling out of the dropdown
+  
+    .noti-head {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+  
+    .noti-body {
+      max-height: 300px; // Limit the scrollable area height
+      overflow-y: auto; // Enable vertical scrolling
+      padding: 0;
+  
+      .notification {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+  
+        &:last-child {
+          border-bottom: none;
+        }
+  
+        .media {
+          display: flex;
+          align-items: center;
+  
+          .img-radius {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+          }
+  
+          .media-body {
+            flex: 1;
+  
+            p {
+              margin-bottom: 5px;
+            }
+          }
+        }
+      }
+    }
+  
+    .noti-footer {
+      padding: 10px;
+      border-top: 1px solid #ddd;
+    }
+  }
+  
+  .dropdown-menu-end {
+    right: 0;
+    left: auto;
+  }
+
+  .email-list {
+    padding: 15px;
+    background-color: #34495e; // Darker background for contrast
+    border-radius: 8px; // Rounded corners
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); // Subtle shadow for depth
+  
+    .email-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+  
+      h6 {
+        color: #ecf0f1;
+        font-weight: 600;
+        margin: 0;
+      }
+  
+      div {
+        display: flex;
+        gap: 10px; // Space between buttons
+      }
+  
+      .btn-refresh, .btn-compose {
+        border-radius: 5px; // Rounded buttons
+        padding: 5px 10px; // Consistent padding
+        font-size: 14px;
+        transition: background-color 0.3s;
+      }
+  
+      .btn-refresh {
+        background-color: #e67e22; // Orange for refresh
+        &:hover {
+          background-color: #d35400;
+        }
+      }
+  
+      .btn-compose {
+        background-color: #3498db; // Blue for compose
+        &:hover {
+          background-color: #2980b9;
+        }
+      }
+    }
+  
+    .compose-form {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+  
+      input, textarea {
+        background: #ecf0f1;
+        border: none;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        padding: 8px;
+  
+        &::placeholder {
+          color: #7f8c8d;
+        }
+      }
+  
+      .compose-actions {
+        display: flex;
+        gap: 10px;
+  
+        .btn-success {
+          background-color: #2ecc71;
+          border: none;
+          &:hover {
+            background-color: #27ae60;
+          }
+        }
+  
+        .btn-secondary {
+          background-color: #95a5a6;
+          border: none;
+          &:hover {
+            background-color: #7f8c8d;
+          }
+        }
+      }
+    }
+  
+    .email-items {
+      list-style: none;
+      padding: 0;
+  
+      .email-item {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        transition: background 0.3s;
+  
+        &:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+  
+        .email-subject {
+          margin: 0;
+          font-size: 16px;
+          color: #ecf0f1;
+  
+          strong {
+            color: #3498db;
+          }
+  
+          .email-time {
+            float: right;
+            font-size: 12px;
+            color: #bdc3c7;
+          }
+        }
+  
+        .email-body {
+          margin: 5px 0;
+          font-size: 14px;
+          color: #d5d8dc;
+        }
+  
+        .email-to {
+          margin: 0;
+          font-size: 12px;
+          color: #95a5a6;
+        }
+      }
+  
+      .no-emails {
+        text-align: center;
+        color: #bdc3c7;
+        padding: 20px;
+      }
+    }
+  }

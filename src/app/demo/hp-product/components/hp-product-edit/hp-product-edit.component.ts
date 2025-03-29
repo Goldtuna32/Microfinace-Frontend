@@ -4,6 +4,7 @@ import { HpProductCreate } from '../../models/hp-product';
 import { ProductType, DealerRegistration, HpProductService } from '../../services/hp-product.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-hp-product-edit',
@@ -21,6 +22,8 @@ export class HpProductEditComponent implements OnInit {
   };
   photoFile: File | null = null;
   productId: number = 0;
+  previewUrl: SafeUrl | null = null;
+  selectedFile: boolean = false;
   currentPhotoUrl: string = ''; // To display the existing photo
   productTypes: ProductType[] = [];
   dealerRegistrations: DealerRegistration[] = [];
@@ -76,6 +79,17 @@ export class HpProductEditComponent implements OnInit {
     if (input.files && input.files.length) {
       this.photoFile = input.files[0];
       this.currentPhotoUrl = URL.createObjectURL(this.photoFile); // Preview new photo
+    }
+  }
+
+  clearFile() {
+    this.photoFile = null;
+    this.previewUrl = null;
+    this.selectedFile = false;
+    // Reset the file input
+    const fileInput = document.getElementById('photo') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
     }
   }
 

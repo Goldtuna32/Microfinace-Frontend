@@ -1,69 +1,45 @@
 <ul class="navbar-nav ms-auto">
   <li>
-    <div class="dropdown" ngbDropdown placement="auto">
-      <a ngbDropdownToggle href="javascript:">
+    <div class="dropdown" ngbDropdown placement="auto" #notificationDropdown="ngbDropdown">
+      <a ngbDropdownToggle href="javascript:" id="notificationDropdown">
         <i class="icon feather icon-bell" title="Notification"></i>
-        <span class="badge bg-danger"><span class="sr-only"></span></span>
+        <span class="badge bg-danger" *ngIf="notifications.length > 0">{{ notifications.length }}</span>
       </a>
-      <div ngbDropdownMenu class="dropdown-menu dropdown-menu-end notification">
+      <div ngbDropdownMenu class="dropdown-menu dropdown-menu-end notification" aria-labelledby="notificationDropdown">
         <div class="noti-head">
           <h6 class="d-inline-block m-b-0">Notifications</h6>
           <div class="float-end">
-            <a href="javascript:" class="m-r-10">mark as read</a>
-            <a href="javascript:">clear all</a>
+            <a href="javascript:" class="m-r-10" (click)="sendTestNotification(); $event.stopPropagation()">send test</a>
+            <a href="javascript:" class="m-r-10" (click)="closeNotificationDropdown()">close</a>
           </div>
         </div>
         <ul class="noti-body">
           <li class="n-title">
             <p class="m-b-0">NEW</p>
           </li>
-          <li class="notification">
+          <li class="notification" *ngFor="let notification of notifications">
             <div class="media">
               <img class="img-radius" src="assets/images/user/avatar-1.jpg" alt="Generic placeholder image" />
               <div class="media-body">
                 <p>
-                  <strong>John Doe</strong>
+                  <strong>{{ notification.type }}</strong>
                   <span class="n-time text-muted">
                     <i class="icon feather icon-clock m-r-10"></i>
-                    30 min
+                    {{ notification.createdAt | date:'short' }}
                   </span>
                 </p>
-                <p>New ticket Added</p>
-              </div>
-            </div>
-          </li>
-          <li class="n-title">
-            <p class="m-b-0">EARLIER</p>
-          </li>
-          <li class="notification">
-            <div class="media">
-              <img class="img-radius" src="assets/images/user/avatar-2.jpg" alt="Generic placeholder image" />
-              <div class="media-body">
                 <p>
-                  <strong>Joseph William</strong>
-                  <span class="n-time text-muted">
-                    <i class="icon feather icon-clock m-r-10"></i>
-                    30 min
-                  </span>
+                  <a href="javascript:" *ngIf="notification.type === 'PENDING_LOAN'" (click)="navigateToPendingLoans(notification); $event.stopPropagation()">
+                    {{ notification.message }}
+                  </a>
+                  <span *ngIf="notification.type !== 'PENDING_LOAN'">{{ notification.message }}</span>
+                  <a href="javascript:" *ngIf="notification.type !== 'PENDING_LOAN'" (click)="markAsRead(notification.id); $event.stopPropagation()">Mark as read</a>
                 </p>
-                <p>Purchase New Theme and make payment</p>
               </div>
             </div>
           </li>
-          <li class="notification">
-            <div class="media">
-              <img class="img-radius" src="assets/images/user/avatar-3.jpg" alt="Generic placeholder image" />
-              <div class="media-body">
-                <p>
-                  <strong>Sara Soudein</strong>
-                  <span class="n-time text-muted">
-                    <i class="icon feather icon-clock m-r-10"></i>
-                    30 min
-                  </span>
-                </p>
-                <p>currently login</p>
-              </div>
-            </div>
+          <li *ngIf="notifications.length === 0">
+            <p>No new notifications</p>
           </li>
         </ul>
         <div class="noti-footer">
@@ -72,14 +48,18 @@
       </div>
     </div>
   </li>
-  <li (click)="this.visibleUserList = !this.visibleUserList">
+
+  <!-- Email List Toggle -->
+  <li (click)="toggleEmailList()">
     <div class="dropdown">
       <a href="javascript:" class="displayChatbox dropdown-toggle">
-        <i class="icon feather icon-mail" title="Mail InBox"></i>
-        <span class="badge bg-success"><span class="sr-only"></span></span>
+        <i class="icon feather icon-mail" title="Email List"></i>
+        <span class="badge bg-success" *ngIf="emails.length > 0">{{ emails.length }}</span>
       </a>
     </div>
   </li>
+
+  <!-- User Profile Section -->
   <li>
     <div class="dropdown drp-user" ngbDropdown placement="auto">
       <a href="javascript:" ngbDropdownToggle>
@@ -124,29 +104,53 @@
   </li>
 </ul>
 
-@if (visibleUserList) {
-  <section class="header-user-list" [ngClass]="{ open: visibleUserList }" [@slideInOutLeft]>
-    <app-chat-user-list
-      (ChatToggle)="onChatToggle($event)"
-      (ChatCollapse)="this.visibleUserList = !this.visibleUserList; this.chatMessage = false"
-    />
-  </section>
-}
-@if (chatMessage) {
-  <section class="header-chat" [ngClass]="{ open: chatMessage }" [@slideInOutLeft]>
-    <app-chat-msg (ChatToggle)="this.chatMessage = !this.chatMessage" [friendId]="friendId" />
-  </section>
-}
-@if (visibleUserList) {
-  <section class="header-user-list" [ngClass]="{ open: visibleUserList }" [@slideInOutRight]>
-    <app-chat-user-list
-      (ChatToggle)="onChatToggle($event)"
-      (ChatCollapse)="this.visibleUserList = !this.visibleUserList; this.chatMessage = false"
-    />
-  </section>
-}
-@if (chatMessage) {
-  <section class="header-chat" [ngClass]="{ open: chatMessage }" [@slideInOutRight]>
-    <app-chat-msg (ChatToggle)="this.chatMessage = !this.chatMessage" [friendId]="friendId" />
+<!-- nav-right.component.html -->
+@if (visibleEmailList) {
+  <section class="header-user-list" [ngClass]="{ open: visibleEmailList }" [@slideInOutLeft]>
+    <div class="email-list">
+      <div class="email-header">
+        <h6>Email List</h6>
+        <div>
+          <button class="btn btn-primary btn-refresh" (click)="refreshEmailList($event)">Refresh</button>
+          <button class="btn btn-primary btn-compose" (click)="toggleComposeForm($event)">Compose</button>
+        </div>
+      </div>
+
+      @if (showComposeForm) {
+        <div class="compose-form" [@slideInOutRight]>
+          <input type="email" [(ngModel)]="emailTo" placeholder="To" class="form-control mb-2" />
+          <input type="text" [(ngModel)]="emailSubject" placeholder="Subject" class="form-control mb-2" />
+          <textarea [(ngModel)]="emailBody" placeholder="Body" class="form-control mb-2" rows="3"></textarea>
+          <div class="compose-actions">
+            <button (click)="sendEmail()" class="btn btn-success">Send</button>
+            <button (click)="toggleComposeForm($event)" class="btn btn-secondary">Cancel</button>
+          </div>
+        </div>
+      }
+
+      <ul class="email-items">
+        <li *ngFor="let email of emails" class="email-item">
+          <div class="media">
+            <div class="media-body">
+              <p class="email-subject">
+                <strong>{{ email.subject }}</strong>
+                <span class="email-time text-muted">
+                  <i class="icon feather icon-clock m-r-10"></i>
+                  {{ email.timestamp | date:'short' }}
+                </span>
+              </p>
+              <p class="email-body">{{ email.body.substring(0, 50) }}...</p>
+              <p class="email-to">
+                <small>{{ email.direction === 'SENT' ? 'To' : 'From' }}: {{ email.to }}</small>
+                <span class="email-direction">{{ email.direction }}</span>
+              </p>
+            </div>
+          </div>
+        </li>
+        <li *ngIf="emails.length === 0" class="no-emails">
+          <p>No emails yet</p>
+        </li>
+      </ul>
+    </div>
   </section>
 }

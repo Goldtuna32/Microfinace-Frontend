@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { LoanRegistrationRequest } from '../../models/LoanRegistrationRequest.model';
 import { SmeLoanCollateral } from '../../models/SmeLoanCollateral.model';
 import { SmeLoanRegistration } from '../../models/SmeLoanRegistration.model';
+import { AlertService } from 'src/app/alertservice/alert.service';
 
 @Component({
   selector: 'app-loan-create',
@@ -31,12 +32,18 @@ export class LoanCreateComponent implements OnInit {
     private collateralService: CollateralService,
     private loanService: LoanService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private alertService: AlertService
   ) {}
 
   ngOnInit(): void {
     this.initForm();
     this.loadCifs();
+
+     // Add this to watch loan amount changes
+  this.loanForm.get('loanAmount')?.valueChanges.subscribe(() => {
+    this.calculateLTV();
+  });
   }
 
   private initForm(): void {
@@ -45,6 +52,9 @@ export class LoanCreateComponent implements OnInit {
       currentAccountId: ['', Validators.required], // Ensure this is included
       loanAmount: ['', [Validators.required, Validators.min(0)]],
       interestRate: ['', [Validators.required, Validators.min(0)]],
+      late_fee_rate: ['', [Validators.required, Validators.min(0)]], // Added
+      ninety_day_late_fee_rate: ['', [Validators.required, Validators.min(0)]], // Added
+      one_hundred_and_eighty_late_fee_rate: ['', [Validators.required, Validators.min(0)]], // Added
       gracePeriod: ['', [Validators.required, Validators.min(0)]],
       repaymentDuration: ['', [Validators.required, Validators.min(1)]],
       documentFee: ['', [Validators.required, Validators.min(0)]],
@@ -58,9 +68,9 @@ export class LoanCreateComponent implements OnInit {
     (this.loanForm.get('collaterals') as FormArray).valueChanges.subscribe(() => this.updateTotalCollateralAmount());
   }
 
-  private createCollateralGroup(): FormGroup {
+  private createCollateralGroup(collateralId?: number): FormGroup {
     return this.fb.group({
-      collateralId: ['', Validators.required]
+      collateralId: [collateralId || '', Validators.required]
     });
   }
 
@@ -81,6 +91,29 @@ export class LoanCreateComponent implements OnInit {
     const collateral = this.collaterals.find(c => c.id === collateralId);
     return collateral ? Number(collateral.value) : undefined;
   }
+
+  // Enhanced version with validation
+calculateLTV(): number {
+  const loanAmount = Number(this.loanForm.get('loanAmount')?.value) || 0;
+  const totalCollateral = this.totalCollateralAmount;
+  
+  // Prevent division by zero
+  if (totalCollateral <= 0) {
+    return 0;
+  }
+  
+  const ltv = loanAmount / totalCollateral;
+  
+  // Validate against maximum acceptable LTV (e.g., 80%)
+  const maxLtv = 0.8; // 80%
+  if (ltv > maxLtv) {
+    this.errorMessage = `Warning: LTV ratio (${(ltv * 100).toFixed(2)}%) exceeds maximum recommended (${maxLtv * 100}%)`;
+  } else {
+    this.errorMessage = null;
+  }
+  
+  return ltv;
+}
 
   getAvailableCollaterals(index: number): any[] {
     const selectedIds = this.collateralControls
@@ -125,12 +158,25 @@ export class LoanCreateComponent implements OnInit {
   }
 
   selectCif(cif: any): void {
-    console.log('Selected CIF:', cif); // Debug log
-  this.cifSearchInput = cif.serialNumber || '';
-  this.loanForm.patchValue({ cifId: cif.id });
-  this.showCifDropdown = false;
-  this.loadCurrentAccountsByCifId(cif.id); // Fetch current accounts
-  this.loadCollaterals(cif.id);
+    console.log('Selected CIF:', cif); // Debug log to inspect the CIF object
+  
+    const serialNumber = cif?.serialNumber || 'N/A';
+    const cifId = cif?.id || null;
+  
+    if (!cifId) {
+      console.error('Invalid CIF object: Missing ID', cif);
+      this.errorMessage = 'Invalid CIF selected. Please try again.';
+      return;
+    }
+  
+    // Update search input and form
+    this.cifSearchInput = serialNumber;
+    this.loanForm.patchValue({ cifId: cifId });
+    this.showCifDropdown = false;
+  
+    // Fetch related data
+    this.loadCurrentAccountsByCifId(cifId);
+    this.loadCollaterals(cifId);
   }
 
   toggleCifDropdown(): void {
@@ -149,14 +195,31 @@ export class LoanCreateComponent implements OnInit {
   // loan-create.component.ts
   private loadCurrentAccountsByCifId(cifId: number): void {
     console.log('Loading current accounts for CIF ID:', cifId);
+    this.currentAccounts = []; // Reset to empty array
+    this.cdr.detectChanges(); // Update UI immediately
+  
     this.collateralService.getCurrentAccountsByCifId(cifId).subscribe({
       next: (data) => {
         console.log('Current Accounts Received:', data);
-        this.currentAccounts = data || []; // Ensure empty array if no data
+        let accounts: any[];
+        
+        if (Array.isArray(data)) {
+          // If data is already an array, use it
+          accounts = data;
+        } else if (data && typeof data === 'object') {
+          // If data is a single object, wrap it in an array
+          accounts = [data];
+        } else {
+          // Fallback for null, undefined, or unexpected types
+          accounts = [];
+        }
+  
+        this.currentAccounts = accounts.length > 0 ? accounts : [];
         this.cdr.detectChanges(); // Force UI update
-        if (data && data.length > 0) {
-          this.loanForm.patchValue({ currentAccountId: data[0].id });
-          console.log('Set currentAccountId to:', data[0].id);
+  
+        if (this.currentAccounts.length > 0) {
+          this.loanForm.patchValue({ currentAccountId: this.currentAccounts[0].id });
+          console.log('Set currentAccountId to:', this.currentAccounts[0].id);
         } else {
           this.errorMessage = 'No current accounts found for this CIF ID.';
           this.loanForm.get('currentAccountId')?.setErrors({ noAccounts: true });
@@ -166,28 +229,56 @@ export class LoanCreateComponent implements OnInit {
       error: (error) => {
         this.errorMessage = 'Failed to load current accounts: ' + error.message;
         console.error('Error loading current accounts:', error);
-      }
+        this.currentAccounts = []; // Reset on error
+        this.cdr.detectChanges();
+      },
     });
   }
+
+  
   
   private loadCollaterals(cifId: number): void {
+    console.log('Loading collaterals for CIF ID:', cifId);
+    this.collaterals = []; // Reset to empty array
+    this.cdr.detectChanges(); // Update UI
+  
     this.collateralService.getCollateralsByCifId(cifId).subscribe({
       next: (data) => {
-        this.collaterals = data;
+        console.log('Collaterals Received:', data);
+        this.collaterals = Array.isArray(data) ? data : []; // Ensure array
         const collateralsArray = this.loanForm.get('collaterals') as FormArray;
         collateralsArray.clear();
-        collateralsArray.push(this.createCollateralGroup());
+        
+        // Optionally pre-populate with fetched collaterals (if desired)
+        if (this.collaterals.length > 0) {
+          this.collaterals.forEach(coll => {
+            collateralsArray.push(this.createCollateralGroup(coll.id));
+          });
+        } else {
+          collateralsArray.push(this.createCollateralGroup()); // Default empty row
+        }
+        
+        this.cdr.detectChanges(); // Force UI update
       },
-      error: (error) => this.errorMessage = 'Failed to load collaterals: ' + error.message
+      error: (error) => {
+        this.errorMessage = 'Failed to load collaterals: ' + error.message;
+        console.error('Error loading collaterals:', error);
+        this.collaterals = [];
+        this.cdr.detectChanges();
+      },
     });
   }
 
   updateTotalCollateralAmount(): void {
     const total = this.totalCollateralAmount;
     const loanAmount = Number(this.loanForm.get('loanAmount')?.value);
+    
+    // Calculate LTV
+    this.calculateLTV();
+    
     if (loanAmount && loanAmount > total) {
-      this.errorMessage = 'Loan amount cannot exceed total collateral amount: ' + total.toLocaleString();
-    } else {
+      this.errorMessage = `Loan amount cannot exceed total collateral amount: ${total.toLocaleString()}`;
+    } else if (!this.errorMessage) { // Only clear if there's no LTV error
       this.errorMessage = null;
     }
   }
@@ -206,11 +297,14 @@ export class LoanCreateComponent implements OnInit {
       const loan: SmeLoanRegistration = {
         loanAmount: Number(formValue.loanAmount),
         interestRate: Number(formValue.interestRate),
+        late_fee_rate: Number(formValue.late_fee_rate), // Added
+        ninety_day_late_fee_rate: Number(formValue.ninety_day_late_fee_rate), // Added
+        one_hundred_and_eighty_day_late_fee_rate: Number(formValue.one_hundred_and_eighty_late_fee_rate), // Added
         gracePeriod: Number(formValue.gracePeriod),
         repaymentDuration: Number(formValue.repaymentDuration),
         documentFee: Number(formValue.documentFee),
         serviceCharges: Number(formValue.serviceCharges),
-        status: formValue.status,
+        status: 3,
         dueDate: formValue.dueDate || undefined,
         repaymentStartDate: formValue.repaymentStartDate || undefined,
         currentAccountId: Number(formValue.currentAccountId)
@@ -239,6 +333,7 @@ export class LoanCreateComponent implements OnInit {
       this.loanService.registerLoan(request).subscribe({
         next: () => {
           this.showSuccessMessage = true;
+          this.alertService.showSuccess('Loan registration successful.');
           setTimeout(() => {
             this.showSuccessMessage = false;
             this.router.navigate(['/loans']);

@@ -1,0 +1,120 @@
+<!-- role-create.component.html -->
+<div class="container form-container animate__animated animate__fadeIn">
+  <div class="card shadow-lg border-0 rounded-lg">
+    <div class="card-header bg-primary text-white">
+      <h3 class="mb-0">
+        <i class="bi bi-person-plus me-2"></i>Create New Role
+      </h3>
+      <p class="mb-0 text-white-50">Define a new role and assign permissions</p>
+    </div>
+    
+    <div class="card-body">
+      <form (ngSubmit)="createRole()" class="needs-validation" novalidate>
+        <!-- Role Name Field -->
+        <div class="row mb-4">
+          <label for="name" class="col-sm-3 col-form-label fw-bold">
+            <i class="bi bi-tag-fill me-2 text-primary"></i>Role Name:
+          </label>
+          <div class="col-sm-9">
+            <div class="input-group has-validation">
+              <span class="input-group-text bg-light">
+                <i class="bi bi-card-heading text-muted"></i>
+              </span>
+              <input id="name" class="form-control form-control-lg" 
+                     [(ngModel)]="newRole.name" name="name" required
+                     placeholder="e.g. Administrator, Manager, etc.">
+              <div class="invalid-feedback">
+                Please provide a role name.
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Description Field -->
+        <div class="row mb-4">
+          <label for="description" class="col-sm-3 col-form-label fw-bold">
+            <i class="bi bi-text-paragraph me-2 text-primary"></i>Description:
+          </label>
+          <div class="col-sm-9">
+            <div class="input-group has-validation">
+              <span class="input-group-text bg-light">
+                <i class="bi bi-info-circle text-muted"></i>
+              </span>
+              <textarea id="description" class="form-control" rows="3"
+                        [(ngModel)]="newRole.description" name="description" required
+                        placeholder="Brief description of this role's purpose"></textarea>
+              <div class="invalid-feedback">
+                Please provide a description.
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Permissions Section -->
+        <div class="row mb-4">
+          <label class="col-sm-3 col-form-label fw-bold">
+            <i class="bi bi-shield-lock me-2 text-primary"></i>Permissions:
+          </label>
+          <div class="col-sm-9">
+            <div class="permission-container card border-0 shadow-sm">
+              <div class="card-body p-0">
+                <div *ngFor="let group of permissionGroups | keyvalue" class="permission-group mb-2">
+                  <!-- Group Header -->
+                  <div class="group-header d-flex align-items-center p-3 bg-light rounded-top" 
+                       [class.bg-primary-light]="expandedGroups[group.key]"
+                       [class.cursor-pointer]="true"
+                       (click)="toggleGroup(group.key)">
+                    <i class="bi toggle-icon me-2 fs-5 text-primary" 
+                       [ngClass]="expandedGroups[group.key] ? 'bi-caret-down-fill' : 'bi-caret-right-fill'"></i>
+                    <h4 class="flex-grow-1 mb-0 text-dark">{{ group.key }}</h4>
+                    <div class="form-check form-switch ms-2">
+                      <input class="form-check-input" type="checkbox" role="switch"
+                             [checked]="isAllSelected(group.key)" 
+                             (change)="onSelectAllToggle(group.key, $event); $event.stopPropagation()">
+                      <label class="form-check-label small">All</label>
+                    </div>
+                  </div>
+                  
+                  <!-- Permissions List -->
+                  <div class="checkbox-group ps-4 pt-2 bg-white rounded-bottom" 
+                       *ngIf="expandedGroups[group.key]"
+                       [@expandCollapse]="expandedGroups[group.key] ? 'expanded' : 'collapsed'">
+                    <div *ngFor="let perm of group.value" class="form-check my-2">
+                      <input class="form-check-input" type="checkbox" 
+                             [checked]="selectedPermissions.includes(perm)" 
+                             (change)="onPermissionToggle(perm, $event)"
+                             id="perm-{{perm}}">
+                      <label class="form-check-label" for="perm-{{perm}}">
+                        {{ perm }}
+                        <span class="badge bg-info ms-2" *ngIf="isCriticalPermission(perm)">Critical</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <small class="text-muted mt-2 d-block">
+              <i class="bi bi-info-circle me-1"></i>Select appropriate permissions for this role
+            </small>
+          </div>
+        </div>
+        
+        <!-- Form Actions -->
+        <div class="row mt-4">
+          <div class="col-sm-9 offset-sm-3">
+            <button type="submit" class="btn btn-primary btn-lg me-3 px-4">
+              <i class="bi bi-save me-2"></i>Create Role
+            </button>
+            <button type="button" class="btn btn-outline-secondary px-4" (click)="resetForm()">
+              <i class="bi bi-arrow-counterclockwise me-2"></i>Reset
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <div class="card-footer bg-light text-muted small">
+      <i class="bi bi-exclamation-circle me-1"></i> Roles define what users can access in the system.
+    </div>
+  </div>
+</div>

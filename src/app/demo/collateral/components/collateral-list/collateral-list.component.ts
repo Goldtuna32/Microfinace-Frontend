@@ -1,12 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Pipe, PipeTransform } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CollateralService } from '../../services/collateral.service';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CollateralDetailComponent } from '../collateral-detail/collateral-detail.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Collateral } from '../../models/collateral.model';
 import { MatTableModule } from '@angular/material/table';
 import { CollateralEditComponent } from '../collateral-edit/collateral-edit.component';
+
+@Pipe({ name: 'truncate' })
+export class TruncatePipe implements PipeTransform {
+  transform(value: string, limit: number = 50): string {
+    if (!value) return '';
+    return value.length > limit ? value.substring(0, limit) + '...' : value;
+  }
+}
+
 
 @Component({
   selector: 'app-collateral-list',
@@ -25,9 +34,17 @@ export class CollateralListComponent implements OnInit {
   sortColumn: keyof Collateral | null = null;
   sortDirection: 'asc' | 'desc' = 'asc';
   showDeleted = false;
+  totalItems: number = 0;
+  itemsPerPage: number = 5;
+
+  
+  // Expose Math to template
+  Math = Math;
 
   constructor(
     private collateralService: CollateralService,
+    private route: ActivatedRoute,
+    private router: Router,
     private dialog: MatDialog
   ) {}
 
@@ -44,6 +61,7 @@ export class CollateralListComponent implements OnInit {
     serviceCall.subscribe({
       next: (response: { content: Collateral[]; totalPages: number; totalElements: number }) => {
         this.collaterals = response.content;
+        this.totalItems = response.totalElements;
         this.updatePagination();
         this.loading = false;
         this.error = null;
@@ -56,6 +74,7 @@ export class CollateralListComponent implements OnInit {
     });
   }
 
+  // ... rest of your existing methods remain the same ...
   toggleDeletedList(): void {
     this.showDeleted = !this.showDeleted;
     this.currentPage = 1; // Reset pagination
@@ -98,7 +117,7 @@ export class CollateralListComponent implements OnInit {
 
   getPageNumbers(): number[] {
     const totalPages = this.getTotalPages();
-    return Array.from({ length: totalPages }, (_, i) => i);
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
   }
 
   goToPage(page: number): void {
@@ -122,14 +141,18 @@ export class CollateralListComponent implements OnInit {
     }
   }
 
-  openDetailModal(collateral: Collateral): void {
-    this.dialog.open(CollateralDetailComponent, {
-      width: '500px',
-      maxHeight: '90vh',
-      data: collateral
-    });
+  openDetailPage(collateral: Collateral): void {
+    // Check if collateral and collateral.id exists
+    if (collateral && collateral.id) {
+      // Use relative navigation since you're using child routes
+      this.router.navigate([collateral.id], { relativeTo: this.route });
+      
+      // OR if you want absolute path navigation:
+      // this.router.navigate(['/your-parent-route/collaterals', collateral.id]);
+    } else {
+      console.error('Collateral or collateral ID is missing');
+    }
   }
-
   editCollateral(collateral: Collateral): void {
     const dialogRef = this.dialog.open(CollateralEditComponent, {
       width: '600px',

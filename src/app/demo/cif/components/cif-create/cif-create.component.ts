@@ -4,6 +4,9 @@ import { CifService } from '../../services/cif.service';
 import { BranchService } from 'src/app/demo/branch/services/branch.service';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { AlertService } from 'src/app/alertservice/alert.service';
+import { CIF } from '../../models/cif.model';
 
 @Component({
   selector: 'app-cif-create',
@@ -27,7 +30,9 @@ export class CifCreateComponent implements OnInit {
     private fb: FormBuilder,
     private cifService: CifService,
     private branchService: BranchService,
-    private http: HttpClient
+    private http: HttpClient,
+    private router: Router,
+    private alertService: AlertService
   ) {}
 
   ngOnInit(): void {
@@ -56,6 +61,41 @@ export class CifCreateComponent implements OnInit {
     this.http.get<any>('assets/nrc.json').subscribe({
       next: (data) => { this.nrcFormats = data.data; },
       error: (err) => { console.error('Error loading NRC formats:', err); }
+    });
+
+    this.cifForm.valueChanges.subscribe(() => {
+      this.checkDuplicates();
+    });
+  }
+
+  checkDuplicates(): void {
+    const cifData: Partial<CIF> = {
+      name: this.cifForm.get('name')?.value,
+      nrcNumber: `${this.cifForm.get('nrcPrefix')?.value}/${this.cifForm.get('nrcNumber')?.value}`,
+      phoneNumber: this.cifForm.get('phoneNumber')?.value,
+      email: this.cifForm.get('email')?.value
+    };
+
+    this.cifService.checkDuplicate(cifData).subscribe({
+      next: (isDuplicate) => {
+        if (isDuplicate) {
+          this.cifForm.get('name')?.setErrors({ duplicate: true });
+          this.cifForm.get('nrcPrefix')?.setErrors({ duplicate: true });
+          this.cifForm.get('nrcNumber')?.setErrors({ duplicate: true });
+          this.cifForm.get('phoneNumber')?.setErrors({ duplicate: true });
+          this.cifForm.get('email')?.setErrors({ duplicate: true });
+        } else {
+          this.cifForm.get('name')?.setErrors(null);
+          this.cifForm.get('nrcPrefix')?.setErrors(null);
+          this.cifForm.get('nrcNumber')?.setErrors(null);
+          this.cifForm.get('phoneNumber')?.setErrors(null);
+          this.cifForm.get('email')?.setErrors(null);
+        }
+      },
+      error: (err) => {
+        console.error('Error checking duplicates:', err);
+        this.alertService.showError('Failed to check duplicates. Please try again.');
+      }
     });
   }
 
@@ -112,12 +152,14 @@ export class CifCreateComponent implements OnInit {
   onSubmit() {
     if (this.cifForm.invalid) {
       alert('Please fill in all required fields!');
+      this.alertService.showError('Please fill in all required fields.');
       return;
     }
     let nrcPrefix = this.cifForm.get('nrcPrefix')?.value;
     const nrcNumber = this.cifForm.value.nrcNumber;
   
     if (!nrcPrefix || nrcPrefix === 'undefined') {
+      this.alertService.showError('NRC Prefix is missing! Please select an NRC.');
       alert("❌ NRC Prefix is missing! Please select an NRC.");
       console.error("❌ NRC Prefix is missing from form!");
       return;
@@ -156,12 +198,13 @@ export class CifCreateComponent implements OnInit {
     this.cifService.createCIF(formData).subscribe({
       next: (response) => {
         console.log('CIF Created:', response);
-        alert('CIF Created Successfully!');
+        this.alertService.showSuccess('CIF created successfully!');
+        this.router.navigate(['/cif/list']);
         this.cifForm.reset();
       },
       error: (error) => {
         console.error('Error Creating CIF:', error);
-        alert('Failed to create CIF');
+        this.alertService.showError('Failed to create CIF. Please try again.');
       },
     });
   }  

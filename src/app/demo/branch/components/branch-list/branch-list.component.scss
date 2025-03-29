@@ -1,20 +1,110 @@
-.search-box, .region-filter {
+/* Add to your component's CSS or global styles */
+@import 'animate.css';
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
+/* Custom animations */
+.animate__fadeIn {
+  animation-duration: 0.3s;
+}
+
+/* Table styling */
+.table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.table-hover tbody tr {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.table-hover tbody tr:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: #f8f9fa;
+}
+
+/* Modal animation */
+.modal.fade.show {
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Button hover effects */
+.btn {
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-outline-primary:hover {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-outline-success:hover {
+  background-color: #198754;
+  color: white;
+}
+
+/* Card styling */
+.card {
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.card:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Pagination styling */
+.page-item.active .page-link {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.page-link {
+  color: #0d6efd;
+}
+
+/* Filter section styling */
+.filter-section {
+  background-color: #f8f9fa;
+  border-left: 4px solid #0d6efd;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .btn-group .btn {
     width: 100%;
-    margin-bottom: 15px;
   }
-  
-  .status-active {
-    color: green;
-    font-weight: bold;
-  }
-  
-  .status-inactive {
-    color: red;
-    font-weight: bold;
-  }
-  
-  .mat-elevation-z8 {
-    width: 100%;
-    margin-top: 20px;
-  }
-  
+}

@@ -1,9 +1,32 @@
-.custom-dialog-container {
-  .mat-dialog-container {
-    padding: 0; // Remove default padding
-    border-radius: 0.5rem; // Match rounded-lg
-    overflow: hidden; // Ensure content doesn’t spill
-    background: transparent; // Let the component’s bg-white take over
-    box-shadow: none; // Remove default shadow
+.detail-card {
+  display: flex;
+  align-items: start;
+  border: 1px solid #e5e7eb; // Gray border
+  border-radius: 0.5rem; // Rounded corners
+  padding: 1rem; // Padding
+  transition: border-color 0.2s; // Transition for hover effect
+
+  &:hover {
+    border-color: #d1d5db; // Darker border on hover
+  }
+
+  i {
+    color: #4f46e5; // Indigo color for icons
+    margin-right: 0.5rem; // Space between icon and text
+    font-size: 1.5rem; // Icon size
+  }
+
+  .label {
+    font-size: 0.875rem; // Smaller font for labels
+    color: #6b7280; // Gray color for labels
+  }
+
+  .value {
+    font-size: 1.125rem; // Larger font for values
+    color: #1f2937; // Darker color for values
   }
 }
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';

@@ -1,51 +1,156 @@
-.grid {
+.collateral-detail-container {
+  max-width: 900px;
+  margin: 1.5rem auto;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.detail-card {
+  border: none;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.detail-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+  border-bottom: none;
+  position: relative;
+}
+
+.card-header:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.2) 100%);
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+}
+
+.card-title i {
+  font-size: 1.5rem;
+  margin-right: 0.75rem;
+}
+
+.detail-grid {
   display: grid;
-  gap: 0.75rem; /* Further reduced from 1rem */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
 }
 
-.badge {
-  padding: 0.2rem 0.5rem; /* Even smaller badge */
-  border-radius: 0.2rem;
-  font-size: 0.65rem; /* Smaller text */
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
 }
 
-.bg-success {
-  background-color: #28a745 !important;
-  color: white;
+.detail-icon {
+  color: #4361ee;
+  font-size: 1.25rem;
+  margin-top: 0.25rem;
+  flex-shrink: 0;
 }
 
-.bg-danger {
-  background-color: #dc3545 !important;
-  color: white;
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
 }
 
-.bi {
-  font-size: 1rem; /* Reduced from 1.125rem */
-  line-height: 1;
+.detail-value {
+  font-size: 0.9rem;
+  color: #212529;
+  font-weight: 500;
 }
 
-p-image {
-  display: block;
+.status-badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 50rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
-  img {
-    object-fit: cover;
-    width: 100%;
-    height: 120px; /* Reduced from 150px */
-    border-radius: 0.25rem; /* Slightly smaller radius */
-    transition: all 0.2s ease;
+.badge-active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.badge-inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.image-container {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.image-container:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  height: 180px;
+  color: #6c757d;
+}
+
+.back-btn {
+  border-radius: 0.75rem;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.back-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
-
-  &:hover {
-    cursor: pointer;
-    img {
-      transform: scale(1.02);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Lighter shadow */
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 @media (max-width: 768px) {
-  .md\\:grid-cols-2 {
+  .detail-grid {
     grid-template-columns: 1fr;
   }
 }

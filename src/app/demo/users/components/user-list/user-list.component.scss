@@ -1,0 +1,92 @@
+@import '~animate.css/animate.min.css';
+@import '~bootstrap-icons/font/bootstrap-icons.css';
+
+.user-list-container {
+  min-height: calc(100vh - 80px);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 2rem 0;
+  
+  .table {
+    th {
+      white-space: nowrap;
+      position: relative;
+      
+      i {
+        margin-right: 6px;
+      }
+    }
+    
+    tr {
+      transition: all 0.2s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      }
+    }
+  }
+  
+  .card {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+  }
+  
+  .badge {
+    padding: 0.35em 0.65em;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+  
+  .btn-group {
+    .btn {
+      transition: all 0.2s ease;
+      
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+  
+  .toggle-btn {
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+  
+  .status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+  }
+  
+  .active-user {
+    background-color: #28a745;
+    animation: pulse 2s infinite;
+  }
+  
+  .inactive-user {
+    background-color: #6c757d;
+  }
+  
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
+  }
+}

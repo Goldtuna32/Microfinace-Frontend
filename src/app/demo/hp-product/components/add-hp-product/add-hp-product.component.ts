@@ -3,6 +3,7 @@ import { DealerRegistration, HpProductService, ProductType } from '../../service
 import { HpProductCreate } from '../../models/hp-product';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-add-hp-product',
@@ -19,11 +20,16 @@ export class AddHpProductComponent {
     commissionFee: 0
   };
   photoFile: File | null = null;
+  previewUrl: SafeUrl | null = null;
+  selectedFile: boolean = false;
 
   productTypes: ProductType[] = [];
   dealerRegistrations: DealerRegistration[] = [];
 
-  constructor(private hpProductService: HpProductService) {}
+  constructor(
+    private hpProductService: HpProductService,
+    private sanitizer: DomSanitizer
+  ) {}
 
   ngOnInit() {
     this.loadProductTypes();
@@ -34,7 +40,7 @@ export class AddHpProductComponent {
     this.hpProductService.getProductTypes().subscribe({
       next: (types) => {
         this.productTypes = types;
-        if (types.length > 0) this.hpProduct.productTypeId = types[0].id; // Default to first option
+        if (types.length > 0) this.hpProduct.productTypeId = types[0].id;
       },
       error: (error) => console.error('Error loading product types:', error)
     });
@@ -44,7 +50,7 @@ export class AddHpProductComponent {
     this.hpProductService.getDealerRegistrations().subscribe({
       next: (registrations) => {
         this.dealerRegistrations = registrations;
-        if (registrations.length > 0) this.hpProduct.dealerRegistrationId = registrations[0].id; // Default to first option
+        if (registrations.length > 0) this.hpProduct.dealerRegistrationId = registrations[0].id;
       },
       error: (error) => console.error('Error loading dealer registrations:', error)
     });
@@ -54,7 +60,39 @@ export class AddHpProductComponent {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length) {
       this.photoFile = input.files[0];
+      this.selectedFile = true;
+      this.generatePreview(this.photoFile);
     }
+  }
+
+  generatePreview(file: File) {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      this.previewUrl = this.sanitizer.bypassSecurityTrustUrl(event.target?.result as string);
+    };
+  }
+
+  clearFile() {
+    this.photoFile = null;
+    this.previewUrl = null;
+    this.selectedFile = false;
+    // Reset the file input
+    const fileInput = document.getElementById('photo') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  }
+
+  resetForm() {
+    this.hpProduct = { 
+      name: '', 
+      price: 0, 
+      productTypeId: this.productTypes.length > 0 ? this.productTypes[0].id : 0,
+      dealerRegistrationId: this.dealerRegistrations.length > 0 ? this.dealerRegistrations[0].id : 0,
+      commissionFee: 0 
+    };
+    this.clearFile();
   }
 
   onSubmit() {
@@ -62,13 +100,16 @@ export class AddHpProductComponent {
       this.hpProductService.createHpProduct(this.hpProduct, this.photoFile).subscribe({
         next: (response) => {
           console.log('Product created successfully:', response);
-          this.hpProduct = { name: '', price: 0, productTypeId: 0, dealerRegistrationId: 0, commissionFee: 0 };
-          this.photoFile = null;
+          alert('Product created successfully!');
+          this.resetForm();
         },
-        error: (error) => console.error('Error creating product:', error)
+        error: (error) => {
+          console.error('Error creating product:', error);
+          alert('Error creating product. Please try again.');
+        }
       });
     } else {
-      alert('Please upload a photo');
+      alert('Please upload a product photo');
     }
   }
 }

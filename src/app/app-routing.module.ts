@@ -5,17 +5,18 @@ import { Routes, RouterModule } from '@angular/router';
 // project import
 import { AdminComponent } from './theme/layout/admin/admin.component';
 import { GuestComponent } from './theme/layout/guest/guest.component';
-
 import { COLLATERAL_ROUTES } from './demo/collateral/collateral.routes';
+import { AuthGuard } from './auth/auth.guard';
 
-const routes: Routes = [
+export const routes: Routes = [
   {
     path: '',
     component: AdminComponent,
+    canActivate: [AuthGuard],
     children: [
       {
         path: '',
-        redirectTo: '/analytics',
+        redirectTo: '/auth/signin',
         pathMatch: 'full'
       },
       {
@@ -65,6 +66,11 @@ const routes: Routes = [
         path: 'cif/list',
         loadComponent: () => import('./demo/cif/components/cif-list/cif-list.component')
           .then(m => m.CifListComponent)
+      },
+      {
+        path: 'cif-detail/:id',
+        loadComponent: () => import('./demo/cif/components/cif-detail-modal/cif-detail-modal.component')
+          .then(m => m.CifDetailModalComponent)
       },
       {
         path: 'collateralType/create',
@@ -180,11 +186,48 @@ const routes: Routes = [
         path: 'edit-hp-product/:id',
         loadComponent: () => import('./demo/hp-product/components/hp-product-edit/hp-product-edit.component')
           .then(m => m.HpProductEditComponent)
-      }
+      },
+      {
+        path: 'create-user',
+        loadComponent: () => import('./demo/users/components/user-create/user-create.component')
+          .then(m => m.UserCreateComponent)
+      },
+      {
+        path: 'users',
+        loadComponent: () => import('./demo/users/components/user-list/user-list.component')
+         .then(m => m.UserListComponent)
+      },
+      {
+        path: 'users/edit/:id',
+        loadComponent: () => import('./demo/users/components/user-edit/user-edit.component')
+         .then(m => m.UserEditComponent)
+      },
+      {
+        path: 'create-role-permission',
+        loadComponent: () => import('./demo/role/components/role-create/role-create.component')
+          .then(m => m.RoleCreateComponent)
+      },
+      {
+        path: 'role-permissions',
+        loadComponent: () => import('./demo/role/components/role-list/role-list.component')
+        .then(m => m.RoleListComponent)
+      },
+      {
+        path: 'hp-registration',
+        loadComponent: () => import('./demo/hp-registration/components/hp-registration/hp-registration.component')
+          .then(m => m.HpRegistrationComponent)
+      },
+
+      {
+        path: 'hp-registration/list',
+        loadComponent: () => import('./demo/hp-registration/components/hp-registration-list/hp-registration-list.component')
+          .then(m => m.HpRegistrationListComponent)
+      },
      
 
     ]
   },
+  
   {
     path: '',
     component: GuestComponent,
@@ -193,10 +236,12 @@ const routes: Routes = [
         path: 'auth/signup',
         loadComponent: () => import('./demo/pages/authentication/sign-up/sign-up.component')
       },
+      
       {
         path: 'auth/signin',
-        loadComponent: () => import('./demo/pages/authentication/sign-in/sign-in.component')
+        loadComponent: () => import('./demo/pages/authentication/sign-in/sign-in.component').then(m => m.SignInComponent)
       }
+      
     ]
   }
 ];

@@ -6,7 +6,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { BranchService, PageResponse } from '../../services/branch.service';
-import { Branch } from '../../models/branch.model';
 import { BranchDetailComponent } from '../branch-detail/branch-detail.component';
 
 // Standalone imports
@@ -18,6 +17,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/theme/shared/shared.module';
+import { AlertService } from 'src/app/alertservice/alert.service';
+import { Branch } from '../../models/branch.model';
 
 @Component({
   selector: 'app-branch-list',
@@ -61,6 +62,7 @@ export class BranchListComponent implements AfterViewInit {
     private branchService: BranchService,
     private snackBar: MatSnackBar,
     private router: Router,
+    private alertService: AlertService,
     private dialog: MatDialog
   ) 
     {
@@ -95,7 +97,8 @@ export class BranchListComponent implements AfterViewInit {
       },
       error: (error) => {
         this.errorMessage = 'Failed to load branches. Please try again.';
-        console.error('Error fetching branches:', error);
+        this.alertService.showError("Failed to load branches");
+
         this.loading = false;
       }
     });
@@ -154,15 +157,8 @@ export class BranchListComponent implements AfterViewInit {
     this.selectedBranch = null;
   }
 
-  openBranchDetailDialog(branch: Branch): void {
-    this.dialog.open(BranchDetailComponent, {
-      width: '90%',
-      maxWidth: '900px',
-      height: 'auto',
-      maxHeight: '90vh',
-      panelClass: 'custom-dialog-container',
-      data: branch
-    });
+  openBranchDetailPage(branch: Branch): void {
+    this.router.navigate(['/branches', branch.id]);
   }
 
  applyFilter(): void {

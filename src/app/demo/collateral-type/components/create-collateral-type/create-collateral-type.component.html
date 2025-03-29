@@ -1,48 +1,59 @@
 <div class="container mx-auto p-4">
-  <div class="bg-white shadow-lg rounded-lg p-6">
-    <h2 class="text-2xl font-semibold text-blue-600 mb-4">Create Collateral Type</h2>
-
-    <!-- Success Message -->
-    <div *ngIf="successMessage" class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
-      {{ successMessage }}
+  <div class="card shadow-lg">
+    <div class="card-header bg-primary text-white d-flex align-items-center">
+      <i class="bi bi-file-earmark-plus me-2"></i>
+      <h2 class="mb-0">Create Collateral Type</h2>
     </div>
 
-    <!-- Error Message -->
-    <div *ngIf="errorMessage" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
-      {{ errorMessage }}
+    <div class="card-body">
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="alert alert-success d-flex align-items-center" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        {{ successMessage }}
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        {{ errorMessage }}
+      </div>
+
+      <!-- Form -->
+      <form (ngSubmit)="createCollateralType()" class="needs-validation">
+        <div class="mb-3">
+          <label for="name" class="form-label">
+            <i class="bi bi-tag me-1"></i>Name
+          </label>
+          <input
+            id="name"
+            type="text"
+            [(ngModel)]="collateralType.name"
+            name="name"
+            class="form-control"
+            placeholder="Enter collateral type name"
+            required
+          />
+        </div>
+
+        <!-- Status is hidden since it's always 1 -->
+        <div class="d-flex gap-2">
+          <button
+            type="submit"
+            class="btn btn-primary d-flex align-items-center"
+          >
+            <i class="bi bi-plus-circle me-1"></i>
+            Create
+          </button>
+          <button
+            type="button"
+            (click)="cancel()"
+            class="btn btn-outline-secondary d-flex align-items-center"
+          >
+            <i class="bi bi-x-circle me-1"></i>
+            Cancel
+          </button>
+        </div>
+      </form>
     </div>
-
-    <!-- Form -->
-    <form (ngSubmit)="createCollateralType()" class="space-y-4">
-      <div>
-        <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-        <input
-          id="name"
-          type="text"
-          [(ngModel)]="collateralType.name"
-          name="name"
-          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Enter collateral type name"
-          required
-        />
-      </div>
-
-      <!-- Status is hidden since it’s always 1 -->
-      <div class="flex space-x-4">
-        <button
-          type="submit"
-          class="btn btn-primary px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-md"
-        >
-          Create
-        </button>
-        <button
-          type="button"
-          (click)="cancel()"
-          class="btn btn-outline-secondary px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100"
-        >
-          Cancel
-        </button>
-      </div>
-    </form>
   </div>
 </div>

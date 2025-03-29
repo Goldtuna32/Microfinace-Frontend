@@ -5,31 +5,70 @@
         <div class="col-md-12">
           <div class="card-body">
             <img src="assets/images/logo-dark.png" alt="logo" class="img-fluid mb-4" />
-            <h4 class="mb-3 f-w-400">SignIn</h4>
+            <h4 class="mb-3 f-w-400">Sign In</h4>
+
+            <!-- Email Input -->
             <div class="input-group mb-3">
               <span class="input-group-text" id="basic-addon1"><i class="feather icon-mail"></i></span>
-              <input type="email" class="form-control" placeholder="Email address" aria-label="Username" aria-describedby="basic-addon1" />
+              <input 
+                type="email" 
+                class="form-control" 
+                placeholder="Email address" 
+                aria-label="Username" 
+                aria-describedby="basic-addon1" 
+                [(ngModel)]="email" 
+                name="email" 
+                required
+              />
             </div>
+
+            <!-- Password Input -->
             <div class="input-group mb-4">
               <span class="input-group-text" id="basic-addon3"><i class="feather icon-lock"></i></span>
-              <input type="password" class="form-control" placeholder="Password" aria-label="Username" aria-describedby="basic-addon3" />
+              <input 
+                type="password" 
+                class="form-control" 
+                placeholder="Password" 
+                aria-label="Password" 
+                aria-describedby="basic-addon3" 
+                [(ngModel)]="password" 
+                name="password" 
+                required
+              />
             </div>
+
+            <!-- Error Message -->
+            <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+            <!-- Save Credentials Checkbox -->
             <div class="form-group text-start mt-2">
               <div class="checkbox checkbox-primary d-inline">
-                <input type="checkbox" name="checkbox-fill-1" id="checkbox-fill-a1" checked="" />
+                <input type="checkbox" name="checkbox-fill-1" id="checkbox-fill-a1" checked />
                 <label for="checkbox-fill-a1" class="cr">Save credentials</label>
               </div>
             </div>
+
+            <!-- Sign-In Button -->
             <div class="d-grid">
-              <button class="btn btn-block btn-primary mb-4">SignIn</button>
+              <button 
+                class="btn btn-block btn-primary mb-4" 
+                [disabled]="loading"
+                (click)="signIn()">
+                Sign In
+                <span *ngIf="loading" class="spinner-border spinner-border-sm ml-2" role="status" aria-hidden="true"></span>
+              </button>
             </div>
+
+            <!-- Forgot Password -->
             <p class="mb-2 text-muted">
-              Forgot password?
-              <a href="javascriprt:" class="f-w-400">Reset</a>
+              Forgot password? 
+              <a href="javascript:;" class="f-w-400">Reset</a>
             </p>
+
+            <!-- Signup Link -->
             <p class="mb-0 text-muted">
-              Don’t have an account?
-              <a [routerLink]="['/auth/signup']" class="f-w-400">Signup</a>
+              Don’t have an account? 
+              <a [routerLink]="['/auth/signup']" class="f-w-400">Sign Up</a>
             </p>
           </div>
         </div>

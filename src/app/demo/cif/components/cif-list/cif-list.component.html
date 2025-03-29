@@ -1,154 +1,290 @@
-<div class="container mx-auto mt-4">
-  <div class="shadow-lg rounded-lg overflow-hidden bg-white">
-    <!-- Header Section -->
-    <div class="bg-blue-600 text-white p-4 flex justify-between items-center">
-      <h4 class="text-lg font-semibold">{{ isDeletedView ? 'Deleted CIF List' : 'CIF List' }}</h4>
+<!-- Enhanced CIF Dashboard -->
+<div class="cif-dashboard-container">
+  <!-- Header Section -->
+  <div class="dashboard-header animate__animated animate__fadeInDown">
+    <div class="d-flex justify-content-between align-items-center">
       <div>
-        <button mat-button (click)="downloadReport('pdf')" class="text-white hover:bg-blue-700 px-3 py-1 rounded">
-          Download PDF
-        </button>
-        <button mat-button (click)="downloadReport('excel')" class="text-white hover:bg-blue-700 px-3 py-1 rounded">
-          Download Excel
-        </button>
-        <button mat-button (click)="toggleView()" class="text-white hover:bg-blue-700">
-          {{ isDeletedView ? 'Show Active CIFs' : 'Show Deleted CIFs' }}
-        </button>
+        <h2 class="mb-0">
+          <i class="bi bi-people-fill me-2 text-primary"></i>
+          Customer Information Files
+        </h2>
+        <nav aria-label="breadcrumb" class="mt-2">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#"><i class="bi bi-house-door"></i> Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">CIF Management</li>
+          </ol>
+        </nav>
       </div>
     </div>
-    <div class="p-6">
-      <!-- Loading Spinner -->
-      <div *ngIf="loading" class="text-center my-4">
-        <mat-spinner color="primary"></mat-spinner>
-      </div>
+  </div>
 
-      <!-- Error Message -->
-      <div *ngIf="errorMessage" class="bg-red-500 text-white p-3 rounded mb-3">
-        {{ errorMessage }}
-      </div>
-
-      <!-- Filter Section -->
-      <div class="mb-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-gray-700 font-medium">NRC Prefix</label>
-            <input [(ngModel)]="nrcFilter" (ngModelChange)="applyFilter()" 
-                   class="w-full border rounded-md p-2 focus:ring focus:ring-blue-300" 
-                   placeholder="e.g., 12/, 1/, 2/">
+  <!-- Main Dashboard Card -->
+  <div class="dashboard-card animate__animated animate__fadeIn">
+    <!-- Card Header -->
+    <div class="card-header">
+      <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <div class="d-flex align-items-center mb-2 mb-md-0">
+          <div class="icon-wrapper bg-primary-light me-3">
+            <i class="bi bi-people-fill text-primary"></i>
           </div>
-          <div class="flex items-end">
-            <button (click)="clearFilter()" 
-                    class="w-full px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition">
-              Clear Filter
+          <div>
+            <h4 class="card-title mb-0">
+              {{ isDeletedView ? 'Deleted CIFs' : 'Active CIFs' }}
+            </h4>
+            <p class="text-muted mb-0 small">
+              {{ totalItems }} records found
+            </p>
+          </div>
+        </div>
+        
+        <div class="action-buttons d-flex gap-2">
+          <div class="dropdown">
+            <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+              <i class="bi bi-download me-1"></i> Export
             </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li>
+                <button class="dropdown-item" (click)="downloadReport('pdf')">
+                  <i class="bi bi-file-earmark-pdf text-danger me-2"></i> PDF
+                </button>
+              </li>
+              <li>
+                <button class="dropdown-item" (click)="downloadReport('excel')">
+                  <i class="bi bi-file-earmark-excel text-success me-2"></i> Excel
+                </button>
+              </li>
+            </ul>
+          </div>
+          
+          <button (click)="toggleView()" class="toggle-btn btn btn-outline-secondary">
+            <i class="bi me-1" [ngClass]="{'bi-eye-slash': isDeletedView, 'bi-eye': !isDeletedView}"></i>
+            {{ isDeletedView ? 'View Active' : 'View Deleted' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card Body -->
+    <div class="card-body">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-state text-center py-5 animate__animated animate__fadeIn">
+        <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem;" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <h5 class="mt-4 mb-2">Loading CIF Data</h5>
+        <p class="text-muted">Please wait while we fetch the latest records</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="errorMessage" class="error-state animate__animated animate__shakeX">
+        <div class="alert alert-danger d-flex align-items-center">
+          <div class="flex-shrink-0">
+            <i class="bi bi-exclamation-triangle-fill fs-3"></i>
+          </div>
+          <div class="flex-grow-1 ms-3">
+            <h5 class="alert-heading mb-1">Error Loading Data</h5>
+            <p class="mb-0">{{ errorMessage }}</p>
+          </div>
+          <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+        </div>
+      </div>
+
+      <!-- Filter and Search Section -->
+      <div *ngIf="!loading && !errorMessage" class="filter-section mb-4 animate__animated animate__fadeIn">
+        <div class="row g-3">
+          <div class="col-md-12">
+            <div class="search-box">
+              <label for="nrcFilter" class="form-label">
+                <i class="bi bi-funnel me-1"></i> Filter by NRC Prefix
+              </label>
+              <div class="input-group has-search">
+                <span class="input-group-text bg-white">
+                  <i class="bi bi-search"></i>
+                </span>
+                <input [(ngModel)]="nrcFilter" (ngModelChange)="applyFilter()" 
+                       id="nrcFilter"
+                       class="form-control" 
+                       placeholder="e.g., 12/, 1/, 2/">
+                <button *ngIf="nrcFilter" class="btn btn-outline-secondary" type="button" (click)="clearFilter()">
+                  <i class="bi bi-x"></i>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Data Table -->
-      <div class="overflow-x-auto">
-        <table mat-table [dataSource]="dataSource" class="w-full border border-gray-200">
-          <ng-container matColumnDef="SerialNumber">
-            <th mat-header-cell *matHeaderCellDef class="border p-2">Serial Number</th>
-            <td mat-cell *matCellDef="let row" class="border p-2">{{ row.serialNumber || 'N/A' }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef class="border p-2">Name</th>
-            <td mat-cell *matCellDef="let row" class="border p-2">{{ row.name }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="nrcNumber">
-            <th mat-header-cell *matHeaderCellDef class="border p-2">NRC Number</th>
-            <td mat-cell *matCellDef="let row" class="border p-2">{{ row.nrcNumber }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="dob">
-            <th mat-header-cell *matHeaderCellDef class="border p-2">DOB</th>
-            <td mat-cell *matCellDef="let row" class="border p-2">{{ row.dob | date: 'shortDate' }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="phoneNumber">
-            <th mat-header-cell *matHeaderCellDef class="border p-2">Phone</th>
-            <td mat-cell *matCellDef="let row" class="border p-2">{{ row.phoneNumber }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef class="border p-2">Email</th>
-            <td mat-cell *matCellDef="let row" class="border p-2">{{ row.email }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef class="border p-2 text-center">Actions</th>
-            <td mat-cell *matCellDef="let row" class="border p-2">
-              <div class="relative inline-block">
-                <button [matMenuTriggerFor]="menu" aria-label="Actions menu"
-                  class="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 px-2 py-1 rounded">
-                  Actions
-                </button>
-
-                <mat-menu #menu="matMenu" class="w-48 rounded-lg shadow-lg bg-white divide-y divide-gray-200">
-                  <ng-container *ngIf="!isDeletedView">
-                    <button mat-menu-item (click)="editCIF(row)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-blue-100 rounded transition">
-                      <i class="bi bi-pencil text-blue-600"></i>
-                      <span>Edit</span>
+      <!-- Data Table Section -->
+      <div *ngIf="!loading && !errorMessage" class="table-section animate__animated animate__fadeIn">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th scope="col" width="50">#</th>
+                <th scope="col">
+                  Name
+                </th>
+                <th scope="col">
+                  NRC Number
+                </th>
+                <th scope="col">Date of Birth</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Email</th>
+                <th scope="col" class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="dataSource.data.length === 0" class="no-data-row">
+                <td colspan="7" class="text-center py-5">
+                  <div class="empty-state">
+                    <i class="bi bi-people display-4 text-muted opacity-25 mb-3"></i>
+                    <h5>No CIFs Found</h5>
+                    <p class="text-muted">Try adjusting your search or filters</p>
+                    <button class="btn btn-primary mt-3" (click)="clearFilter()">
+                      <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Filters
                     </button>
-                    <button mat-menu-item (click)="deleteCIF(row.id)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-red-100 rounded transition">
-                      <i class="bi bi-trash text-red-600"></i>
-                      <span>Delete</span>
-                    </button>
-                    <button mat-menu-item (click)="openCifDetailDialog(row)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-green-100 rounded transition">
-                      <i class="bi bi-eye text-green-600"></i>
-                      <span>View Details</span>
-                    </button>
-                    <button mat-menu-item 
-                            [disabled]="row.hasCurrentAccount"
-                            (click)="openCurrentAccountDialog(row)"
-                            class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded transition disabled:opacity-50 disabled:cursor-not-allowed">
-                      <i class="bi" [ngClass]="{'bi-check-circle text-green-600': row.hasCurrentAccount, 'bi-plus-circle text-blue-600': !row.hasCurrentAccount}"></i>
-                      <span>{{ row.hasCurrentAccount ? 'Already Created' : 'Create Account' }}</span>
-                    </button>
-                  </ng-container>
+                  </div>
+                </td>
+              </tr>
+              
+              <tr *ngFor="let row of dataSource.data" class="animate__animated animate__fadeIn">
+                <td>
+                  <span class="badge bg-secondary">{{ row.serialNumber || 'N/A' }}</span>
+                </td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div class="avatar me-3">
+                      {{ row.name.charAt(0) }}
+                    </div>
+                    <div>
+                      <div class="fw-semibold">{{ row.name }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="nrc-badge">{{ row.nrcNumber }}</span>
+                </td>
+                <td>
+                  {{ row.dob | date:'mediumDate' }}
+                </td>
+                <td>
+                  <a href="tel:{{row.phoneNumber}}" class="text-decoration-none">
+                    <i class="bi bi-telephone me-1"></i> {{ row.phoneNumber }}
+                  </a>
+                </td>
+                <td>
+                  <a *ngIf="row.email" href="mailto:{{row.email}}" class="text-decoration-none">
+                    <i class="bi bi-envelope me-1"></i> {{ row.email }}
+                  </a>
+                  <span *ngIf="!row.email" class="text-muted">N/A</span>
+                </td>
+                <td class="text-end">
+                  <div class="dropdown" #dropdown>
+                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" 
+                    type="button" 
+                    (click)="toggleDropdown(row.id); $event.stopPropagation()">
+              <i class="bi bi-gear"></i> Actions
+            </button>
+                    <ul class="dropdown-menu dropdown-menu-end" [class.show]="isDropdownActive(row.id)">
+                      <ng-container *ngIf="!isDeletedView">
+                        <li>
+                          <button class="dropdown-item" (click)="editCIF(row); closeDropdowns()">
+                            <i class="bi bi-pencil-square text-primary me-2"></i> Edit
+                          </button>
+                        </li>
+                        <li>
+                          <button class="dropdown-item" (click)="openCifDetail(row); closeDropdowns()">
+                            <i class="bi bi-eye text-info me-2"></i> View Details
+                          </button>
+                        </li>
+                        <li>
+                          <button class="dropdown-item" (click)="deleteCIF(row.id); closeDropdowns()">
+                            <i class="bi bi-trash text-danger me-2"></i> Delete
+                          </button>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                          <button class="dropdown-item" 
+                                  [disabled]="row.hasCurrentAccount"
+                                  (click)="openCurrentAccountDialog(row); closeDropdowns()">
+                            <i class="bi me-2" 
+                              [ngClass]="{'bi-check-circle text-success': row.hasCurrentAccount, 'bi-bank text-primary': !row.hasCurrentAccount}"></i>
+                            {{ row.hasCurrentAccount ? 'Account Exists' : 'Create Account' }}
+                          </button>
+                        </li>
+                      </ng-container>
 
-                  <ng-container *ngIf="isDeletedView">
-                    <button mat-menu-item (click)="restoreCIF(row.id)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-green-100 rounded transition">
-                      <i class="bi bi-arrow-counterclockwise text-green-600"></i>
-                      <span>Restore</span>
-                    </button>
-                    <button mat-menu-item (click)="openCifDetailDialog(row)" class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-green-100 rounded transition">
-                      <i class="bi bi-eye text-green-600"></i>
-                      <span>View Details</span>
-                    </button>
-                  </ng-container>
-                </mat-menu>
+                      <ng-container *ngIf="isDeletedView">
+                        <li>
+                          <button class="dropdown-item" (click)="restoreCIF(row.id); closeDropdowns()">
+                            <i class="bi bi-arrow-counterclockwise text-success me-2"></i> Restore
+                          </button>
+                        </li>
+                        <li>
+                          <button class="dropdown-item" (click)="openCifDetail(row); closeDropdowns()">
+                            <i class="bi bi-eye text-info me-2"></i> View Details
+                          </button>
+                        </li>
+                      </ng-container>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="totalPages > 0" class="pagination-section mt-4 animate__animated animate__fadeInUp">
+          <div class="row align-items-center">
+            <div class="col-md-6 mb-3 mb-md-0">
+              <div class="d-flex align-items-center">
+                <span class="me-2">Show:</span>
+                <select class="form-select form-select-sm w-auto" [(ngModel)]="pageSize" (ngModelChange)="loadCIFs()">
+                  <option value="5">5</option>
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                </select>
+                <span class="ms-2 text-muted">
+                  Showing {{ (currentPage * pageSize) + 1 }} to {{ Math.min((currentPage + 1) * pageSize, totalItems) }} of {{ totalItems }} entries
+                </span>
               </div>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-gray-100"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
+            </div>
+            <div class="col-md-6">
+              <nav>
+                <ul class="pagination justify-content-end mb-0">
+                  <li class="page-item" [class.disabled]="currentPage === 0">
+                    <button class="page-link" (click)="goToPage(1)">
+                      <i class="bi bi-chevron-double-left"></i>
+                    </button>
+                  </li>
+                  <li class="page-item" [class.disabled]="currentPage === 0">
+                    <button class="page-link" (click)="previousPage()">
+                      <i class="bi bi-chevron-left"></i>
+                    </button>
+                  </li>
+                  
+                  <li *ngFor="let page of getPageNumbers()" class="page-item" [class.active]="page === currentPage + 1">
+                    <button class="page-link" (click)="goToPage(page)">{{ page }}</button>
+                  </li>
+                  
+                  <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+                    <button class="page-link" (click)="nextPage()">
+                      <i class="bi bi-chevron-right"></i>
+                    </button>
+                  </li>
+                  <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+                    <button class="page-link" (click)="goToPage(totalPages)">
+                      <i class="bi bi-chevron-double-right"></i>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <!-- Pagination -->
-      <nav aria-label="Page navigation example" class="mt-4" *ngIf="totalPages > 0">
-        <ul class="pagination justify-content-center">
-          <li class="page-item" [class.disabled]="currentPage === 0">
-            <a class="page-link" href="javascript:void(0)" (click)="previousPage()" aria-label="Previous">
-              <span aria-hidden="true">«</span>
-              <span class="sr-only">Previous</span>
-            </a>
-          </li>
-          <li class="page-item" *ngFor="let page of getPageNumbers()" [class.active]="page === currentPage + 1">
-            <a class="page-link" href="javascript:void(0)" (click)="goToPage(page)">{{ page }}</a>
-          </li>
-          <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
-            <a class="page-link" href="javascript:void(0)" (click)="nextPage()" aria-label="Next">
-              <span aria-hidden="true">»</span>
-              <span class="sr-only">Next</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
     </div>
   </div>
 </div>

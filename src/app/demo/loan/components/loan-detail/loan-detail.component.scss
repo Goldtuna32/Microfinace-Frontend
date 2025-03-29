@@ -1,36 +1,166 @@
-/* src/app/components/loan-list/loan-detail.component.scss */
-.container {
-  @apply mx-auto p-6 max-w-4xl;
+/* Add to your component's SCSS file or global styles */
+@import '~animate.css/animate.min.css';
+@import '~bootstrap-icons/font/bootstrap-icons.css';
+
+/* Gradient Text */
+.text-gradient {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
+.text-gradient.text-primary {
+  background-image: linear-gradient(90deg, #007bff, #0056b3);
+}
+
+/* Card Styling */
 .card {
-  @apply shadow-lg rounded-lg overflow-hidden;
+  border: none;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
 }
 
 .card-header {
-  @apply bg-blue-600 text-white p-4 flex items-center; /* Replaced bg-primary with bg-blue-600 */
+  padding: 1.25rem 1.5rem;
+  border-bottom: none;
 }
 
-.card-body {
-  @apply p-6;
+.bg-gradient-primary {
+  background: linear-gradient(90deg, #007bff, #0056b3);
 }
 
-.card-footer {
-  @apply p-4 bg-gray-50;
+.bg-gradient-info {
+  background: linear-gradient(90deg, #17a2b8, #138496);
 }
 
-.alert {
-  @apply mb-4;
+.bg-gradient-success {
+  background: linear-gradient(90deg, #28a745, #218838);
 }
 
-.text-muted {
-  @apply text-gray-600;
+.bg-gradient-warning {
+  background: linear-gradient(90deg, #ffc107, #e0a800);
 }
 
-.fw-bold {
-  @apply font-semibold;
+.bg-gradient-secondary {
+  background: linear-gradient(90deg, #6c757d, #5a6268);
 }
 
-.list-group-item {
-  @apply border-0 py-2;
+/* Info Item Styling */
+.info-item {
+  background: rgba(248, 249, 250, 0.7);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border-left: 4px solid #007bff;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: #f8f9fa;
+    transform: translateX(5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Table Styling */
+.table {
+  th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    border-top: none;
+    border-bottom: 2px solid #dee2e6;
+  }
+  
+  td {
+    vertical-align: middle;
+    padding: 1rem;
+  }
+  
+  tr {
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: rgba(0, 123, 255, 0.05);
+    }
+  }
+}
+
+/* Timeline Styling */
+.timeline {
+  position: relative;
+  padding-left: 50px;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    left: 25px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+  }
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 1.5rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.timeline-badge {
+  position: absolute;
+  left: -50px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+  z-index: 1;
+}
+
+.timeline-content {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  
+  h6 {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+}
+
+/* Button Styling */
+.btn {
+  transition: all 0.3s ease;
+  font-weight: 500;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Badge Styling */
+.badge {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  padding: 0.4em 0.8em;
+}
+
+/* Animation Delays */
+.animate__animated {
+  animation-duration: 0.5s;
 }

@@ -1,0 +1,68 @@
+/* Add these styles to your component's CSS file or global styles */
+@import '~animate.css/animate.min.css';
+
+/* Custom styles */
+.stat-card {
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
+}
+
+.avatar-sm {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Row animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mat-row {
+  transition: background-color 0.2s ease;
+}
+
+/* Custom scrollbar for table */
+.table-responsive {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.table-responsive::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Animation for table rows */
+@keyframes highlight {
+  0% { background-color: rgba(13, 110, 253, 0.1); }
+  100% { background-color: transparent; }
+}
+
+.new-transaction {
+  animation: highlight 2s ease-out;
+}

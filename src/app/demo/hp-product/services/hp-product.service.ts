@@ -62,7 +62,7 @@ export class HpProductService {
   }
 
   getDealerRegistrations(): Observable<DealerRegistration[]> {
-    return this.http.get<DealerRegistration[]>(this.dealerRegistrationUrl);
+    return this.http.get<DealerRegistration[]>(`${this.dealerRegistrationUrl}/all`);
   }
 }
 

@@ -1,16 +1,18 @@
 export interface HpRegistration {
-    getAllHpRegistrations(): unknown;
-    id?: number;
-    hpNumber: string;
-    createdDate?: string;
-    loanAmount: number;
-    downPayment: number;
-    loanTerm: number;
-    interestRate: string;
-    startDate: string;
-    endDate: string;
-    status: number;
-    currentAccountId: number;
-    hpProductId: number;
-  }
-  
+  id?: number;
+  hpNumber: string;
+  createdDate?: string;
+  gracePeriod: number;
+  loanAmount: number;
+  downPayment: number;
+  loanTerm: number;
+  interestRate: string;
+  lateFeeRate: number;
+  ninetyDayLateFeeRate: number;
+  oneHundredAndEightyLateFeeRate: number;
+  startDate: string;
+  endDate: string;
+  status: number;
+  currentAccountId: number;
+  hpProductId: number;
+}

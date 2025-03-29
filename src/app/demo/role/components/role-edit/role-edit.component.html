@@ -1,0 +1,42 @@
+<!-- role-permission-edit.component.html
+<div class="role-permission-edit-container">
+    <h2>Edit Role Permission</h2>
+  
+    <form #rpForm="ngForm" (ngSubmit)="saveRolePermission()">
+      <div class="form-group">
+        <label for="roleId">Role:</label>
+        <select 
+          id="roleId"
+          name="roleId"
+          [(ngModel)]="rolePermission.role.id"
+          required
+          class="form-control"
+          [disabled]="true"
+        >
+          <option *ngFor="let role of roles" [value]="role.id">
+            {{ role.name }}
+          </option>
+        </select>
+      </div>
+  
+      <div class="form-group">
+        <label for="permissionId">Permission:</label>
+        <select 
+          id="permissionId"
+          name="permissionId"
+          [(ngModel)]="rolePermission.permission.id"
+          required
+          class="form-control"
+        >
+          <option *ngFor="let permission of permissions" [value]="permission.id">
+            {{ permission.name }} ({{ permission.permissionFunction }})
+          </option>
+        </select>
+      </div>
+  
+      <div class="button-group">
+        <button type="submit" [disabled]="!rpForm.valid" class="save-btn">Save</button>
+        <button type="button" (click)="cancel()" class="cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </div> -->

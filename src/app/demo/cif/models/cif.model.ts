@@ -16,4 +16,5 @@ export interface CIF {
     hasCurrentAccount: boolean;
     fNrcPhotoUrl: string; // Cloudinary Front NRC Image
     bNrcPhotoUrl: string;
+    isDropdownOpen?: boolean;
   }

@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -10,9 +10,6 @@ import { TransactionService } from '../../services/transaction.service';
 import { AccountTransaction } from '../../models/transaction.model';
 import { ActivatedRoute } from '@angular/router';
 import { SharedModule } from 'src/app/theme/shared/shared.module';
-import { ChartDB } from 'src/app/fack-db/chartData';
-
-// third party import
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { HttpClient } from '@angular/common/http';
 
@@ -24,12 +21,14 @@ import { HttpClient } from '@angular/common/http';
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
-    SharedModule, NgApexchartsModule
+    SharedModule,
+    NgApexchartsModule
   ],
   templateUrl: './history.component.html',
   styleUrls: ['./history.component.scss']
 })
 export class HistoryComponent implements AfterViewInit {
+  currentDate = new Date();
   accountId!: number;
   dataSource = new MatTableDataSource<AccountTransaction>([]);
   displayedColumns: string[] = ['id', 'transactionDate', 'amount', 'status'];
@@ -37,20 +36,18 @@ export class HistoryComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  // Define the correct types for ApexChart options
-area1CAC: ApexOptions = {
-  chart: { height: 300, type: 'area' },
-  stroke: { curve: 'smooth' },
-  colors: ['#1f77b4', '#ff7f0e'],
-  series: [
-    { name: 'Credit', data: [] as number[] }, // Explicitly set type as number[]
-    { name: 'Debit', data: [] as number[] }
-  ],
-  xaxis: { categories: [] as string[] }, // Explicitly set type as string[]
-  tooltip: { shared: true, intersect: false },
-  dataLabels: { enabled: false }
-};
-
+  area1CAC: ApexOptions = {
+    chart: { height: 300, type: 'area' },
+    stroke: { curve: 'smooth' },
+    colors: ['#1f77b4', '#ff7f0e'],
+    series: [
+      { name: 'Credit', data: [] as number[] },
+      { name: 'Debit', data: [] as number[] }
+    ],
+    xaxis: { categories: [] as string[] },
+    tooltip: { shared: true, intersect: false },
+    dataLabels: { enabled: false }
+  };
 
   constructor(
     private route: ActivatedRoute,
@@ -75,11 +72,11 @@ area1CAC: ApexOptions = {
 
   loadTransactions() {
     if (!this.accountId) return;
-  
+
     this.transactionService.getTransactionsByAccount(this.accountId).subscribe({
       next: (response) => {
         console.log("✅ Transactions fetched for Account:", this.accountId, response);
-        this.dataSource.data = response || []; // Ensure it's always an array
+        this.dataSource.data = response || [];
         this.updateChartData(response);
       },
       error: (error) => console.error('❌ Error loading transactions:', error),
@@ -95,33 +92,36 @@ area1CAC: ApexOptions = {
       link.click();
     });
   }
-  
+
   updateChartData(transactions: AccountTransaction[]) {
     const creditData: number[] = [];
     const debitData: number[] = [];
     const dates: string[] = [];
-  
+
     transactions.forEach(transaction => {
       const date = transaction.transactionDate ? new Date(transaction.transactionDate) : null;
       dates.push(date ? date.toLocaleDateString() : 'Unknown');
-  
-      if (transaction.amount > 0) {
+
+      // Use transactionType to determine credit or debit
+      if (transaction.transactionType === 'CREDIT') {
         creditData.push(transaction.amount);
         debitData.push(0);
-      } else {
+      } else if (transaction.transactionType === 'DEBIT') {
         creditData.push(0);
-        debitData.push(Math.abs(transaction.amount));
+        debitData.push(transaction.amount); // Use positive amount for debit
+      } else {
+        // Handle unexpected transactionType (if any)
+        creditData.push(0);
+        debitData.push(0);
       }
     });
-  
+
     this.area1CAC.series = [
       { name: 'Credit', data: creditData },
       { name: 'Debit', data: debitData }
     ];
-if (this.area1CAC.xaxis) {
-    this.area1CAC.xaxis.categories = dates;
-}
+    if (this.area1CAC.xaxis) {
+      this.area1CAC.xaxis.categories = dates;
+    }
   }
-  
-  
-}  
+}

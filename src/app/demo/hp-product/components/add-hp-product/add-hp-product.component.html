@@ -1,50 +1,154 @@
-<div class="container mx-auto p-4 max-w-lg">
-  <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">
-    <i class="bi bi-box-seam me-2"></i> Add HP Product
-  </h2>
-  <form (ngSubmit)="onSubmit()" class="bg-white shadow-md rounded-lg p-6">
-    <div class="mb-4">
-      <label for="name" class="form-label fw-bold text-gray-700">
-        <i class="bi bi-tag me-1"></i> Name
-      </label>
-      <input id="name" [(ngModel)]="hpProduct.name" name="name" class="form-control" required />
+<div class="container-fluid animate__animated animate__fadeIn">
+  <div class="row justify-content-center">
+    <div class="col-xl-6 col-lg-8 col-md-10">
+      <!-- Main Card -->
+      <div class="card shadow-lg border-0 rounded-lg overflow-hidden mt-4">
+        <!-- Card Header -->
+        <div class="card-header bg-gradient-primary-to-secondary text-white py-4">
+          <div class="text-center">
+            <h2 class="h3 mb-0">
+              <i class="bi bi-box-seam me-2"></i>Add HP Product
+            </h2>
+            <p class="mb-0 small opacity-75 mt-1">
+              <i class="bi bi-info-circle me-1"></i>Fill in the product details below
+            </p>
+          </div>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body p-5">
+          <form (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
+            <!-- Product Name -->
+            <div class="mb-4">
+              <label for="name" class="form-label fw-bold text-gray-700 mb-2">
+                <i class="bi bi-tag me-1 text-primary"></i>Product Name
+              </label>
+              <div class="input-group has-validation">
+                <span class="input-group-text bg-light">
+                  <i class="bi bi-card-heading text-muted"></i>
+                </span>
+                <input id="name" [(ngModel)]="hpProduct.name" name="name" 
+                       class="form-control form-control-lg" required
+                       placeholder="Enter product name">
+                <div class="invalid-feedback">
+                  Please provide a product name.
+                </div>
+              </div>
+            </div>
+
+            <!-- Price and Commission Fee Row -->
+            <div class="row">
+              <!-- Price -->
+              <div class="col-md-6 mb-4">
+                <label for="price" class="form-label fw-bold text-gray-700 mb-2">
+                  <i class="bi bi-currency-dollar me-1 text-primary"></i>Price
+                </label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text bg-light">$</span>
+                  <input id="price" type="number" [(ngModel)]="hpProduct.price" name="price" 
+                         class="form-control" required
+                         placeholder="0.00" step="0.01" min="0">
+                  <div class="invalid-feedback">
+                    Please provide a valid price.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Commission Fee -->
+              <div class="col-md-6 mb-4">
+                <label for="commissionFee" class="form-label fw-bold text-gray-700 mb-2">
+                  <i class="bi bi-percent me-1 text-primary"></i>Commission Fee
+                </label>
+                <div class="input-group has-validation">
+                  <input id="commissionFee" type="number" [(ngModel)]="hpProduct.commissionFee" name="commissionFee" 
+                         class="form-control" required
+                         placeholder="0" min="0" max="100">
+                  <span class="input-group-text bg-light">%</span>
+                  <div class="invalid-feedback">
+                    Please provide a valid commission (0-100%).
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Product Type and Dealer Row -->
+            <div class="row">
+              <!-- Product Type -->
+              <div class="col-md-6 mb-4">
+                <label for="productTypeId" class="form-label fw-bold text-gray-700 mb-2">
+                  <i class="bi bi-list-ul me-1 text-primary"></i>Product Type
+                </label>
+                <select id="productTypeId" [(ngModel)]="hpProduct.productTypeId" name="productTypeId" 
+                        class="form-select" required>
+                  <option value="" disabled selected>Select product type</option>
+                  <option *ngFor="let type of productTypes" [value]="type.id">
+                    {{ type.name }}
+                  </option>
+                </select>
+                <div class="invalid-feedback">
+                  Please select a product type.
+                </div>
+              </div>
+
+              <!-- Dealer Registration -->
+              <div class="col-md-6 mb-4">
+                <label for="dealerRegistrationId" class="form-label fw-bold text-gray-700 mb-2">
+                  <i class="bi bi-building me-1 text-primary"></i>Dealer
+                </label>
+                <select id="dealerRegistrationId" [(ngModel)]="hpProduct.dealerRegistrationId" name="dealerRegistrationId" 
+                        class="form-select" required>
+                  <option value="" disabled selected>Select dealer</option>
+                  <option *ngFor="let dealer of dealerRegistrations" [value]="dealer.id">
+                    {{ dealer.companyName }}
+                  </option>
+                </select>
+                <div class="invalid-feedback">
+                  Please select a dealer.
+                </div>
+              </div>
+            </div>
+
+            <!-- Product Photo -->
+            <div class="mb-4">
+              <label for="photo" class="form-label fw-bold text-gray-700 mb-2">
+                <i class="bi bi-image me-1 text-primary"></i>Product Photo
+              </label>
+              <div class="file-upload-container">
+                <input id="photo" type="file" (change)="onFileChange($event)" 
+                       class="form-control visually-hidden" accept="image/*" required>
+                <label for="photo" class="file-upload-label">
+                  <div class="file-upload-content" *ngIf="!selectedFile; else filePreview">
+                    <i class="bi bi-cloud-arrow-up fs-1 text-muted"></i>
+                    <p class="mb-0 mt-2">Click to upload product photo</p>
+                    <small class="text-muted">JPEG, PNG (Max 5MB)</small>
+                  </div>
+                  <ng-template #filePreview>
+                    <div class="file-preview">
+                      <img [src]="previewUrl" alt="Preview" class="img-thumbnail">
+                      <button type="button" class="btn btn-sm btn-danger mt-2" (click)="clearFile()">
+                        <i class="bi bi-trash"></i> Remove
+                      </button>
+                    </div>
+                  </ng-template>
+                </label>
+                <div class="invalid-feedback">
+                  Please upload a product photo.
+                </div>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+              <button type="button" class="btn btn-outline-secondary me-md-2" (click)="resetForm()">
+                <i class="bi bi-x-circle me-1"></i> Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i> Create Product
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-    <div class="mb-4">
-      <label for="price" class="form-label fw-bold text-gray-700">
-        <i class="bi bi-currency-dollar me-1"></i> Price
-      </label>
-      <input id="price" type="number" [(ngModel)]="hpProduct.price" name="price" class="form-control" required />
-    </div>
-    <div class="mb-4">
-      <label for="productTypeId" class="form-label fw-bold text-gray-700">
-        <i class="bi bi-list-ul me-1"></i> Product Type
-      </label>
-      <select id="productTypeId" [(ngModel)]="hpProduct.productTypeId" name="productTypeId" class="form-select" required>
-        <option *ngFor="let type of productTypes" [value]="type.id">{{ type.name }}</option>
-      </select>
-    </div>
-    <div class="mb-4">
-      <label for="dealerRegistrationId" class="form-label fw-bold text-gray-700">
-        <i class="bi bi-building me-1"></i> Dealer Registration
-      </label>
-      <select id="dealerRegistrationId" [(ngModel)]="hpProduct.dealerRegistrationId" name="dealerRegistrationId" class="form-select" required>
-        <option *ngFor="let dealer of dealerRegistrations" [value]="dealer.id">{{ dealer.companyName }}</option>
-      </select>
-    </div>
-    <div class="mb-4">
-      <label for="commissionFee" class="form-label fw-bold text-gray-700">
-        <i class="bi bi-percent me-1"></i> Commission Fee
-      </label>
-      <input id="commissionFee" type="number" [(ngModel)]="hpProduct.commissionFee" name="commissionFee" class="form-control" required />
-    </div>
-    <div class="mb-4">
-      <label for="photo" class="form-label fw-bold text-gray-700">
-        <i class="bi bi-image me-1"></i> Product Photo
-      </label>
-      <input id="photo" type="file" (change)="onFileChange($event)" class="form-control" accept="image/*" required />
-    </div>
-    <button type="submit" class="btn btn-primary w-full py-2 mt-4">
-      <i class="bi bi-plus-circle"></i> Create Product
-    </button>
-  </form>
+  </div>
 </div>

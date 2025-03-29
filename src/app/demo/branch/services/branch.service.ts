@@ -28,6 +28,10 @@ export class BranchService {
     return this.http.get<any>(this.baseUrl);
   }
 
+  getBranchDetails(branchId: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/${branchId}/details`);
+  }
+
   // Create a new branch
   createBranch(branchData: any): Observable<any> {
     return this.http.post<any>(this.baseUrl, branchData);
@@ -57,6 +61,20 @@ export class BranchService {
 
     const url = `${this.baseUrl}/paged`;
     return this.http.get<PageResponse<Branch>>(url, { params });
+  }
+
+  checkDuplicate(branchData: Partial<Branch>): Observable<boolean> {
+    return this.getBranches().pipe(
+      map((branches: Branch[]) => {
+        return branches.some(existingBranch => {
+          return (
+            existingBranch.branchName === branchData.branchName ||
+            existingBranch.phoneNumber === branchData.phoneNumber ||
+            existingBranch.email === branchData.email
+          );
+        });
+      })
+    );
   }
 
 }

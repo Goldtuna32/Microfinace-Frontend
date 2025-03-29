@@ -27,21 +27,21 @@
             "assets": ["src/favicon.ico", "src/assets"],
             "styles": ["src/styles.scss", "node_modules/bootstrap/dist/css/bootstrap.min.css",
             "node_modules/bootstrap-icons/font/bootstrap-icons.css",
-          "node_modules/primeicons/primeicons.css"],
-            "scripts": ["node_modules/apexcharts/dist/apexcharts.min.js"]
+          "node_modules/primeicons/primeicons.css", "node_modules/animate.css/animate.min.css"],
+            "scripts": ["node_modules/apexcharts/dist/apexcharts.min.js","node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"]
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "2mb"
+                  "maximumWarning": "3mb",
+                  "maximumError": "3mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "10kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "100kb",
+                  "maximumError": "100kb"
                 }
               ],
               "fileReplacements": [
@@ -94,7 +94,7 @@
             "assets": ["src/favicon.ico", "src/assets"],
             "styles": ["src/styles.scss","node_modules/bootstrap/dist/css/bootstrap.min.css",
             "node_modules/bootstrap-icons/font/bootstrap-icons.css",
-          "node_modules/primeicons/primeicons.css"],
+          "node_modules/primeicons/primeicons.css","node_modules/animate.css/animate.min.css"],
             "scripts": [
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
             ]

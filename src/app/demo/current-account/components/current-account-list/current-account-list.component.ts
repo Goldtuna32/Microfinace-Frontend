@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { MatMenuModule } from '@angular/material/menu';
 import { SharedModule } from 'src/app/theme/shared/shared.module';
+import { UserService } from 'src/app/demo/users/services/user.service';
 
 export interface CurrentAccount {
   id: number;
@@ -42,7 +43,9 @@ export class CurrentAccountListComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['id', 'accountNumber', 'balance', 'status', 'dateCreated', 'cifId', 'actions'];
   dataSource = new MatTableDataSource<CurrentAccount>([]);
   loading = true;
+  branchId: number | null = null;
   errorMessage = '';
+  showSuccessAlert: boolean = false;
   
   // Pagination properties
   currentPage = 1;
@@ -51,7 +54,8 @@ export class CurrentAccountListComponent implements OnInit, AfterViewInit {
   totalPages = 0;
   allData: CurrentAccount[] = []; // Store all data for pagination
   filteredData: CurrentAccount[] = []; // Store filtered data
-  
+  isDeletedView = false;
+
   // Filter properties
   currentSearchTerm = '';
   currentStatusFilter: number | null = null;
@@ -61,11 +65,38 @@ export class CurrentAccountListComponent implements OnInit, AfterViewInit {
   constructor(
     private currentAccountService: CurrentAccountService,
     private dialog: MatDialog,
+    private userService: UserService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.loadCurrentAccounts();
+    this.loadCurrentUserBranch();
+  
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state?.['success']) {
+      this.showSuccessAlert = true;
+      setTimeout(() => {
+        this.showSuccessAlert = false;
+      }, 5000);
+    }
+  }
+
+  loadCurrentUserBranch(): void {
+    this.userService.currentUser$.subscribe({
+      next: (user) => {
+        this.branchId = user?.branchId || null;
+        this.loadCurrentAccounts();
+      },
+      error: (error) => {
+        console.error('Failed to load user branch', error);
+        this.loadCurrentAccounts(); // Still load CIFs without branch filter
+      }
+    });
+
+    // If user data isn't loaded yet, trigger a refresh
+    if (!this.userService.currentUserSubject.value) {
+      this.userService.getCurrentUser().subscribe();
+    }
   }
 
   ngAfterViewInit(): void {
@@ -73,11 +104,18 @@ export class CurrentAccountListComponent implements OnInit, AfterViewInit {
   }
 
   loadCurrentAccounts(): void {
-    this.currentAccountService.getAllCurrentAccounts().subscribe({
-      next: (data) => {
-        this.allData = data; // Store all data
+    this.loading = true;
+    this.errorMessage = '';
+
+    const currentObservable = this.isDeletedView
+    ? this.currentAccountService.getAllCurrentAccountByBranch(this.branchId ?? undefined)
+    : this.currentAccountService.getFreezeCurrentAccountByBranch(this.branchId ?? undefined);
+
+    currentObservable.subscribe({
+      next: (current: CurrentAccount[]) => {
+        this.dataSource.data = current;
         this.applyAllFilters();
-        this.totalItems = data.length;
+        this.totalItems = current.length;
         this.totalPages = Math.ceil(this.totalItems / this.pageSize);
         this.updatePaginatedData();
         this.loading = false;

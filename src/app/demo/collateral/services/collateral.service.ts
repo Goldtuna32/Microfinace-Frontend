@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+  import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Collateral } from '../models/collateral.model';
@@ -41,6 +41,8 @@ export class CollateralService {
       `${this.baseUrl}/collaterals/deleted?page=${page}&size=${size}&sortBy=${sortBy}&direction=${direction}`
     );
   }
+
+  
 
   
   getAllActiveCollateralTypes(): Observable<CollateralType[]> {

@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { MatMenuModule } from '@angular/material/menu';
 import { SharedModule } from 'src/app/theme/shared/shared.module';
+import { UserService } from 'src/app/demo/users/services/user.service';
 
 export interface CurrentAccount {
   id: number;
@@ -42,8 +43,11 @@ export class CurrentAccountListComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['id', 'accountNumber', 'balance', 'status', 'dateCreated', 'cifId', 'actions'];
   dataSource = new MatTableDataSource<CurrentAccount>([]);
   loading = true;
+  branchId: number | null = null;
   errorMessage = '';
-  
+  showSuccessAlert: boolean = false;
+  currentAccounts: CurrentAccount[] = [];
+filteredCurrentAccounts: CurrentAccount[] = [];
   // Pagination properties
   currentPage = 1;
   pageSize = 10; // You can adjust this value
@@ -51,7 +55,8 @@ export class CurrentAccountListComponent implements OnInit, AfterViewInit {
   totalPages = 0;
   allData: CurrentAccount[] = []; // Store all data for pagination
   filteredData: CurrentAccount[] = []; // Store filtered data
-  
+  isDeletedView = false;
+
   // Filter properties
   currentSearchTerm = '';
   currentStatusFilter: number | null = null;
@@ -61,10 +66,44 @@ export class CurrentAccountListComponent implements OnInit, AfterViewInit {
   constructor(
     private currentAccountService: CurrentAccountService,
     private dialog: MatDialog,
+    private userService: UserService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
+    this.loadCurrentUserBranch();
+  
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state?.['success']) {
+      this.showSuccessAlert = true;
+      setTimeout(() => {
+        this.showSuccessAlert = false;
+      }, 5000);
+    }
+  }
+
+  loadCurrentUserBranch(): void {
+    this.userService.currentUser$.subscribe({
+      next: (user) => {
+        this.branchId = user?.branchId || null;
+        this.loadCurrentAccounts();
+      },
+      error: (error) => {
+        console.error('Failed to load user branch', error);
+        this.loadCurrentAccounts(); // Still load CIFs without branch filter
+      }
+    });
+
+    // If user data isn't loaded yet, trigger a refresh
+    if (!this.userService.currentUserSubject.value) {
+      this.userService.getCurrentUser().subscribe();
+    }
+  }
+
+  loadBranchId(): void {
+    // Get branch ID from service or localStorage
+    const storedBranch = localStorage.getItem('currentBranch');
+    this.branchId = storedBranch ? JSON.parse(storedBranch).id : null;
     this.loadCurrentAccounts();
   }
 
@@ -72,23 +111,36 @@ export class CurrentAccountListComponent implements OnInit, AfterViewInit {
     this.dataSource.sort = this.sort;
   }
 
-  loadCurrentAccounts(): void {
-    this.currentAccountService.getAllCurrentAccounts().subscribe({
-      next: (data) => {
-        this.allData = data; // Store all data
-        this.applyAllFilters();
-        this.totalItems = data.length;
-        this.totalPages = Math.ceil(this.totalItems / this.pageSize);
-        this.updatePaginatedData();
-        this.loading = false;
-      },
-      error: (error) => {
-        this.errorMessage = 'Failed to load current accounts.';
-        console.error('Error fetching current accounts:', error);
-        this.loading = false;
-      }
+  loadCurrentAccounts(showActive: boolean = true, branchId?: number): void {
+    this.loading = true;
+    this.errorMessage = '';
+
+    const currentAccountObservable = showActive
+        ? this.currentAccountService.getAllCurrentAccountByBranch(branchId)
+        : this.currentAccountService.getFreezeCurrentAccountByBranch(branchId);
+
+    currentAccountObservable.subscribe({
+        next: (data: CurrentAccount[]) => {
+            this.currentAccounts = data;
+            this.filteredCurrentAccounts = data; // Initialize with all loaded accounts
+            this.dataSource.data = data; // If you're using Material Table
+            this.applyAllFilters(); // Apply any existing filters
+            this.updatePagination(data.length); // Handle pagination
+            this.loading = false;
+        },
+        error: (error) => {
+            this.errorMessage = 'Failed to load current accounts. Please try again.';
+            this.loading = false;
+            console.error('Error loading current accounts:', error);
+        }
     });
-  }
+}
+
+private updatePagination(totalItems: number): void {
+  this.totalItems = totalItems;
+  this.totalPages = Math.ceil(totalItems / this.pageSize);
+  this.updatePaginatedData();
+}
 
   applyAllFilters(): void {
     this.filteredData = [...this.allData];

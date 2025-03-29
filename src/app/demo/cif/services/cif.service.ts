@@ -36,22 +36,24 @@ export class CifService {
     );
   }
 
-  getAllCIFs(page: number, size: number, nrcPrefix?: string): Observable<PageResponse<CIF>> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
+  getAllCIFs(branchId?: number, nrcPrefix?: string): Observable<CIF[]> {
+    let params = new HttpParams();
+    if (branchId !== undefined && branchId !== null) {
+      params = params.set('branchId', branchId.toString());
+    }
     if (nrcPrefix) params = params.set('nrcPrefix', nrcPrefix);
 
-    return this.http.get<PageResponse<CIF>>(`${this.baseUrl}/active`, { params });
+    return this.http.get<CIF[]>(`${this.baseUrl}/activeCIFList`, { params });
   }
 
-  getDeletedCIFs(page: number, size: number, nrcPrefix?: string): Observable<PageResponse<CIF>> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
+  getDeletedCIFs(branchId?: number, nrcPrefix?: string): Observable<CIF[]> {
+    let params = new HttpParams();
+    if (branchId !== undefined && branchId !== null) {
+      params = params.set('branchId', branchId.toString());
+    }
     if (nrcPrefix) params = params.set('nrcPrefix', nrcPrefix);
 
-    return this.http.get<PageResponse<CIF>>(`${this.baseUrl}/deleted`, { params });
+    return this.http.get<CIF[]>(`${this.baseUrl}/deletedCIFList`, { params });
   }
   
   updateCIF(id: number, cifData: FormData): Observable<any> {

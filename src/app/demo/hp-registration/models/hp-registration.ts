@@ -9,10 +9,9 @@ export interface HpRegistration {
   interestRate: string;
   lateFeeRate: number;
   ninetyDayLateFeeRate: number;
-  oneHundredAndEightyLateFeeRate: number;
-  startDate: string;
-  endDate: string;
+  one_hundred_and_eighty_late_fee_rate: number;
   status: number;
   currentAccountId: number;
+  bankPortion?: number;
   hpProductId: number;
 }

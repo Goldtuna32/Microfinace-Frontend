@@ -86,6 +86,8 @@ export class HpProductListComponent {
   
     cifObservable.subscribe({
       next: (hps: HpProduct[]) => {
+        this.hpProducts = hps;
+        this.filteredHpProducts = hps;
         this.dataSource.data = hps;
         this.totalItems = hps.length;
          this.loading = false;

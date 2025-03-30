@@ -1,4 +1,4 @@
-import { Collateral, CollateralStatus } from "../../collateral/models/collateral.model";
+import { Collateral } from "../../collateral/models/collateral.model";
 
 // src/app/models/sme-loan-collateral.model.ts
 export interface SmeLoanCollateral {
@@ -6,7 +6,7 @@ export interface SmeLoanCollateral {
     collateralId: number;
     collateralCode: string;
     collateralAmount: number;
-    status: CollateralStatus;
+    status: number;
     f_collateral_photo: string;
     b_collateral_photo: string;
     date: string;

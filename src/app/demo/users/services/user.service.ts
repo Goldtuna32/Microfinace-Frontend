@@ -27,8 +27,8 @@ export interface PermissionDTO {
 }
 export interface Branch {
   id: number;
-  name: string;
-  code: string;
+  branchName: string;
+  branchCode: string;
 }
 
 @Injectable({

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ProductType } from '../models/product-type';
@@ -11,8 +11,23 @@ export class ProductTypeService {
 
   constructor(private http: HttpClient) {}
 
-  getAllProductTypes(): Observable<ProductType[]> {
-    return this.http.get<ProductType[]>(this.apiUrl);
+  getAllActiveProductTyp(branchId?: number): Observable<ProductType[]> {
+    let params = new HttpParams();
+    if (branchId !== undefined && branchId !== null) {
+      params = params.set('branchId', branchId.toString());
+    }
+
+    return this.http.get<ProductType[]>(`${this.apiUrl}/activeProductType`, { params });
+  }
+
+  getAllInactiveTyp(branchId?: number): Observable<ProductType[]> {
+    let params = new HttpParams();
+    if (branchId !== undefined && branchId !== null) {
+      params = params.set('branchId', branchId.toString());
+    }
+   
+
+    return this.http.get<ProductType[]>(`${this.apiUrl}/InactiveProductType`, { params });
   }
 
   getProductTypeById(id: number): Observable<ProductType> {

@@ -1,4 +1,4 @@
-  import { HttpClient } from '@angular/common/http';
+  import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Collateral } from '../models/collateral.model';
@@ -109,5 +109,24 @@ export class CollateralService {
         return throwError(() => new Error(error.statusText));
       })
     );
+  }
+
+  getAllActiveCollateral(branchId?: number): Observable<Collateral[]> {
+    let params = new HttpParams();
+    if (branchId !== undefined && branchId !== null) {
+      params = params.set('branchId', branchId.toString());
+    }
+
+    return this.http.get<Collateral[]>(`${this.baseUrl}/collaterals/activeCollateral`, { params });
+  }
+
+  getAllInactiveCollateral(branchId?: number): Observable<Collateral[]> {
+    let params = new HttpParams();
+    if (branchId !== undefined && branchId !== null) {
+      params = params.set('branchId', branchId.toString());
+    }
+   
+
+    return this.http.get<Collateral[]>(`${this.baseUrl}/collaterals/inactiveCollateral`, { params });
   }
 }

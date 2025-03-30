@@ -1,55 +1,160 @@
-<div class="container mx-auto p-4">
-    <mat-card class="shadow-lg">
-      <mat-card-header>
-        <mat-card-title>Repayment Schedule for Loan #{{loanId}}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="flex justify-between mb-4 space-x-2">
-          <button mat-raised-button color="primary" (click)="goBack()">
-            <i class="bi bi-arrow-left mr-2"></i>Back to Loan List
+<div class="container mx-auto p-4" @fadeIn>
+  <mat-card class="shadow-lg border-0">
+    <mat-card-header class="bg-primary text-white p-4 rounded-t-lg">
+      <div class="flex justify-between items-center w-full">
+        <mat-card-title class="text-white">
+          <i class="bi bi-calendar-check mr-2"></i>
+          Repayment Schedule for Loan #{{loanId}}
+        </mat-card-title>
+        <div class="flex space-x-2">
+          <button mat-raised-button color="accent" (click)="exportReport('pdf')" class="flex items-center">
+            <i class="bi bi-file-earmark-pdf mr-2"></i>PDF
           </button>
-          <div>
-            <button mat-raised-button color="primary" (click)="exportReport('pdf')" class="mr-2">
-              <i class="bi bi-file-earmark-pdf mr-2"></i>Export to PDF
-            </button>
-            <button mat-raised-button color="primary" (click)="exportReport('excel')">
-              <i class="bi bi-file-earmark-excel mr-2"></i>Export to Excel
-            </button>
+          <button mat-raised-button color="accent" (click)="exportReport('excel')" class="flex items-center">
+            <i class="bi bi-file-earmark-excel mr-2"></i>Excel
+          </button>
+          <button mat-raised-button color="warn" (click)="goBack()" class="flex items-center">
+            <i class="bi bi-arrow-left mr-2"></i>Back
+          </button>
+        </div>
+      </div>
+    </mat-card-header>
+    
+    <mat-card-content class="p-0">
+      <div class="bg-gray-50 p-4 border-b">
+        <div class="flex flex-wrap gap-2 justify-center">
+          <div class="status-legend bg-success">
+            <i class="bi bi-check-circle-fill"></i> Completed
+          </div>
+          <div class="status-legend bg-warning">
+            <i class="bi bi-exclamation-triangle-fill"></i> Overdue
+          </div>
+          <div class="status-legend bg-info">
+            <i class="bi bi-pie-chart-fill"></i> Partial
+          </div>
+          <div class="status-legend bg-secondary">
+            <i class="bi bi-hourglass-split"></i> Processing
+          </div>
+          <div class="status-legend bg-primary">
+            <i class="bi bi-calendar-event"></i> Upcoming
+          </div>
+          <div class="status-legend bg-light text-dark">
+            <i class="bi bi-clock-history"></i> Pending
           </div>
         </div>
-  
-        <table mat-table [dataSource]="repaymentSchedule" class="w-full bg-white shadow-md rounded-lg">
+      </div>
+
+      <div class="overflow-x-auto">
+        <table mat-table [dataSource]="repaymentSchedule" class="w-full">
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef class="bg-gray-100">Status</th>
+            <td mat-cell *matCellDef="let item" [class]="getStatusClass(item.status)">
+              <i class="bi {{getStatusIcon(item.status)}} mr-1"></i>
+              {{getStatusText(item.status)}}
+            </td>
+          </ng-container>
+
+          <!-- Installment Number Column -->
           <ng-container matColumnDef="installmentNumber">
-            <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Installment #</th>
-            <td mat-cell *matCellDef="let item" class="p-2">{{ item.installmentNumber }}</td>
+            <th mat-header-cell *matHeaderCellDef class="bg-gray-100">#</th>
+            <td mat-cell *matCellDef="let item" class="font-medium">
+              {{ item.installmentNumber }}
+            </td>
           </ng-container>
+
+          <!-- Due Date Column -->
           <ng-container matColumnDef="dueDate">
-            <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Due Date</th>
-            <td mat-cell *matCellDef="let item" class="p-2">{{ item.dueDate | date }}</td>
+            <th mat-header-cell *matHeaderCellDef class="bg-gray-100">Due Date</th>
+            <td mat-cell *matCellDef="let item" [class.text-danger]="isPastDue(item.dueDate, item.status)">
+              {{ item.dueDate | date:'mediumDate' }}
+              <span *ngIf="isPastDue(item.dueDate, item.status)" class="badge bg-danger ml-2">
+                <i class="bi bi-exclamation-circle"></i> Past Due
+              </span>
+            </td>
           </ng-container>
+
+          <!-- Principal Amount Column -->
           <ng-container matColumnDef="principalAmount">
-            <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Principal</th>
-            <td mat-cell *matCellDef="let item" class="p-2">{{ item.principalAmount | currency }}</td>
+            <th mat-header-cell *matHeaderCellDef class="bg-gray-100">Principal</th>
+            <td mat-cell *matCellDef="let item">
+              {{ item.principalAmount | currency }}
+            </td>
           </ng-container>
+
+          <!-- Interest Amount Column -->
           <ng-container matColumnDef="interestAmount">
-            <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Interest</th>
-            <td mat-cell *matCellDef="let item" class="p-2">{{ item.interestAmount | currency }}</td>
+            <th mat-header-cell *matHeaderCellDef class="bg-gray-100">Interest</th>
+            <td mat-cell *matCellDef="let item">
+              {{ item.interestAmount | currency }}
+            </td>
           </ng-container>
+
+          <!-- Total Payment Column -->
           <ng-container matColumnDef="totalPayment">
-            <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Total Payment</th>
-            <td mat-cell *matCellDef="let item" class="p-2">{{ item.totalPayment | currency }}</td>
+            <th mat-header-cell *matHeaderCellDef class="bg-gray-100">Total</th>
+            <td mat-cell *matCellDef="let item" class="font-bold">
+              {{ item.totalPayment | currency }}
+            </td>
           </ng-container>
+
+          <!-- Remaining Principal Column -->
           <ng-container matColumnDef="remainingPrincipal">
-            <th mat-header-cell *matHeaderCellDef class="bg-gray-800 text-blue-600 p-2">Remaining Balance</th>
-            <td mat-cell *matCellDef="let item" class="p-2">{{ item.remainingPrincipal | currency }}</td>
+            <th mat-header-cell *matHeaderCellDef class="bg-gray-100">Balance</th>
+            <td mat-cell *matCellDef="let item">
+              {{ item.remainingPrincipal | currency }}
+            </td>
           </ng-container>
-  
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="bg-gray-100">Actions</th>
+            <td mat-cell *matCellDef="let item">
+              <button *ngIf="item.status !== 6" mat-raised-button color="primary" 
+                      class="btn-sm">
+                <i class="bi bi-credit-card mr-1"></i> Pay
+              </button>
+              <span *ngIf="item.status === 6" class="text-success">
+                <i class="bi bi-check-circle"></i> Paid
+              </span>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-gray-100"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
+              [@rowHover]="row.hoverState" 
+              (mouseenter)="row.hoverState = 'hover'"
+              (mouseleave)="row.hoverState = 'void'"
+              [class.bg-light]="row.status === 6"
+              [class.bg-warning-light]="row.status === 5"
+              [class.bg-info-light]="row.status === 4"></tr>
+          
           <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell text-center p-4" colspan="6">No repayment schedule found.</td>
+            <td class="mat-cell text-center p-8" colspan="8">
+              <div class="flex flex-col items-center justify-center py-12">
+                <i class="bi bi-calendar-x text-4xl text-gray-400 mb-4"></i>
+                <h4 class="text-xl font-medium text-gray-600">No repayment schedule found</h4>
+                <p class="text-gray-500 mt-2">This loan doesn't have any repayment schedule yet.</p>
+              </div>
+            </td>
           </tr>
         </table>
-      </mat-card-content>
-    </mat-card>
-  </div>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions class="bg-gray-50 p-4 rounded-b-lg flex justify-between">
+      <div class="text-muted">
+        <i class="bi bi-info-circle mr-1"></i>
+        Total Installments: {{repaymentSchedule.data.length}}
+      </div>
+      <div class="flex space-x-2">
+        <button mat-raised-button color="primary" (click)="exportReport('pdf')" class="flex items-center">
+          <i class="bi bi-download mr-1"></i> Export
+        </button>
+        <button mat-raised-button (click)="goBack()" class="flex items-center">
+          <i class="bi bi-arrow-left mr-1"></i> Back to Loans
+        </button>
+      </div>
+    </mat-card-actions>
+  </mat-card>
+</div>

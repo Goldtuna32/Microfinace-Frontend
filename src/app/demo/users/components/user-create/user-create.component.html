@@ -194,7 +194,7 @@
                         }">
                   <option value="0" disabled selected>Select Branch</option>
                   <option *ngFor="let branch of branches" [value]="branch.id">
-                    {{ branch.name }} ({{ branch.code }})
+                    {{ branch.branchName }} ({{ branch.branchCode }})
                   </option>
                 </select>
                 <div *ngIf="formControls['branchId'].touched && formControls['branchId'].invalid" 

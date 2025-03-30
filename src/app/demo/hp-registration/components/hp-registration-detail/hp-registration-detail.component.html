@@ -1,0 +1,318 @@
+<div class="container-fluid px-4 py-4 animate__animated animate__fadeIn">
+    <div class="card shadow-lg border-0 rounded-lg overflow-hidden">
+      <div class="card-header bg-gradient-primary text-white rounded-top py-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h3 class="mb-0">
+              <i class="bi bi-file-earmark-text me-2"></i>
+              HP Registration Details - #{{hpRegistration?.id}}
+            </h3>
+            <small class="text-white-50">Last updated: {{hpRegistration?.createdDate | date:'medium'}}</small>
+          </div>
+          <div>
+            <button class="btn btn-light btn-sm me-2" (click)="goBack()">
+              <i class="bi bi-arrow-left me-1"></i> Back
+            </button>
+            <button class="btn btn-warning btn-sm" (click)="editRegistration()">
+              <i class="bi bi-pencil me-1"></i> Edit
+            </button>
+          </div>
+        </div>
+      </div>
+  
+      <div class="card-body p-0">
+        <!-- Loading State -->
+        <div *ngIf="loading" class="d-flex justify-content-center align-items-center py-5 bg-light">
+          <div class="spinner-grow text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <span class="ms-3 text-primary fw-bold">Loading HP registration details...</span>
+        </div>
+  
+        <!-- Error State -->
+        <div *ngIf="error" class="alert alert-danger m-4 animate__animated animate__shakeX">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i> {{error}}
+        </div>
+  
+        <!-- Details Content -->
+        <div *ngIf="hpRegistration && !loading" class="row g-4 p-4">
+          <!-- Basic Information -->
+          <div class="col-lg-6" [@cardHover]="cardStates['basic']"
+               (mouseenter)="onCardHover('basic', true)" 
+               (mouseleave)="onCardHover('basic', false)">
+            <div class="card h-100 border-0 shadow-sm">
+              <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                  <i class="bi bi-info-circle text-primary me-2"></i>Basic Information
+                </h5>
+                <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary">
+                  <i class="bi bi-tag me-1"></i>Registration
+                </span>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-borderless mb-0">
+                    <tbody>
+                      <tr>
+                        <td class="fw-bold text-muted" style="width: 40%">HP Number:</td>
+                        <td>
+                          <span class="badge bg-primary bg-opacity-10 text-primary fs-6">
+                            <i class="bi bi-hash me-1"></i>{{hpRegistration?.hpNumber}}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fw-bold text-muted">Status:</td>
+                        <td>
+                          <span class="badge rounded-pill py-2 px-3 d-inline-flex align-items-center" 
+                                [ngClass]="getStatusClass(hpRegistration?.status!)">
+                            <i *ngIf="hpRegistration.status === 4" class="bi bi-check-circle me-1"></i>
+                            <i *ngIf="hpRegistration.status === 3" class="bi bi-hourglass-split me-1"></i>
+                            <i *ngIf="hpRegistration.status === 2" class="bi bi-x-circle me-1"></i>
+                            {{getStatusText(hpRegistration?.status!)}}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fw-bold text-muted">Created Date:</td>
+                        <td>
+                          <i class="bi bi-calendar me-2 text-muted"></i>
+                          {{hpRegistration?.createdDate | date:'mediumDate'}}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fw-bold text-muted">Grace Period:</td>
+                        <td>
+                          <span class="badge bg-info bg-opacity-10 text-info">
+                            {{hpRegistration?.gracePeriod}} days
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          <!-- Financial Information -->
+          <div class="col-lg-6" [@cardHover]="cardStates['financial']"
+               (mouseenter)="onCardHover('financial', true)" 
+               (mouseleave)="onCardHover('financial', false)">
+            <div class="card h-100 border-0 shadow-sm">
+              <div class="card-header bg-light">
+                <h5 class="mb-0">
+                  <i class="bi bi-cash-coin text-success me-2"></i>Financial Information
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-borderless mb-0">
+                    <tbody>
+                      <tr>
+                        <td class="fw-bold text-muted" style="width: 40%">Loan Amount:</td>
+                        <td class="fw-bold text-success">
+                          {{hpRegistration?.loanAmount | currency:'USD':'symbol':'1.0-0'}}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fw-bold text-muted">Down Payment:</td>
+                        <td class="fw-bold">
+                          {{hpRegistration?.downPayment | currency:'USD':'symbol':'1.0-0'}}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fw-bold text-muted">Bank Portion:</td>
+                        <td class="fw-bold text-primary">
+                          {{hpRegistration?.loanAmount! - hpRegistration?.downPayment! | currency:'USD':'symbol':'1.0-0'}}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fw-bold text-muted">Loan Term:</td>
+                        <td>
+                          <span class="badge bg-secondary bg-opacity-10 text-secondary">
+                            {{hpRegistration?.loanTerm}} months
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fw-bold text-muted">Interest Rate:</td>
+                        <td class="fw-bold text-warning">
+                          {{hpRegistration?.interestRate}}%
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          <!-- Fee Information -->
+          <div class="col-12" [@cardHover]="cardStates['fees']"
+               (mouseenter)="onCardHover('fees', true)" 
+               (mouseleave)="onCardHover('fees', false)">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-light">
+                <h5 class="mb-0">
+                  <i class="bi bi-receipt text-danger me-2"></i>Fee Information
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <div class="p-3 bg-light rounded">
+                      <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-clock-history text-danger fs-4 me-2"></i>
+                        <h6 class="mb-0">Late Fee Rate</h6>
+                      </div>
+                      <div class="fs-4 fw-bold text-danger">
+                        {{hpRegistration?.lateFeeRate}}%
+                      </div>
+                      <small class="text-muted">Applied after due date</small>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="p-3 bg-light rounded">
+                      <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-exclamation-triangle text-warning fs-4 me-2"></i>
+                        <h6 class="mb-0">90-Day Late Fee</h6>
+                      </div>
+                      <div class="fs-4 fw-bold text-warning">
+                        {{hpRegistration?.ninetyDayLateFeeRate}}%
+                      </div>
+                      <small class="text-muted">Applied after 90 days</small>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="p-3 bg-light rounded">
+                      <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-exclamation-octagon text-danger fs-4 me-2"></i>
+                        <h6 class="mb-0">180-Day Late Fee</h6>
+                      </div>
+                      <div class="fs-4 fw-bold text-danger">
+                        {{hpRegistration?.one_hundred_and_eighty_late_fee_rate}}%
+                      </div>
+                      <small class="text-muted">Applied after 180 days</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          <!-- HP Product Information -->
+          <div class="col-lg-6" [@cardHover]="cardStates['product']"
+               (mouseenter)="onCardHover('product', true)" 
+               (mouseleave)="onCardHover('product', false)">
+            <div class="card h-100 border-0 shadow-sm">
+              <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                  <i class="bi bi-box-seam text-info me-2"></i>HP Product Details
+                </h5>
+                <span *ngIf="hpProduct" class="badge rounded-pill" 
+                      [ngClass]="getProductStatusClass(hpProduct.status)">
+                  {{getProductStatusText(hpProduct.status)}}
+                </span>
+              </div>
+              <div class="card-body">
+                <div *ngIf="hpProduct; else loadingProduct">
+                  <div class="d-flex mb-4">
+                    <div class="flex-shrink-0 me-3">
+                      <div class="bg-light rounded p-2 text-center" style="width: 120px; height: 120px;">
+                        <img *ngIf="hpProduct.hpProductPhoto" [src]="hpProduct.hpProductPhoto" 
+                             class="img-fluid" alt="Product Image">
+                        <i *ngIf="!hpProduct.hpProductPhoto" class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                      </div>
+                    </div>
+                    <div class="flex-grow-1">
+                      <h4 class="mb-1">{{hpProduct.name}}</h4>
+                      <div class="d-flex align-items-center mb-2">
+                        <span class="badge bg-primary bg-opacity-10 text-primary me-2">
+                          <i class="bi bi-tag me-1"></i>ID: {{hpProduct.id}}
+                        </span>
+                        <span class="badge bg-success bg-opacity-10 text-success">
+                          <i class="bi bi-currency-dollar me-1"></i>{{hpProduct.price | currency}}
+                        </span>
+                      </div>
+                      <!-- <p class="text-muted mb-2" *ngIf="hpProduct?.description">{{hpProduct.description}}</p> -->
+                    </div>
+                  </div>
+                  
+                  <div class="row g-2">
+                    <div class="col-md-6">
+                      <div class="p-2 bg-light rounded">
+                        <small class="text-muted d-block">Product Type</small>
+                        <span class="fw-bold">{{hpProduct.productTypeId}}</span>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="p-2 bg-light rounded">
+                        <small class="text-muted d-block">Dealer Registration</small>
+                        <span class="fw-bold">#{{hpProduct.dealerRegistrationId}}</span>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="p-2 bg-light rounded">
+                        <small class="text-muted d-block">Commission Fee</small>
+                        <span class="fw-bold text-success">{{hpProduct.commissionFee | currency}}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <ng-template #loadingProduct>
+                  <div class="text-center py-4">
+                    <div class="spinner-border text-info" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 mb-0 text-muted">Loading product details...</p>
+                  </div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+  
+          <!-- Current Account Information -->
+          <div class="col-lg-6" [@cardHover]="cardStates['account']"
+               (mouseenter)="onCardHover('account', true)" 
+               (mouseleave)="onCardHover('account', false)">
+            <div class="card h-100 border-0 shadow-sm">
+              <div class="card-header bg-light">
+                <h5 class="mb-0">
+                  <i class="bi bi-person-lines-fill text-purple me-2"></i>Current Account
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="text-center py-4">
+                  <div class="avatar-lg mx-auto mb-3">
+                    <div class="avatar-title bg-light rounded-circle text-purple fs-2">
+                      <i class="bi bi-person-circle"></i>
+                    </div>
+                  </div>
+                  <h5>Account #{{hpRegistration?.currentAccountId}}</h5>
+                  <p class="text-muted">Account details would be displayed here</p>
+                  <button class="btn btn-outline-purple btn-sm">
+                    <i class="bi bi-eye me-1"></i> View Account Details
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <div class="card-footer bg-light d-flex justify-content-between align-items-center py-3">
+        <button class="btn btn-outline-secondary" (click)="goBack()">
+          <i class="bi bi-arrow-left me-1"></i> Back to List
+        </button>
+        <div>
+          <button class="btn btn-primary me-2" (click)="editRegistration()">
+            <i class="bi bi-pencil me-1"></i> Edit Registration
+          </button>
+          <button class="btn btn-danger">
+            <i class="bi bi-trash me-1"></i> Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>

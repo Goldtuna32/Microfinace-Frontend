@@ -83,6 +83,7 @@ export class UserCreateComponent implements OnInit{
     this.loading = true;
     this.branchService.getBranches().subscribe({
       next: (branches) => {
+        console.log('Branches:', branches);
         this.branches = branches;
         this.loading = false;
       },

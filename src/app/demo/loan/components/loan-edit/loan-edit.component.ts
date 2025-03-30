@@ -221,21 +221,24 @@ addCollateralWithDescription(collateral: any): void { // Adjust the type as need
   this.collaterals.push(collateralGroup);
 }
   
-  loadCifCollaterals(cifId: number): Promise<void> {
+loadCifCollaterals(cifId: number): Promise<void> {
   return new Promise((resolve, reject) => {
     this.collateralService.getAllCollateralsForCif(cifId).subscribe({
-      next: (collaterals) => {
+      next: (collaterals: any[]) => { // Use any[] to avoid immediate type checking
         this.cifCollaterals = collaterals.map(coll => ({
-          id: coll.id,
-          collateralCode: coll.collateralCode || '',
-          description: coll.description,
-          value: coll.value || 0, // Ensure value is always defined
-          f_collateral_photo: coll.f_collateral_photo || '',
-          b_collateral_photo: coll.b_collateral_photo || '',
-          status: coll.status || 1 as CollateralStatus,
-          date: coll.date || new Date().toISOString().split('T')[0]
-        }));
-        console.log('Loaded CIF Collaterals:', this.cifCollaterals); // Debug
+          id: coll.id ?? 0, // Nullish coalescing for undefined/null
+          collateralCode: coll.collateralCode ?? '',
+          description: coll.description ?? '',
+          value: coll.value ?? 0,
+          f_collateral_photo: coll.f_collateral_photo ?? '',
+          b_collateral_photo: coll.b_collateral_photo ?? '',
+          status: Number(coll.status) || 1, // Ensure it's a number, default to 1
+          date: coll.date ?? new Date().toISOString().split('T')[0],
+          cifId: coll.cifId,
+          collateralTypeId: coll.collateralTypeId
+        })) as Collateral[]; // Cast the final array
+        
+        console.log('Loaded CIF Collaterals:', this.cifCollaterals);
         this.updateCollateralDisplay();
         resolve();
       },

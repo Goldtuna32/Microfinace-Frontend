@@ -15,10 +15,11 @@ import { UserService } from 'src/app/demo/users/services/user.service';
 
 export interface CurrentAccount {
   id: number;
+  
   accountNumber: string;
   balance: number;
   status: number;
-  dateCreated: string;
+  dateCreated: Date;  // Changed from string to Date
   holdAmount: number;
   cifId: number;
   maximumBalance: number;
@@ -36,6 +37,7 @@ export interface CurrentAccount {
     MatMenuModule,
     SharedModule
   ],
+  standalone: true,
   templateUrl: './current-account-list.component.html',
   styleUrl: './current-account-list.component.scss'
 })
@@ -112,6 +114,7 @@ filteredCurrentAccounts: CurrentAccount[] = [];
   }
 
   loadCurrentAccounts(showActive: boolean = true, branchId?: number): void {
+    console.log('Loading accounts with branchId:', branchId);
     this.loading = true;
     this.errorMessage = '';
 
@@ -120,18 +123,31 @@ filteredCurrentAccounts: CurrentAccount[] = [];
         : this.currentAccountService.getFreezeCurrentAccountByBranch(branchId);
 
     currentAccountObservable.subscribe({
-        next: (data: CurrentAccount[]) => {
-            this.currentAccounts = data;
-            this.filteredCurrentAccounts = data; // Initialize with all loaded accounts
-            this.dataSource.data = data; // If you're using Material Table
-            this.applyAllFilters(); // Apply any existing filters
-            this.updatePagination(data.length); // Handle pagination
+        next: (data: any[]) => {
+            console.log('Raw API data:', data);
+            
+            // Convert data to match CurrentAccount interface
+            this.currentAccounts = data.map(item => ({
+                ...item,
+                dateCreated: new Date(item.dateCreated) // Convert string to Date
+            }));
+
+            console.log('Processed accounts:', this.currentAccounts);
+            
+            // Initialize MatTableDataSource
+            this.dataSource = new MatTableDataSource(this.currentAccounts);
+            this.dataSource.sort = this.sort;
+            
+            // Initialize filtered data for your custom pagination
+            this.filteredCurrentAccounts = [...this.currentAccounts];
+            this.allData = [...this.currentAccounts];
+            
             this.loading = false;
         },
         error: (error) => {
+            console.error('Error loading accounts:', error);
             this.errorMessage = 'Failed to load current accounts. Please try again.';
             this.loading = false;
-            console.error('Error loading current accounts:', error);
         }
     });
 }

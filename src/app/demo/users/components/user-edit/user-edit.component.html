@@ -111,7 +111,7 @@
                     <select id="branchId" name="branchId" class="form-select"
                             [(ngModel)]="user.branchId" required
                             [ngClass]="{'is-invalid': userForm.submitted && !userForm.controls['branchId']?.valid}">
-                      <option *ngFor="let branch of branches" [value]="branch.id">{{ branch.name }}</option>
+                      <option *ngFor="let branch of branches" [value]="branch.id">{{ branch.branchName }}</option>
                     </select>
                     <label for="branchId">
                       <i class="bi bi-building-fill text-primary me-2"></i>Branch

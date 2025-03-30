@@ -1,8 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { HpRegistration } from '../../models/hp-registration';
+import { UserService } from 'src/app/demo/users/services/user.service';
+import { CurrentAccountService } from 'src/app/demo/current-account/services/current-account.service';
+import { HpProductService } from 'src/app/demo/hp-product/services/hp-product.service';
 
 @Component({
   selector: 'app-hp-registration',
@@ -13,7 +16,6 @@ import { HpRegistration } from '../../models/hp-registration';
 })
 export class HpRegistrationComponent implements OnInit {
   hp: HpRegistration = {
-    hpNumber: '',
     gracePeriod: 0,
     loanAmount: 0,
     downPayment: 0,
@@ -26,36 +28,85 @@ export class HpRegistrationComponent implements OnInit {
     currentAccountId: 0,
     hpProductId: 0
   };
-  
-  
+  loading = signal(false);
+  error = signal<string | null>(null);
 
+  branchId: number | null = null;
   currentAccounts: any[] = [];
   hpProducts: any[] = [];
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private userService: UserService, private accountService: CurrentAccountService,
+    private productService: HpProductService
+  ) {}
 
   ngOnInit(): void {
-    this.fetchCurrentAccounts();
+    this.loadCurrentUserBranch();
+    this.fetchCurrentAccountsByBranch();
     this.fetchHpProducts();
   }
 
-  fetchCurrentAccounts() {
-    this.http.get<any[]>('http://localhost:8080/api/current-accounts').subscribe(data => {
-      this.currentAccounts = data;
+  loadCurrentUserBranch(): void {
+    this.userService.currentUser$.subscribe({
+      next: (user) => {
+        this.branchId = user?.branchId || null;
+        this.fetchCurrentAccountsByBranch();
+        this.fetchHpProducts();
+      },
+      error: (error) => {
+        console.error('Failed to load user branch', error);
+        this.fetchCurrentAccountsByBranch(); // Still load CIFs without branch filter
+        this.fetchHpProducts(); // Still load CIFs without branch filter
+      }
+    });
+
+    // If user data isn't loaded yet, trigger a refresh
+    if (!this.userService.currentUserSubject.value) {
+      this.userService.getCurrentUser().subscribe();
+    }
+  }
+
+
+  fetchCurrentAccountsByBranch(branchId?: number): void {
+    this.loading.set(true);
+    this.error.set(null);
+  
+    this.accountService.getAllCurrentAccountByBranch(branchId).subscribe({
+      next: (data) => {
+        console.log('✅ Received accounts:', data); // Debugging
+        this.currentAccounts = data;
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('❌ Error fetching accounts:', err);
+        this.error.set('Failed to load accounts. Please try again.');
+        this.loading.set(false);
+      }
     });
   }
 
-  fetchHpProducts() {
-    this.http.get<any[]>('http://localhost:8080/api/hp-products').subscribe(data => {
-      this.hpProducts = data;
+  fetchHpProducts(branchId?: number): void {
+    this.loading.set(true);
+    this.error.set(null);
+  
+    this.productService.getAllActiveProducts(branchId).subscribe({
+      next: (data) => {
+        console.log('✅ Received accounts:', data); // Debugging
+        this.hpProducts = data;
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('❌ Error fetching accounts:', err);
+        this.error.set('Failed to load accounts. Please try again.');
+        this.loading.set(false);
+      }
     });
   }
 
+ 
   onSubmit() {
     console.log('Submitting HP Registration:', this.hp);
     
     this.http.post('http://localhost:8080/api/hp-registrations', {
-      hpNumber: this.hp.hpNumber,
       gracePeriod: this.hp.gracePeriod,
       loanAmount: this.hp.loanAmount,
       downPayment: this.hp.downPayment,

@@ -1,6 +1,6 @@
 export interface HpRegistration {
   id?: number;
-  hpNumber: string;
+  hpNumber?: string;
   createdDate?: string;
   gracePeriod: number;
   loanAmount: number;

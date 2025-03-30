@@ -12,20 +12,7 @@
     <div class="card-body">
       <form #hpForm="ngForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
         <!-- First Row -->
-        <div class="row mb-4">
-          <div class="col-md-6">
-            <div class="form-floating">
-              <input type="text" id="hpNumber" class="form-control" [(ngModel)]="hp.hpNumber" name="hpNumber" 
-                     required placeholder="HP Number">
-              <label for="hpNumber" class="text-primary">
-                <i class="bi bi-123 me-2"></i>HP Number
-              </label>
-              <div class="invalid-feedback">
-                Please provide a valid HP number.
-              </div>
-            </div>
-          </div>
-          
+        <div class="row mb-4">          
           <div class="col-md-6">
             <div class="form-floating">
               <input type="number" id="gracePeriod" class="form-control" [(ngModel)]="hp.gracePeriod" 

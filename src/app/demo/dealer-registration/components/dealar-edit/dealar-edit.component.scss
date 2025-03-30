@@ -1,0 +1,84 @@
+@import '~animate.css/animate.min.css';
+@import '~bootstrap-icons/font/bootstrap-icons.css';
+
+/* Custom Styles */
+.card {
+  transition: all 0.3s ease;
+  border: none;
+  
+  &:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  }
+  
+  &-header {
+    font-weight: 600;
+  }
+}
+
+.form-floating {
+  > label {
+    padding: 1rem 1.25rem;
+  }
+  
+  > .form-control, > .form-select {
+    height: calc(3.5rem + 2px);
+    padding: 1rem 1.25rem;
+  }
+  
+  > .form-control:focus, > .form-control:not(:placeholder-shown),
+  > .form-select:focus, > .form-select:not([value=""]) {
+    padding-top: 1.625rem;
+    padding-bottom: 0.625rem;
+  }
+  
+  > .form-control:-webkit-autofill,
+  > .form-control:-webkit-autofill:focus {
+    padding-top: 1.625rem;
+    padding-bottom: 0.625rem;
+  }
+}
+
+.invalid-feedback {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875em;
+}
+
+.alert-container {
+  position: relative;
+  z-index: 10;
+}
+
+.btn {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Animation for form elements */
+.form-control, .form-select {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  
+  &:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    button {
+      margin-top: 0.5rem;
+      align-self: flex-end;
+    }
+  }
+}

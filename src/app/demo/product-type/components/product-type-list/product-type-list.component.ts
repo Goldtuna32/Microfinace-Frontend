@@ -8,6 +8,9 @@ import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { ProductTypeEditComponent } from '../product-type-edit/product-type-edit.component';
 import { RouterLink } from '@angular/router';
 import { Subject,finalize, takeUntil } from 'rxjs';
+import { UserService } from 'src/app/demo/users/services/user.service';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort } from '@angular/material/sort';
 
 
 @Component({
@@ -30,23 +33,46 @@ import { Subject,finalize, takeUntil } from 'rxjs';
 })
 export class ProductTypeListComponent {
   private destroy$ = new Subject<void>();
-
+  loading = true;
+  errorMessage: string | null = null;
+  showDeleted = false;
   productTypes: ProductType[] = [];
   filteredProductTypes: ProductType[] = [];
   pageSize = 10;
   currentPage = 0;
   selectedProductType: ProductType | null = null;
   showEditModal = false;
+  dataSource = new MatTableDataSource<ProductType>();
   isInactiveView = false;
   searchTerm = '';
+  branchId: number | null = null;
   isLoading = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private productTypeService: ProductTypeService) {}
+  constructor(private productTypeService: ProductTypeService, private userService: UserService) {}
 
   ngOnInit(): void {
-    this.loadProductTypes();
+    this.loadCurrentUserBranch();
+  }
+
+  loadCurrentUserBranch(): void {
+    this.userService.currentUser$.subscribe({
+      next: (user) => {
+        this.branchId = user?.branchId || null;
+        this.loadProductTypes();
+      },
+      error: (error) => {
+        console.error('Failed to load user branch', error);
+        this.loadProductTypes(); // Still load CIFs without branch filter
+      }
+    });
+
+    // If user data isn't loaded yet, trigger a refresh
+    if (!this.userService.currentUserSubject.value) {
+      this.userService.getCurrentUser().subscribe();
+    }
   }
 
   ngOnDestroy(): void {
@@ -54,24 +80,24 @@ export class ProductTypeListComponent {
     this.destroy$.complete();
   }
 
-  loadProductTypes(): void {
-    this.isLoading = true;
-    
-    this.productTypeService.getAllProductTypes()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          this.productTypes = data;
-          this.updateFilteredProductTypes();
-          this.updatePaginator();
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error loading product types', error);
-          alert('Failed to load product types');
-          this.isLoading = false;
-        }
-      });
+  loadProductTypes( branchId?: number): void {
+    this.loading = true;
+    const serviceCall = this.showDeleted
+      ? this.productTypeService.getAllActiveProductTyp(branchId)
+      : this.productTypeService.getAllInactiveTyp(branchId);
+
+    serviceCall.subscribe({
+      next: (data) => {
+        this.dataSource.data = data;
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.errorMessage = `Failed to load collateral types: ${err.message}`;
+        this.loading = false;
+      }
+    });
   }
 
   updateFilteredProductTypes(): void {

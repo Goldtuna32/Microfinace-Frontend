@@ -9,10 +9,11 @@ import { MatSpinner } from '@angular/material/progress-spinner';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { CollateralTypeEditComponent } from '../collateral-type-edit/collateral-type-edit.component';
 import { CommonModule } from '@angular/common';
+import { UserService } from 'src/app/demo/users/services/user.service';
 
 @Component({
   selector: 'app-collateral-type-list',
-  imports: [ MatSpinner , MatPaginator, MatTableModule, CommonModule],
+  imports: [ MatPaginator, MatTableModule, CommonModule],
   templateUrl: './collateral-type-list.component.html',
   styleUrl: './collateral-type-list.component.scss'
 })
@@ -22,21 +23,40 @@ export class CollateralTypeListComponent implements OnInit {
   loading = true;
   errorMessage: string | null = null;
   showDeleted = false;
+  branchId: number | null = null;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private collateralService: CollateralTypeService, private dialog: MatDialog) {}
+  constructor(private collateralService: CollateralTypeService, private dialog: MatDialog, private userService: UserService) {}
 
   ngOnInit(): void {
-    this.loadCollateralTypes();
+    this.loadCurrentUserBranch();
   }
 
-  loadCollateralTypes(): void {
+  loadCurrentUserBranch(): void {
+    this.userService.currentUser$.subscribe({
+      next: (user) => {
+        this.branchId = user?.branchId || null;
+        this.loadCollateralTypes();
+      },
+      error: (error) => {
+        console.error('Failed to load user branch', error);
+        this.loadCollateralTypes(); // Still load CIFs without branch filter
+      }
+    });
+
+    // If user data isn't loaded yet, trigger a refresh
+    if (!this.userService.currentUserSubject.value) {
+      this.userService.getCurrentUser().subscribe();
+    }
+  }
+
+  loadCollateralTypes( branchId?: number): void {
     this.loading = true;
     const serviceCall = this.showDeleted
-      ? this.collateralService.getAllDeletedCollateralTypes()
-      : this.collateralService.getAllActiveCollateralTypes();
+      ? this.collateralService.getAllActiveCollateralTyp(branchId)
+      : this.collateralService.getAllInactiveCollateralTyp(branchId);
 
     serviceCall.subscribe({
       next: (data) => {

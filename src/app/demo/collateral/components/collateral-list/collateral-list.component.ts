@@ -5,8 +5,9 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CollateralDetailComponent } from '../collateral-detail/collateral-detail.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Collateral } from '../../models/collateral.model';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { CollateralEditComponent } from '../collateral-edit/collateral-edit.component';
+import { UserService } from 'src/app/demo/users/services/user.service';
 
 @Pipe({ name: 'truncate' })
 export class TruncatePipe implements PipeTransform {
@@ -26,6 +27,7 @@ export class TruncatePipe implements PipeTransform {
 })
 export class CollateralListComponent implements OnInit {
   collaterals: Collateral[] = [];
+  dataSource = new MatTableDataSource<Collateral>([]);
   paginatedCollaterals: Collateral[] = [];
   loading: boolean = true;
   error: string | null = null;
@@ -35,6 +37,8 @@ export class CollateralListComponent implements OnInit {
   sortDirection: 'asc' | 'desc' = 'asc';
   showDeleted = false;
   totalItems: number = 0;
+  isDeletedView = false;
+  branchId: number | null = null;
   itemsPerPage: number = 5;
 
   
@@ -43,33 +47,68 @@ export class CollateralListComponent implements OnInit {
 
   constructor(
     private collateralService: CollateralService,
+    private userService: UserService,
     private route: ActivatedRoute,
     private router: Router,
     private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
+    this.loadCurrentUserBranch();
+  }
+
+  loadCurrentUserBranch(): void {
+    this.userService.currentUser$.subscribe({
+      next: (user) => {
+        this.branchId = user?.branchId || null;
+        this.loadCollaterals();
+      },
+      error: (error) => {
+        console.error('Failed to load user branch', error);
+        this.loadCollaterals(); // Still load CIFs without branch filter
+      }
+    });
+
+    // If user data isn't loaded yet, trigger a refresh
+    if (!this.userService.currentUserSubject.value) {
+      this.userService.getCurrentUser().subscribe();
+    }
+  }
+
+  loadBranchId(): void {
+    // Get branch ID from service or localStorage
+    const storedBranch = localStorage.getItem('currentBranch');
+    this.branchId = storedBranch ? JSON.parse(storedBranch).id : null;
     this.loadCollaterals();
   }
 
+  statusDisplay: { [key: number]: string } = {
+    1: 'Active',
+    2: 'Inactive'
+  };
+
+
+
   loadCollaterals(): void {
     this.loading = true;
+    this.error = '';
+
     const serviceCall = this.showDeleted
-      ? this.collateralService.getDeletedCollaterals()
-      : this.collateralService.getAllCollaterals();
-  
+      ? this.collateralService.getAllInactiveCollateral(this.branchId!)
+      : this.collateralService.getAllActiveCollateral(this.branchId!);
+
     serviceCall.subscribe({
-      next: (response: { content: Collateral[]; totalPages: number; totalElements: number }) => {
-        this.collaterals = response.content;
-        this.totalItems = response.totalElements;
+      next: (collaterals: Collateral[]) => {
+        console.log('Received collaterals:', collaterals);
+        this.dataSource.data = collaterals;
+        this.totalItems = collaterals.length;
         this.updatePagination();
         this.loading = false;
-        this.error = null;
       },
       error: (error) => {
-        this.error = 'Error loading collaterals. Please try again later.';
+        console.error('Error loading collaterals:', error);
+        this.error = 'Failed to load collaterals';
         this.loading = false;
-        console.error('Error:', error);
       }
     });
   }
@@ -107,7 +146,7 @@ export class CollateralListComponent implements OnInit {
   updatePagination(): void {
     const start = (this.currentPage - 1) * this.pageSize;
     const end = start + this.pageSize;
-    this.paginatedCollaterals = this.collaterals.slice(start, end);
+    this.paginatedCollaterals = this.dataSource.data.slice(start, end); // Use dataSource.data
   }
 
   // Pagination Methods

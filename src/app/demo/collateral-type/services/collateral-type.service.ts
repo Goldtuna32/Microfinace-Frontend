@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { CollateralType } from '../models/collateralType.model';
 import { Observable, throwError} from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -12,22 +12,23 @@ export class CollateralTypeService {
 
   constructor(private http: HttpClient) {}
 
-  getAllActiveCollateralTypes(): Observable<CollateralType[]> {
-    return this.http.get<CollateralType[]>(`${this.baseUrl}/active`).pipe(
-      catchError(error => {
-        console.error('Failed to fetch active collateral types:', error.statusText);
-        return throwError(() => new Error(error.statusText));
-      })
-    );
+  getAllActiveCollateralTyp(branchId?: number): Observable<CollateralType[]> {
+    let params = new HttpParams();
+    if (branchId !== undefined && branchId !== null) {
+      params = params.set('branchId', branchId.toString());
+    }
+
+    return this.http.get<CollateralType[]>(`${this.baseUrl}/activeCollateralType`, { params });
   }
 
-  getAllDeletedCollateralTypes(): Observable<CollateralType[]> {
-    return this.http.get<CollateralType[]>(`${this.baseUrl}/deleted`).pipe(
-      catchError(error => {
-        console.error('Failed to fetch deleted collateral types:', error.statusText);
-        return throwError(() => new Error(error.statusText));
-      })
-    );
+  getAllInactiveCollateralTyp(branchId?: number): Observable<CollateralType[]> {
+    let params = new HttpParams();
+    if (branchId !== undefined && branchId !== null) {
+      params = params.set('branchId', branchId.toString());
+    }
+   
+
+    return this.http.get<CollateralType[]>(`${this.baseUrl}/inactiveCollateralType`, { params });
   }
   
   softDeleteCollateralType(id: number): Observable<void> {

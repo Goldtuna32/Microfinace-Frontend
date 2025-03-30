@@ -8,6 +8,8 @@ import { CommonModule } from '@angular/common';
 import { MatPaginator } from '@angular/material/paginator';
 import { Router } from '@angular/router';
 import { MatMenu, MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { UserService } from 'src/app/demo/users/services/user.service';
+import { AlertService } from 'src/app/alertservice/alert.service';
 
 declare const bootstrap: any;
 
@@ -28,6 +30,13 @@ export class TruncatePipe implements PipeTransform {
 export class LoanListComponent implements OnInit{
   @ViewChild('pendingTab') pendingTab!: ElementRef<HTMLButtonElement>;
   @ViewChild('approvedTab') approvedTab!: ElementRef<HTMLButtonElement>;
+  dataSource = new MatTableDataSource<SmeLoanRegistration>([]);
+  loading = true;
+  errorMessage = '';
+  isDeletedView = false;
+  branchId: number | null = null;
+  totalItems = 0;
+  showSuccessAlert: boolean = false;
 
   pendingLoansDataSource = new MatTableDataSource<SmeLoanRegistration>();
   approvedLoansDataSource = new MatTableDataSource<SmeLoanRegistration>();
@@ -36,16 +45,52 @@ export class LoanListComponent implements OnInit{
     'documentFee', 'serviceCharges', 'currentAccountId', 'late_fee_rate',
     'ninety_day_late_fee_rate', 'one_hundred_and_eighty_day_late_fee_rate', 'actions',
   ];
-  errorMessage: string | null = null;
-
+ 
   pendingPageIndex = 0;
   pendingPageSize = 5;
   approvedPageIndex = 0;
   approvedPageSize = 5;
 
-  constructor(private loanService: LoanService, private router: Router) {}
+  constructor(private loanService: LoanService, private router: Router, private userService: UserService,
+    private alertService: AlertService) {}
 
   ngOnInit(): void {
+    this.loadCurrentUserBranch();
+  
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state?.['success']) {
+      this.showSuccessAlert = true;
+      setTimeout(() => {
+        this.showSuccessAlert = false;
+      }, 5000);
+    }
+  }
+
+  loadCurrentUserBranch(): void {
+    this.userService.currentUser$.subscribe({
+      next: (user) => {
+        this.branchId = user?.branchId || null;
+        this.loadPendingLoans();
+        this.loadApprovedLoans();
+      },
+      error: (error) => {
+        console.error('Failed to load user branch', error);
+        this.loadPendingLoans(); // Still load CIFs without branch filter
+        this.loadApprovedLoans();
+      }
+    });
+
+    // If user data isn't loaded yet, trigger a refresh
+    if (!this.userService.currentUserSubject.value) {
+      this.userService.getCurrentUser().subscribe();
+    }
+  }
+
+  loadBranchId(): void {
+    // Get branch ID from service or localStorage
+    const storedBranch = localStorage.getItem('currentBranch');
+    console.log("Branch ID" , this.branchId)
+    this.branchId = storedBranch ? JSON.parse(storedBranch).id : null;
     this.loadPendingLoans();
     this.loadApprovedLoans();
   }
@@ -58,7 +103,7 @@ export class LoanListComponent implements OnInit{
   }
 
   loadPendingLoans(): void {
-    this.loanService.getPendingLoans().subscribe({
+    this.loanService.getAllPendingLoans(this.branchId ?? undefined).subscribe({
       next: (loans) => {
         console.log('Pending Loans Data:', loans);
         this.pendingLoansDataSource.data = loans.length ? loans : [];
@@ -70,22 +115,17 @@ export class LoanListComponent implements OnInit{
       },
     });
   }
-
+  
   loadApprovedLoans(): void {
-    this.loanService.getApprovedLoans().subscribe({
+    this.loanService.getAllApprovedLoans(this.branchId ?? undefined).subscribe({
       next: (loans) => {
         console.log('Approved Loans Data:', loans);
         this.approvedLoansDataSource.data = loans.length ? loans : [];
         this.approvedPageIndex = 0;
-        if (!loans.length) {
-          console.warn('No approved loans returned from the server.');
-        }
       },
       error: (error) => {
         this.errorMessage = 'Failed to load approved loans: ' + error.message;
         console.error('Approved Loans Error:', error);
-        this.approvedLoansDataSource.data = [];
-        this.approvedPageIndex = 0;
       },
     });
   }

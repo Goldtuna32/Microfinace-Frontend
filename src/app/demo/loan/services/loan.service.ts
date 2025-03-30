@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { LoanRegistrationRequest } from '../models/LoanRegistrationRequest.model';
 import { SmeLoanRegistration } from '../models/SmeLoanRegistration.model';
@@ -96,4 +96,18 @@ export class LoanService {
       responseType: 'blob'
     });
   }
+
+ // In your LoanService
+getAllPendingLoans(branchId?: number): Observable<SmeLoanRegistration[]> {
+  return this.http.get<SmeLoanRegistration[]>(`${this.baseUrl}/pendingLoans`, {
+    params: branchId ? { branchId: branchId.toString() } : {}
+  });
+}
+
+getAllApprovedLoans(branchId?: number): Observable<SmeLoanRegistration[]> {
+  return this.http.get<SmeLoanRegistration[]>(`${this.baseUrl}/approvedLoans`, {
+    params: branchId ? { branchId: branchId.toString() } : {}
+  });
+}
+
 }

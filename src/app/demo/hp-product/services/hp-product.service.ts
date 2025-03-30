@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HpProduct, HpProductCreate } from '../models/hp-product';
@@ -22,6 +22,22 @@ export class HpProductService {
   private dealerRegistrationUrl = 'http://localhost:8080/api/dealer-registration';
 
   constructor(private http: HttpClient) {}
+
+  getAllActiveProducts(branchId?: number): Observable<HpProduct[]> {
+    let params = new HttpParams();
+    if (branchId !== undefined) {
+      params = params.set('branchId', branchId.toString());
+    }
+    return this.http.get<HpProduct[]>(`${this.apiUrl}/activeHpProducts`, { params });
+  }
+
+  getAllInactiveProducts(branchId?: number): Observable<HpProduct[]> {
+    let params = new HttpParams();
+    if (branchId !== undefined) {
+      params = params.set('branchId', branchId.toString());
+    }
+    return this.http.get<HpProduct[]>(`${this.apiUrl}/inActiveHpProducts`, { params });
+  }
 
   getAllHpProducts(): Observable<HpProduct[]> {
     return this.http.get<HpProduct[]>(this.apiUrl);

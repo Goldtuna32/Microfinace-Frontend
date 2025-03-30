@@ -1,4 +1,3 @@
-<!-- Enhanced HTML Structure -->
 <div class="collateral-container">
   <!-- Success Message -->
   <div *ngIf="showSuccessMessage" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
@@ -21,18 +20,18 @@
     <!-- Card Body -->
     <div class="card-body">
       <form [formGroup]="collateralForm" (ngSubmit)="onSubmit()">
-        <!-- CIF Selection -->
+        <!-- CIF Selection by Serial Number -->
         <div class="form-section">
           <label class="form-label">
-            <i class="bi bi-person-badge"></i> Select CIF <span class="required-star">*</span>
+            <i class="bi bi-person-badge"></i> Search CIF by Serial Number <span class="required-star">*</span>
           </label>
           <div class="dropdown-container">
             <input
               type="text"
               class="form-control"
-              placeholder="Search CIF by name or NRC number"
+              placeholder="Enter CIF serial number"
               [(ngModel)]="cifSearchInput"
-              (input)="filterCifs($event)"
+              (input)="filterCifsBySerialNumber($event)"
               (click)="toggleCifDropdown()"
               (blur)="closeDropdowns()"
               [ngModelOptions]="{standalone: true}"
@@ -42,8 +41,8 @@
                 <div *ngFor="let cif of filteredCifs" 
                      class="dropdown-item" 
                      (click)="selectCif(cif)">
-                  <div class="fw-semibold">{{ cif.name }}</div>
-                  <div class="text-muted">{{ cif.nrcNumber }}</div>
+                  <div class="fw-semibold">{{ cif.serialNumber }}</div>
+                  <div class="text-muted">{{ cif.name }}</div>
                 </div>
                 <div *ngIf="filteredCifs.length === 0" class="dropdown-item text-muted">
                   <i class="bi bi-search me-2"></i> No matching CIFs found
@@ -141,7 +140,7 @@
               <i class="bi bi-camera"></i> Front Photo <span class="required-star">*</span>
             </label>
             <div class="file-input-group">
-              <label class="file-label">
+              <label class="file-label" for="frontPhotoInput">
                 <span>
                   <i class="bi bi-upload me-2"></i>
                   {{ frontPhotoPreview ? 'Change Front Photo' : 'Upload Front Photo' }}
@@ -151,13 +150,17 @@
               <input
                 type="file"
                 class="file-input"
+                id="frontPhotoInput"
                 (change)="onFrontPhotoSelected($event)"
                 accept="image/*"
                 #frontPhotoInput
               >
             </div>
-            <div *ngIf="frontPhotoPreview" class="image-preview">
+            <div *ngIf="frontPhotoPreview" class="image-preview mt-2">
               <img [src]="frontPhotoPreview" class="img-fluid rounded">
+              <button type="button" class="btn btn-sm btn-danger mt-2" (click)="removeFrontPhoto()">
+                <i class="bi bi-trash"></i> Remove
+              </button>
             </div>
             <div *ngIf="collateralForm.get('F_collateralPhoto')?.touched && collateralForm.get('F_collateralPhoto')?.invalid" class="error-text">
               <i class="bi bi-exclamation-circle-fill"></i> Front photo is required
@@ -170,7 +173,7 @@
               <i class="bi bi-camera-reels"></i> Back Photo <span class="required-star">*</span>
             </label>
             <div class="file-input-group">
-              <label class="file-label">
+              <label class="file-label" for="backPhotoInput">
                 <span>
                   <i class="bi bi-upload me-2"></i>
                   {{ backPhotoPreview ? 'Change Back Photo' : 'Upload Back Photo' }}
@@ -180,13 +183,17 @@
               <input
                 type="file"
                 class="file-input"
+                id="backPhotoInput"
                 (change)="onBackPhotoSelected($event)"
                 accept="image/*"
                 #backPhotoInput
               >
             </div>
-            <div *ngIf="backPhotoPreview" class="image-preview">
+            <div *ngIf="backPhotoPreview" class="image-preview mt-2">
               <img [src]="backPhotoPreview" class="img-fluid rounded">
+              <button type="button" class="btn btn-sm btn-danger mt-2" (click)="removeBackPhoto()">
+                <i class="bi bi-trash"></i> Remove
+              </button>
             </div>
             <div *ngIf="collateralForm.get('B_collateralPhoto')?.touched && collateralForm.get('B_collateralPhoto')?.invalid" class="error-text">
               <i class="bi bi-exclamation-circle-fill"></i> Back photo is required

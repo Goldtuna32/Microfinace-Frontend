@@ -1,146 +1,198 @@
-<div class="container mt-4">
-  <h2 class="mb-3">Edit Dealer</h2>
-
-  <div class="alert alert-success" *ngIf="successMessage">{{ successMessage }}</div>
-  <div class="alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div>
-
-  <form [formGroup]="dealerForm" (ngSubmit)="onSubmit()">
-    <!-- Company Name -->
-    <div class="mb-3">
-      <label for="companyName" class="form-label">Company Name</label>
-      <input
-        type="text"
-        class="form-control"
-        id="companyName"
-        formControlName="companyName"
-        [class.is-invalid]="dealerForm.get('companyName')?.touched && dealerForm.get('companyName')?.invalid"
-      >
-      <div class="invalid-feedback" *ngIf="dealerForm.get('companyName')?.hasError('required')">
-        Company name is required
+<div class="container-fluid px-4 py-4 animate__animated animate__fadeIn">
+  <div class="card shadow-lg border-0 rounded-lg">
+    <!-- Card Header -->
+    <div class="card-header bg-primary text-white rounded-top">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">
+          <i class="bi bi-building me-2"></i>Edit Dealer
+        </h2>
+        <button type="button" class="btn btn-light btn-sm" (click)="cancel()">
+          <i class="bi bi-x-lg me-1"></i> Cancel
+        </button>
       </div>
     </div>
 
-    <!-- Phone Number -->
-    <div class="mb-3">
-      <label for="phoneNumber" class="form-label">Phone Number</label>
-      <input
-        type="text"
-        class="form-control"
-        id="phoneNumber"
-        formControlName="phoneNumber"
-        [class.is-invalid]="dealerForm.get('phoneNumber')?.touched && dealerForm.get('phoneNumber')?.invalid"
-      >
-      <div class="invalid-feedback" *ngIf="dealerForm.get('phoneNumber')?.hasError('required')">
-        Phone number is required
+    <!-- Alerts -->
+    <div class="alert-container px-4 pt-3">
+      <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show animate__animated animate__fadeInDown">
+        <i class="bi bi-check-circle-fill me-2"></i> {{successMessage}}
+        <button type="button" class="btn-close" (click)="successMessage = ''"></button>
       </div>
-      <div class="invalid-feedback" *ngIf="dealerForm.get('phoneNumber')?.hasError('pattern')">
-        Please enter a valid 10-digit phone number
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show animate__animated animate__fadeInDown">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{errorMessage}}
+        <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
       </div>
     </div>
 
-    <!-- Address Fields -->
-    <div class="card mb-3">
-      <div class="card-header">Address</div>
-      <div class="card-body" formGroupName="address">
-        <!-- Street -->
-        <div class="mb-4">
-          <label for="street" class="block text-gray-700 font-semibold mb-2">Street Address</label>
-          <input
-            id="street"
-            formControlName="street"
-            placeholder="Enter street address"
-            class="form-control w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            [ngClass]="{'is-invalid': addressForm.get('street')?.touched && addressForm.get('street')?.invalid}"
-          >
-          <div class="invalid-feedback" *ngIf="addressForm.get('street')?.touched && addressForm.get('street')?.invalid">
-            Street address is required.
+    <!-- Card Body -->
+    <div class="card-body p-4">
+      <form [formGroup]="dealerForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
+        <!-- Basic Information Section -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <div class="form-floating mb-3">
+              <input
+                type="text"
+                class="form-control"
+                id="companyName"
+                formControlName="companyName"
+                placeholder="Company Name"
+                [class.is-invalid]="dealerForm.get('companyName')?.touched && dealerForm.get('companyName')?.invalid"
+              >
+              <label for="companyName">Company Name</label>
+              <div class="invalid-feedback" *ngIf="dealerForm.get('companyName')?.hasError('required')">
+                <i class="bi bi-exclamation-circle me-1"></i> Company name is required
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="form-floating mb-3">
+              <input
+                type="text"
+                class="form-control"
+                id="phoneNumber"
+                formControlName="phoneNumber"
+                placeholder="Phone Number"
+                [class.is-invalid]="dealerForm.get('phoneNumber')?.touched && dealerForm.get('phoneNumber')?.invalid"
+              >
+              <label for="phoneNumber">Phone Number</label>
+              <div class="invalid-feedback" *ngIf="dealerForm.get('phoneNumber')?.hasError('required')">
+                <i class="bi bi-exclamation-circle me-1"></i> Phone number is required
+              </div>
+              <div class="invalid-feedback" *ngIf="dealerForm.get('phoneNumber')?.hasError('pattern')">
+                <i class="bi bi-exclamation-circle me-1"></i> Please enter a valid 10-digit phone number
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Region -->
-        <div class="mb-4">
-          <label for="region" class="block text-gray-700 font-semibold mb-2">Region</label>
-          <select
-            id="region"
-            formControlName="region"
-            (change)="onRegionChange()"
-            class="form-select w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            [ngClass]="{'is-invalid': addressForm.get('region')?.touched && addressForm.get('region')?.invalid}"
-          >
-            <option value="" disabled>Select Region</option>
-            <option *ngFor="let region of regions" [value]="region">{{ region }}</option>
-          </select>
-          <div class="invalid-feedback" *ngIf="addressForm.get('region')?.touched && addressForm.get('region')?.invalid">
-            Region is required.
+        <!-- Address Section -->
+        <div class="card mb-4 border-primary">
+          <div class="card-header bg-primary bg-opacity-10 text-primary d-flex align-items-center">
+            <i class="bi bi-geo-alt-fill me-2"></i>
+            <h5 class="mb-0">Address Information</h5>
+          </div>
+          <div class="card-body" formGroupName="address">
+            <div class="row">
+              <!-- Street -->
+              <div class="col-md-12 mb-3">
+                <div class="form-floating">
+                  <input
+                    id="street"
+                    formControlName="street"
+                    class="form-control"
+                    placeholder="Street Address"
+                    [class.is-invalid]="addressForm.get('street')?.touched && addressForm.get('street')?.invalid"
+                  >
+                  <label for="street">Street Address</label>
+                  <div class="invalid-feedback" *ngIf="addressForm.get('street')?.touched && addressForm.get('street')?.invalid">
+                    <i class="bi bi-exclamation-circle me-1"></i> Street address is required
+                  </div>
+                </div>
+              </div>
+
+              <!-- Region -->
+              <div class="col-md-4 mb-3">
+                <div class="form-floating">
+                  <select
+                    id="region"
+                    formControlName="region"
+                    (change)="onRegionChange()"
+                    class="form-select"
+                    [class.is-invalid]="addressForm.get('region')?.touched && addressForm.get('region')?.invalid"
+                  >
+                    <option value="" disabled selected>Select Region</option>
+                    <option *ngFor="let region of regions" [value]="region">{{ region }}</option>
+                  </select>
+                  <label for="region">Region</label>
+                  <div class="invalid-feedback" *ngIf="addressForm.get('region')?.touched && addressForm.get('region')?.invalid">
+                    <i class="bi bi-exclamation-circle me-1"></i> Region is required
+                  </div>
+                </div>
+              </div>
+
+              <!-- District -->
+              <div class="col-md-4 mb-3">
+                <div class="form-floating">
+                  <select
+                    id="district"
+                    formControlName="district"
+                    (change)="onDistrictChange()"
+                    class="form-select"
+                    [disabled]="!districts.length"
+                    [class.is-invalid]="addressForm.get('district')?.touched && addressForm.get('district')?.invalid"
+                  >
+                    <option value="" disabled selected>Select District</option>
+                    <option *ngFor="let district of districts" [value]="district">{{ district }}</option>
+                  </select>
+                  <label for="district">District</label>
+                  <div class="invalid-feedback" *ngIf="addressForm.get('district')?.touched && addressForm.get('district')?.invalid">
+                    <i class="bi bi-exclamation-circle me-1"></i> District is required
+                  </div>
+                </div>
+              </div>
+
+              <!-- Township -->
+              <div class="col-md-4 mb-3">
+                <div class="form-floating">
+                  <select
+                    id="township"
+                    formControlName="township"
+                    class="form-select"
+                    [disabled]="!townships.length"
+                    [class.is-invalid]="addressForm.get('township')?.touched && addressForm.get('township')?.invalid"
+                  >
+                    <option value="" disabled selected>Select Township</option>
+                    <option *ngFor="let township of townships" [value]="township">{{ township }}</option>
+                  </select>
+                  <label for="township">Township</label>
+                  <div class="invalid-feedback" *ngIf="addressForm.get('township')?.touched && addressForm.get('township')?.invalid">
+                    <i class="bi bi-exclamation-circle me-1"></i> Township is required
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- District -->
-        <div class="mb-4">
-          <label for="district" class="block text-gray-700 font-semibold mb-2">District</label>
-          <select
-            id="district"
-            formControlName="district"
-            (change)="onDistrictChange()"
-            class="form-select w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            [disabled]="!districts.length"
-            [ngClass]="{'is-invalid': addressForm.get('district')?.touched && addressForm.get('district')?.invalid}"
-          >
-            <option value="" disabled>Select District</option>
-            <option *ngFor="let district of districts" [value]="district">{{ district }}</option>
-          </select>
-          <div class="invalid-feedback" *ngIf="addressForm.get('district')?.touched && addressForm.get('district')?.invalid">
-            District is required.
+        <!-- Account Section -->
+        <div class="card mb-4 border-primary">
+          <div class="card-header bg-primary bg-opacity-10 text-primary d-flex align-items-center">
+            <i class="bi bi-bank2 me-2"></i>
+            <h5 class="mb-0">Account Information</h5>
+          </div>
+          <div class="card-body">
+            <div class="form-floating">
+              <select
+                class="form-select"
+                id="currentAccountId"
+                formControlName="currentAccountId"
+                [class.is-invalid]="dealerForm.get('currentAccountId')?.touched && dealerForm.get('currentAccountId')?.invalid"
+              >
+                <option value="" disabled selected>Select Current Account</option>
+                <option *ngFor="let account of currentAccounts" [value]="account.id">
+                  {{ account.accountNumber || 'Account ' + account.id }}
+                </option>
+              </select>
+              <label for="currentAccountId">Current Account</label>
+              <div class="invalid-feedback" *ngIf="dealerForm.get('currentAccountId')?.hasError('required')">
+                <i class="bi bi-exclamation-circle me-1"></i> Current account is required
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Township -->
-        <div class="mb-4">
-          <label for="township" class="block text-gray-700 font-semibold mb-2">Township</label>
-          <select
-            id="township"
-            formControlName="township"
-            class="form-select w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            [disabled]="!townships.length"
-            [ngClass]="{'is-invalid': addressForm.get('township')?.touched && addressForm.get('township')?.invalid}"
-          >
-            <option value="" disabled>Select Township</option>
-            <option *ngFor="let township of townships" [value]="township">{{ township }}</option>
-          </select>
-          <div class="invalid-feedback" *ngIf="addressForm.get('township')?.touched && addressForm.get('township')?.invalid">
-            Township is required.
-          </div>
+        <!-- Form Actions -->
+        <div class="d-flex justify-content-end gap-3 mt-4">
+          <button type="button" class="btn btn-outline-secondary" (click)="cancel()">
+            <i class="bi bi-x-circle me-1"></i> Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="dealerForm.invalid">
+            <i class="bi bi-save me-1"></i> Save Changes
+          </button>
         </div>
-      </div>
+      </form>
     </div>
-
-    <!-- Current Account -->
-    <div class="mb-3">
-      <label for="currentAccountId" class="form-label">Current Account</label>
-      <select
-        class="form-select"
-        id="currentAccountId"
-        formControlName="currentAccountId"
-        [class.is-invalid]="dealerForm.get('currentAccountId')?.touched && dealerForm.get('currentAccountId')?.invalid"
-      >
-        <option value="">Select Current Account</option>
-        <option *ngFor="let account of currentAccounts" [value]="account.id">
-          {{ account.accountNumber || 'Account ' + account.id }}
-        </option>
-      </select>
-      <div class="invalid-feedback" *ngIf="dealerForm.get('currentAccountId')?.hasError('required')">
-        Current account is required
-      </div>
-    </div>
-
-    <!-- Buttons -->
-    <div class="mb-3">
-      <button type="submit" class="btn btn-primary me-2" [disabled]="dealerForm.invalid">
-        Save Changes
-      </button>
-      <button type="button" class="btn btn-secondary" (click)="cancel()">
-        Cancel
-      </button>
-    </div>
-  </form>
+  </div>
 </div>

@@ -223,6 +223,11 @@ export const routes: Routes = [
         loadComponent: () => import('./demo/hp-registration/components/hp-registration-list/hp-registration-list.component')
           .then(m => m.HpRegistrationListComponent)
       },
+      { 
+        path: 'hp-registrations/:id', 
+        loadComponent: () => import('./demo/hp-registration/components/hp-registration-detail/hp-registration-detail.component')
+         .then(m => m.HpRegistrationDetailComponent)
+      }
      
 
     ]

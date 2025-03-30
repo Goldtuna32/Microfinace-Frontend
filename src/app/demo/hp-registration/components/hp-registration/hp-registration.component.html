@@ -12,20 +12,7 @@
     <div class="card-body">
       <form #hpForm="ngForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
         <!-- First Row -->
-        <div class="row mb-4">
-          <div class="col-md-6">
-            <div class="form-floating">
-              <input type="text" id="hpNumber" class="form-control" [(ngModel)]="hp.hpNumber" name="hpNumber" 
-                     required placeholder="HP Number">
-              <label for="hpNumber" class="text-primary">
-                <i class="bi bi-123 me-2"></i>HP Number
-              </label>
-              <div class="invalid-feedback">
-                Please provide a valid HP number.
-              </div>
-            </div>
-          </div>
-          
+        <div class="row mb-4">          
           <div class="col-md-6">
             <div class="form-floating">
               <input type="number" id="gracePeriod" class="form-control" [(ngModel)]="hp.gracePeriod" 
@@ -102,29 +89,22 @@
               </label>
             </div>
           </div>
+
+          <div class="col-md-4">
+            <div class="form-floating">
+              <input type="number" step="0.01" id="one_hundred_and_eighty_late_fee_rate" class="form-control" 
+                     [(ngModel)]="hp.one_hundred_and_eighty_late_fee_rate" name="one_hundred_and_eighty_late_fee_rate" required 
+                     placeholder="180-Day Late Fee">
+              <label for="one_hundred_and_eighty_late_fee_rate" class="text-primary">
+                <i class="bi bi-exclamation-diamond me-2"></i>180-Day Late Fee
+              </label>
+            </div>
+          </div>
         </div>
 
         <!-- Fourth Row - Dates -->
         <div class="row mb-4">
-          <div class="col-md-4">
-            <div class="form-floating">
-              <input type="date" id="startDate" class="form-control" [(ngModel)]="hp.startDate" 
-                     name="startDate" required placeholder="Start Date">
-              <label for="startDate" class="text-primary">
-                <i class="bi bi-calendar-plus me-2"></i>Start Date
-              </label>
-            </div>
-          </div>
-          
-          <div class="col-md-4">
-            <div class="form-floating">
-              <input type="date" id="endDate" class="form-control" [(ngModel)]="hp.endDate" 
-                     name="endDate" required placeholder="End Date">
-              <label for="endDate" class="text-primary">
-                <i class="bi bi-calendar-check me-2"></i>End Date
-              </label>
-            </div>
-          </div>
+         
           
           <div class="col-md-4">
             <div class="form-floating">

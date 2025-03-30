@@ -15,10 +15,11 @@ import { UserService } from 'src/app/demo/users/services/user.service';
 
 export interface CurrentAccount {
   id: number;
+  
   accountNumber: string;
   balance: number;
   status: number;
-  dateCreated: string;
+  dateCreated: Date;  // Changed from string to Date
   holdAmount: number;
   cifId: number;
   maximumBalance: number;
@@ -36,6 +37,7 @@ export interface CurrentAccount {
     MatMenuModule,
     SharedModule
   ],
+  standalone: true,
   templateUrl: './current-account-list.component.html',
   styleUrl: './current-account-list.component.scss'
 })
@@ -46,7 +48,8 @@ export class CurrentAccountListComponent implements OnInit, AfterViewInit {
   branchId: number | null = null;
   errorMessage = '';
   showSuccessAlert: boolean = false;
-  
+  currentAccounts: CurrentAccount[] = [];
+filteredCurrentAccounts: CurrentAccount[] = [];
   // Pagination properties
   currentPage = 1;
   pageSize = 10; // You can adjust this value
@@ -99,34 +102,61 @@ export class CurrentAccountListComponent implements OnInit, AfterViewInit {
     }
   }
 
+  loadBranchId(): void {
+    // Get branch ID from service or localStorage
+    const storedBranch = localStorage.getItem('currentBranch');
+    this.branchId = storedBranch ? JSON.parse(storedBranch).id : null;
+    this.loadCurrentAccounts();
+  }
+
   ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
   }
 
-  loadCurrentAccounts(): void {
+  loadCurrentAccounts(showActive: boolean = true, branchId?: number): void {
+    console.log('Loading accounts with branchId:', branchId);
     this.loading = true;
     this.errorMessage = '';
 
-    const currentObservable = this.isDeletedView
-    ? this.currentAccountService.getAllCurrentAccountByBranch(this.branchId ?? undefined)
-    : this.currentAccountService.getFreezeCurrentAccountByBranch(this.branchId ?? undefined);
+    const currentAccountObservable = showActive
+        ? this.currentAccountService.getAllCurrentAccountByBranch(branchId)
+        : this.currentAccountService.getFreezeCurrentAccountByBranch(branchId);
 
-    currentObservable.subscribe({
-      next: (current: CurrentAccount[]) => {
-        this.dataSource.data = current;
-        this.applyAllFilters();
-        this.totalItems = current.length;
-        this.totalPages = Math.ceil(this.totalItems / this.pageSize);
-        this.updatePaginatedData();
-        this.loading = false;
-      },
-      error: (error) => {
-        this.errorMessage = 'Failed to load current accounts.';
-        console.error('Error fetching current accounts:', error);
-        this.loading = false;
-      }
+    currentAccountObservable.subscribe({
+        next: (data: any[]) => {
+            console.log('Raw API data:', data);
+            
+            // Convert data to match CurrentAccount interface
+            this.currentAccounts = data.map(item => ({
+                ...item,
+                dateCreated: new Date(item.dateCreated) // Convert string to Date
+            }));
+
+            console.log('Processed accounts:', this.currentAccounts);
+            
+            // Initialize MatTableDataSource
+            this.dataSource = new MatTableDataSource(this.currentAccounts);
+            this.dataSource.sort = this.sort;
+            
+            // Initialize filtered data for your custom pagination
+            this.filteredCurrentAccounts = [...this.currentAccounts];
+            this.allData = [...this.currentAccounts];
+            
+            this.loading = false;
+        },
+        error: (error) => {
+            console.error('Error loading accounts:', error);
+            this.errorMessage = 'Failed to load current accounts. Please try again.';
+            this.loading = false;
+        }
     });
-  }
+}
+
+private updatePagination(totalItems: number): void {
+  this.totalItems = totalItems;
+  this.totalPages = Math.ceil(totalItems / this.pageSize);
+  this.updatePaginatedData();
+}
 
   applyAllFilters(): void {
     this.filteredData = [...this.allData];

@@ -1,0 +1,226 @@
+<div class="container-fluid px-0">
+  <!-- Hero Section with Animated Background -->
+  <div class="hero-section bg-gradient-primary position-relative overflow-hidden">
+    <div class="wave-animation"></div>
+    <div class="container py-5 position-relative">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h1 class="display-5 text-white fw-bold mb-3">
+            <i class="bi bi-calendar2-check me-3"></i>Loan Repayment Schedule
+          </h1>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb breadcrumb-light">
+              <li class="breadcrumb-item"><a href="#" class="text-white">Loans</a></li>
+              <li class="breadcrumb-item"><a href="#" class="text-white">Dashboard</a></li>
+              <li class="breadcrumb-item active text-white" aria-current="page">Repayment Schedule</li>
+            </ol>
+          </nav>
+        </div>
+        <div class="col-md-4 text-end">
+          <button class="btn btn-light btn-lg rounded-pill px-4 shadow-sm" (click)="goBack()">
+            <i class="bi bi-arrow-left-circle-fill me-2"></i> Back to List
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <!-- Summary Card -->
+        <div class="card summary-card mb-4 border-0 shadow-lg animate__animated animate__fadeIn">
+          <div class="card-body p-4">
+            <div class="row">
+              <div class="col-md-4 border-end">
+                <div class="d-flex align-items-center">
+                  <div class="icon-circle bg-primary-light me-3">
+                    <i class="bi bi-cash-stack text-primary"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0 text-muted">Total Principal</h6>
+                    <h4 class="mb-0 fw-bold">{{getTotal('principalAmount') | currency:'USD':'symbol':'1.0-0'}}</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4 border-end">
+                <div class="d-flex align-items-center">
+                  <div class="icon-circle bg-warning-light me-3">
+                    <i class="bi bi-percent text-warning"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0 text-muted">Total Interest</h6>
+                    <h4 class="mb-0 fw-bold">{{getTotal('interestAmount') | currency:'USD':'symbol':'1.0-0'}}</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="d-flex align-items-center">
+                  <div class="icon-circle bg-success-light me-3">
+                    <i class="bi bi-receipt text-success"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0 text-muted">Total Payment</h6>
+                    <h4 class="mb-0 fw-bold">{{getTotal('principalAmount') + getTotal('interestAmount') | currency:'USD':'symbol':'1.0-0'}}</h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Schedule Card -->
+        <div class="card border-0 shadow-lg animate__animated animate__fadeInUp">
+          <div class="card-header bg-white border-0 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">
+                <i class="bi bi-table me-2"></i>Installment Details
+              </h5>
+              <div>
+                <!-- <button class="btn btn-outline-secondary me-2" (click)="exportToExcel()">
+                  <i class="bi bi-file-earmark-excel me-1"></i> Export
+                </button> -->
+                <button class="btn btn-primary" (click)="printSchedule()">
+                  <i class="bi bi-printer me-1"></i> Print
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loading State -->
+          <div *ngIf="loading" class="card-body py-5">
+            <div class="d-flex flex-column align-items-center justify-content-center">
+              <div class="spinner-grow text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <h5 class="text-muted">Generating repayment schedule...</h5>
+              <div class="progress w-50 mt-3">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 75%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Error State -->
+          <div *ngIf="error" class="card-body">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-octagon-fill me-3 fs-4"></i>
+                <div>
+                  <h5 class="alert-heading mb-1">Error Loading Schedule</h5>
+                  <p class="mb-0">{{error}}</p>
+                </div>
+              </div>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="!loading && schedules.length === 0" class="card-body py-5">
+            <div class="text-center">
+              <div class="empty-state-icon mb-4">
+                <i class="bi bi-calendar-x"></i>
+              </div>
+              <h4 class="text-muted mb-3">No Repayment Schedule Found</h4>
+              <p class="text-muted mb-4">The repayment schedule will be generated once the loan is approved.</p>
+              <button class="btn btn-outline-primary">
+                <i class="bi bi-info-circle me-1"></i> Learn More
+              </button>
+            </div>
+          </div>
+
+          <!-- Schedule Table -->
+          <div *ngIf="!loading && schedules.length" class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th class="ps-4">#</th>
+                    <th>Due Date</th>
+                    <th class="text-end">Principal</th>
+                    <th class="text-end">Interest</th>
+                    <th class="text-end">Total</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-end pe-4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of schedules" class="animate__animated animate__fadeIn" [ngClass]="{'table-warning': item.lateDay}">
+                    <td class="ps-4 fw-bold">{{item.installmentNo}}</td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-calendar-date me-2 text-muted"></i>
+                        <span>{{item.date | date:'mediumDate'}}</span>
+                      </div>
+                    </td>
+                    <td class="text-end">{{item.principalAmount | currency:'USD':'symbol':'1.0-0'}}</td>
+                    <td class="text-end">{{item.interestAmount | currency:'USD':'symbol':'1.0-0'}}</td>
+                    <td class="text-end fw-bold text-primary">{{item.principalAmount + item.interestAmount | currency:'USD':'symbol':'1.0-0'}}</td>
+                    <td class="text-center">
+                      <span *ngIf="!item.lateDay" class="badge bg-success rounded-pill">
+                        <i class="bi bi-check-circle me-1"></i> On Time
+                      </span>
+                      <span *ngIf="item.lateDay" class="badge bg-danger rounded-pill">
+                        <i class="bi bi-exclamation-triangle me-1"></i> Late ({{item.lateDay}} days)
+                      </span>
+                    </td>
+                    <td class="text-end pe-4">
+                      <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="actionMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                          <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionMenu">
+                          <li><a class="dropdown-item" href="#"><i class="bi bi-eye me-2"></i>View Details</a></li>
+                          <li><a class="dropdown-item" href="#"><i class="bi bi-printer me-2"></i>Print Receipt</a></li>
+                          <li><hr class="dropdown-divider"></li>
+                          <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-flag me-2"></i>Report Issue</a></li>
+                        </ul>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot class="table-light">
+                  <tr>
+                    <th colspan="2" class="ps-4">Totals</th>
+                    <th class="text-end">{{getTotal('principalAmount') | currency:'USD':'symbol':'1.0-0'}}</th>
+                    <th class="text-end">{{getTotal('interestAmount') | currency:'USD':'symbol':'1.0-0'}}</th>
+                    <th class="text-end">{{getTotal('principalAmount') + getTotal('interestAmount') | currency:'USD':'symbol':'1.0-0'}}</th>
+                    <th class="text-center">
+                      <span class="badge bg-secondary rounded-pill">
+                        {{schedules.length}} Installments
+                      </span>
+                    </th>
+                    <th class="pe-4"></th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <!-- Additional Information -->
+          <div *ngIf="!loading && schedules.length" class="card-footer bg-light border-0">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="alert alert-info">
+                  <i class="bi bi-info-circle-fill me-2"></i>
+                  <strong>Note:</strong> Late payments may incur additional fees as specified in your loan agreement.
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="alert alert-light">
+                  <div class="d-flex justify-content-between">
+                    <!-- <div>
+                      <i class="bi bi-clock-history me-2"></i>
+                      <strong>Next Payment:</strong> {{getNextPayment() | date:'fullDate'}}
+                    </div> -->
+                    <button class="btn btn-sm btn-outline-primary">Pay Now</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

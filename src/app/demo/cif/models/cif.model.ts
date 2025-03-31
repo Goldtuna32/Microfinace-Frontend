@@ -12,6 +12,7 @@ export interface CIF {
     occupation: string;
     incomeSource: string;
     createdAt: string;
+    status: number;
     branchId: number;
     hasCurrentAccount: boolean;
     fNrcPhotoUrl: string; // Cloudinary Front NRC Image

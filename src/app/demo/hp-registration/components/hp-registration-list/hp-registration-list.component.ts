@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HpRegistrationService } from '../../services/hp-registration.service';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { HpRegistration } from '../../models/hp-registration';
@@ -35,7 +35,7 @@ export class HpRegistrationListComponent implements OnInit {
   
 
   constructor(
-    private hpService: HpRegistrationService,private userService: UserService,
+    private hpService: HpRegistrationService,private userService: UserService, private router: Router,
     private dialog: MatDialog
   ) {}
 
@@ -144,6 +144,12 @@ export class HpRegistrationListComponent implements OnInit {
     if (page >= 1 && page <= this.getTotalPages()) {
       this.currentPage = page;
       this.updatePagination();
+    }
+  }
+
+  viewSchedule(hp: HpRegistration): void {
+    if (hp.id && hp.status === 4) {
+      this.router.navigate(['/hp-schedule', hp.id]);
     }
   }
 

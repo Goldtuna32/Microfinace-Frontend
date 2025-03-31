@@ -7,6 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { RepaymentSchedule } from '../../models/RepaymentSchedule.model';
 import { RepaymentScheduleService } from '../../services/repayment-schedule.service';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-repayment-schedule',
@@ -38,22 +39,32 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 })
 export class RepaymentScheduleComponent implements OnInit {
   loanId: number;
-  repaymentSchedule = new MatTableDataSource<RepaymentSchedule>();
+  repaymentSchedule = new MatTableDataSource<RepaymentSchedule & { state?: string }>();
   displayedColumns: string[] = [
     'status',
     'installmentNumber',
     'dueDate',
-    'principalAmount',
-    'interestAmount',
-    'totalPayment',
-    'remainingPrincipal',
+    'paymentDetails',
+    'balance',
     'actions'
   ];
+
+  // Summary calculations
+  totalLoanAmount = 0;
+  totalPrincipal = 0;
+  totalInterest = 0;
+  totalPaidAmount = 0;
+  totalPaidPrincipal = 0;
+  totalPaidInterest = 0;
+  totalRemainingAmount = 0;
+  totalRemainingPrincipal = 0;
+  totalRemainingInterest = 0;
 
   constructor(
     private route: ActivatedRoute,
     private repaymentScheduleService: RepaymentScheduleService,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog
   ) {
     this.loanId = +this.route.snapshot.paramMap.get('loanId')!;
   }
@@ -65,61 +76,112 @@ export class RepaymentScheduleComponent implements OnInit {
   loadRepaymentSchedule(): void {
     this.repaymentScheduleService.getRepaymentSchedule(this.loanId).subscribe({
       next: (schedule) => {
-        this.repaymentSchedule.data = schedule.map((item, index) => ({
+        const processedSchedule = schedule.map((item, index) => ({
           ...item,
           installmentNumber: index + 1,
-          totalPayment: item.principalAmount + item.interestAmount,
-          dueDate: new Date(item.dueDate) // Ensure dueDate is Date object
+          totalPayment: item.principalAmount + item.interestAmount + (item.interestOverDue || 0),
+          dueDate: new Date(item.dueDate),
+          state: 'default'
         }));
+        
+        this.repaymentSchedule.data = processedSchedule;
+        this.calculateSummaryTotals(processedSchedule);
       },
       error: (error) => console.error('Failed to load repayment schedule:', error)
     });
   }
 
-  isPastDue(dueDate: Date | string, status?: number): boolean {
-    // If status is completed (6), it's not past due regardless of date
-    if (status === 6) return false;
+  calculateSummaryTotals(schedule: any[]): void {
+    this.totalLoanAmount = schedule.reduce((sum, item) => sum + item.principalAmount + item.interestAmount, 0);
+    this.totalPrincipal = schedule.reduce((sum, item) => sum + item.principalAmount, 0);
+    this.totalInterest = schedule.reduce((sum, item) => sum + item.interestAmount, 0);
     
-    const today = new Date();
-    const due = typeof dueDate === 'string' ? new Date(dueDate) : dueDate;
-    return due < today && status !== 6;
+    const paidItems = schedule.filter(item => item.status === 2);
+    this.totalPaidAmount = paidItems.reduce((sum, item) => sum + item.totalPayment, 0);
+    this.totalPaidPrincipal = paidItems.reduce((sum, item) => sum + item.principalAmount, 0);
+    this.totalPaidInterest = paidItems.reduce((sum, item) => sum + item.interestAmount + (item.interestOverDue || 0), 0);
+    
+    this.totalRemainingAmount = this.totalLoanAmount - this.totalPaidAmount;
+    this.totalRemainingPrincipal = this.totalPrincipal - this.totalPaidPrincipal;
+    this.totalRemainingInterest = this.totalInterest - (this.totalPaidInterest - paidItems.reduce((sum, item) => sum + (item.interestOverDue || 0), 0));
   }
 
+  daysOverdue(dueDate: Date | string): number {
+    const today = new Date();
+    const due = typeof dueDate === 'string' ? new Date(dueDate) : dueDate;
+    const diffTime = Math.abs(today.getTime() - due.getTime());
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  isOverdue(item: any): boolean {
+    if (item.status === 2) return false; // Completed payments are never overdue
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Compare just dates
+    
+    const due = typeof item.dueDate === 'string' ? new Date(item.dueDate) : item.dueDate;
+    due.setHours(0, 0, 0, 0);
+    
+    return due < today || item.interestOverDue > 0;
+  }
 
   getStatusClass(status: number | undefined): string {
     switch(status) {
-      case 6: return 'status-completed';
-      case 5: return 'status-overdue';
-      case 4: return 'status-partial';
-      case 3: return 'status-processing';
-      case 2: return 'status-upcoming';
-      case 1: 
-      default: return 'status-pending';
+      case 2: return 'text-success fw-bold'; // Completed
+      case 1: return 'text-danger fw-bold'; // Overdue
+      default: return 'text-secondary'; // Pending
     }
   }
 
   getStatusText(status: number | undefined): string {
     switch(status) {
-      case 6: return 'Completed';
-      case 5: return 'Overdue';
-      case 4: return 'Partial';
-      case 3: return 'Processing';
-      case 2: return 'Upcoming';
-      case 1: 
+      case 2: return 'Completed';
+      case 1: return 'Overdue';
       default: return 'Pending';
     }
   }
 
   getStatusIcon(status: number | undefined): string {
     switch(status) {
-      case 6: return 'bi-check-circle-fill';
-      case 5: return 'bi-exclamation-triangle-fill';
-      case 4: return 'bi-pie-chart-fill';
-      case 3: return 'bi-hourglass-split';
-      case 2: return 'bi-calendar-event';
-      case 1: 
+      case 2: return 'bi-check-circle-fill';
+      case 1: return 'bi-exclamation-triangle-fill';
       default: return 'bi-clock-history';
     }
+  }
+
+  openPaymentDialog(item: any): void {
+    // const dialogRef = this.dialog.open(PaymentDialogComponent, {
+    //   width: '500px',
+    //   data: {
+    //     loanId: this.loanId,
+    //     installment: item
+    //   }
+    // });
+
+    // dialogRef.afterClosed().subscribe(result => {
+    //   if (result === 'success') {
+    //     this.loadRepaymentSchedule();
+    //   }
+    // });
+  }
+
+  viewPaymentHistory(item: any): void {
+    // this.dialog.open(PaymentHistoryComponent, {
+    //   width: '700px',
+    //   data: {
+    //     loanId: this.loanId,
+    //     installmentNumber: item.installmentNumber
+    //   }
+    // });
+  }
+
+  generateSchedule(): void {
+    // this.repaymentScheduleService.generateSchedule(this.loanId).subscribe({
+    //   next: () => {
+    //     this.loadRepaymentSchedule();
+    //   },
+    //   error: (error) => console.error('Failed to generate schedule:', error)
+    // });
   }
 
   exportReport(format: string): void {
@@ -141,9 +203,4 @@ export class RepaymentScheduleComponent implements OnInit {
   goBack(): void {
     this.router.navigate(['/loan/list']);
   }
-
-  // makePayment(item: RepaymentSchedule): void {
-  //   // Implement payment logic here
-  //   console.log('Making payment for installment:', item.installmentNumber);
-  // }
 }

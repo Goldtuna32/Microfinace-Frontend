@@ -24,19 +24,20 @@ export class HpProductListComponent {
   isInactiveView = false;
   loading = true;
   errorMessage = '';
-  isDeletedView = false;
   branchId: number | null = null;
   totalItems = 0;
-  hoveredRow: number | null = null; // Track hover state by ID instead of adding property to model
-  showSuccessAlert: boolean = false;
+  hoveredRow: number | null = null;
+  showSuccessAlert = false;
+  searchTerm = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private hpProductService: HpProductService, private router: Router, private userService: UserService,
+  constructor(
+    private hpProductService: HpProductService, 
+    private router: Router, 
+    private userService: UserService,
     private alertService: AlertService
   ) {}
-
-  
 
   ngOnInit(): void {
     this.loadCurrentUserBranch();
@@ -58,62 +59,52 @@ export class HpProductListComponent {
       },
       error: (error) => {
         console.error('Failed to load user branch', error);
-        this.loadHpProducts(); // Still load CIFs without branch filter
+        this.loadHpProducts();
       }
     });
 
-    // If user data isn't loaded yet, trigger a refresh
     if (!this.userService.currentUserSubject.value) {
       this.userService.getCurrentUser().subscribe();
     }
   }
 
-  loadBranchId(): void {
-    // Get branch ID from service or localStorage
-    const storedBranch = localStorage.getItem('currentBranch');
-    this.branchId = storedBranch ? JSON.parse(storedBranch).id : null;
-    this.loadHpProducts();
-  }
-
-   
   loadHpProducts(): void {
     this.loading = true;
     this.errorMessage = '';
   
-    const cifObservable = this.isDeletedView
-      ? this.hpProductService.getAllActiveProducts(this.branchId ?? undefined)
-      : this.hpProductService.getAllInactiveProducts(this.branchId ?? undefined);
+    const productObservable = this.isInactiveView
+      ? this.hpProductService.getAllInactiveProducts(this.branchId ?? undefined)
+      : this.hpProductService.getAllActiveProducts(this.branchId ?? undefined);
   
-    cifObservable.subscribe({
-      next: (hps: HpProduct[]) => {
-        this.hpProducts = hps;
-        this.filteredHpProducts = hps;
-        this.dataSource.data = hps;
-        this.totalItems = hps.length;
-         this.loading = false;
+    productObservable.subscribe({
+      next: (products: HpProduct[]) => {
+        console.log('Loaded products:', products);
+        this.hpProducts = products;
+        this.filteredHpProducts = [...products]; // Initialize filtered list
+        this.totalItems = products.length;
+        this.loading = false;
+        this.updateFilteredProducts();
       },
       error: (error) => {
-        this.alertService.showError("Failed to load CIF List");
+        this.alertService.showError("Failed to load HP Products");
         this.loading = false;
-        this.errorMessage = 'Failed to load CIF list.';
-        this.dataSource.data = [];
+        this.errorMessage = 'Failed to load product list.';
+        this.hpProducts = [];
+        this.filteredHpProducts = [];
         this.totalItems = 0;
       }
     });
   }
 
-  updateFilteredHpProducts(filterValue: string = ''): void {
+  updateFilteredProducts(): void {
     this.filteredHpProducts = this.hpProducts.filter(product => {
-      const matchesStatus = this.isInactiveView 
-        ? product.status === 0 || product.status === 2
-        : product.status === 1;
-      const matchesFilter = product.name?.toLowerCase().includes(filterValue.toLowerCase()) ?? true;
-      return matchesStatus && matchesFilter;
+      const matchesSearch = this.searchTerm 
+        ? product.name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ?? true
+        : true;
+      return matchesSearch;
     });
-    if (this.paginator) {
-      this.paginator.length = this.filteredHpProducts.length;
-      this.paginator.firstPage();
-    }
+    this.totalItems = this.filteredHpProducts.length;
+    this.currentPage = 0; // Reset to first page when filtering
   }
 
   getPaginatedHpProducts(): HpProduct[] {
@@ -127,12 +118,11 @@ export class HpProductListComponent {
   }
 
   applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value.trim();
-    this.updateFilteredHpProducts(filterValue);
+    this.searchTerm = (event.target as HTMLInputElement).value.trim();
+    this.updateFilteredProducts();
   }
 
-  getStatusDisplay(status?: number): string {
-    if (status === undefined) return 'Unknown';
+  getStatusDisplay(status: number): string {
     return status === 1 ? 'Active' : 'Inactive';
   }
 
@@ -141,8 +131,7 @@ export class HpProductListComponent {
   }
 
   getPageNumbers(): number[] {
-    const totalPages = this.getTotalPages();
-    return Array.from({ length: totalPages }, (_, i) => i);
+    return Array.from({ length: this.getTotalPages() }, (_, i) => i + 1);
   }
 
   goToPage(page: number): void {
@@ -165,20 +154,14 @@ export class HpProductListComponent {
 
   toggleView(): void {
     this.isInactiveView = !this.isInactiveView;
-    this.updateFilteredHpProducts();
+    this.loadHpProducts(); // Reload products when view changes
   }
 
   deleteHpProduct(id: number): void {
     if (confirm('Are you sure you want to delete this HP product?')) {
       this.hpProductService.deleteHpProduct(id).subscribe({
         next: () => {
-          this.hpProducts = this.hpProducts.map(product => 
-            product.id === id ? { ...product, status: 0 } : product
-          );
-          this.updateFilteredHpProducts();
-          if (this.paginator) {
-            this.paginator.length = this.filteredHpProducts.length;
-          }
+          this.loadHpProducts(); // Refresh the list after deletion
         },
         error: (error) => {
           console.error('Error deleting HP product', error);
@@ -191,12 +174,8 @@ export class HpProductListComponent {
   restoreHpProduct(id: number): void {
     if (confirm('Are you sure you want to restore this HP product?')) {
       this.hpProductService.restoreHpProduct(id).subscribe({
-        next: (response) => {
-          const index = this.hpProducts.findIndex(product => product.id === id);
-          if (index !== -1) {
-            this.hpProducts[index] = response;
-            this.updateFilteredHpProducts();
-          }
+        next: () => {
+          this.loadHpProducts(); // Refresh the list after restoration
         },
         error: (error) => {
           console.error('Error restoring HP product', error);

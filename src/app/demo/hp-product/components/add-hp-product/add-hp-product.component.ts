@@ -4,6 +4,9 @@ import { HpProductCreate } from '../../models/hp-product';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { Router } from '@angular/router';
+import { UserService } from 'src/app/demo/users/services/user.service';
+import { DealerRegistrationService } from 'src/app/demo/dealer-registration/services/dealer-registration.service';
 
 @Component({
   selector: 'app-add-hp-product',
@@ -22,22 +25,55 @@ export class AddHpProductComponent {
   photoFile: File | null = null;
   previewUrl: SafeUrl | null = null;
   selectedFile: boolean = false;
+  showSuccessAlert = false;
+  branchId: number | null = null;
 
   productTypes: ProductType[] = [];
   dealerRegistrations: DealerRegistration[] = [];
 
   constructor(
     private hpProductService: HpProductService,
+    private dealerService: DealerRegistrationService,
+    private router: Router,
+    private userService: UserService,
     private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit() {
+    this.loadCurrentUserBranch();
+  
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state?.['success']) {
+      this.showSuccessAlert = true;
+      setTimeout(() => {
+        this.showSuccessAlert = false;
+      }, 5000);
+    }
     this.loadProductTypes();
     this.loadDealerRegistrations();
   }
 
+  loadCurrentUserBranch(): void {
+    this.userService.currentUser$.subscribe({
+      next: (user) => {
+        this.branchId = user?.branchId || null;
+        this.loadProductTypes();
+        this.loadDealerRegistrations
+      },
+      error: (error) => {
+        console.error('Failed to load user branch', error);
+        this.loadProductTypes();
+        this.loadDealerRegistrations
+      }
+    });
+
+    if (!this.userService.currentUserSubject.value) {
+      this.userService.getCurrentUser().subscribe();
+    }
+  }
+
   loadProductTypes() {
-    this.hpProductService.getProductTypes().subscribe({
+    this.hpProductService.getAllActiveProducts().subscribe({
       next: (types) => {
         this.productTypes = types;
         if (types.length > 0) this.hpProduct.productTypeId = types[0].id;
@@ -47,7 +83,7 @@ export class AddHpProductComponent {
   }
 
   loadDealerRegistrations() {
-    this.hpProductService.getDealerRegistrations().subscribe({
+    this.dealerService.getAllActiveDealers().subscribe({
       next: (registrations) => {
         this.dealerRegistrations = registrations;
         if (registrations.length > 0) this.hpProduct.dealerRegistrationId = registrations[0].id;

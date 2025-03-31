@@ -5,6 +5,8 @@ import { CommonModule } from '@angular/common';
 import { DealerRegistrationService } from '../../services/dealer-registration.service';
 import { AlertService } from 'src/app/alertservice/alert.service';
 import { HttpClient } from '@angular/common/http';
+import { UserService } from 'src/app/demo/users/services/user.service';
+import { CurrentAccountService } from 'src/app/demo/current-account/services/current-account.service';
 
 @Component({
   selector: 'app-dealer-edit',
@@ -22,11 +24,14 @@ export class DealerEditComponent implements OnInit {
   regions: string[] = [];
   districts: string[] = [];
   townships: string[] = [];
+  branchId: number | null = null;
   locationData: any = {};
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private userService: UserService,
+    private accountService: CurrentAccountService,
     private dealerService: DealerRegistrationService,
     private alertService: AlertService,
     private fb: FormBuilder,
@@ -50,10 +55,28 @@ export class DealerEditComponent implements OnInit {
 
   ngOnInit(): void {
     this.dealerId = Number(this.route.snapshot.paramMap.get('id'));
-    this.loadCurrentAccounts();
+    this.loadCurrentUserBranch
     this.loadLocationData();
     if (this.dealerId) {
       this.loadDealerData();
+    }
+  }
+
+  loadCurrentUserBranch(): void {
+    this.userService.currentUser$.subscribe({
+      next: (user) => {
+        this.branchId = user?.branchId || null;
+        this.loadCurrentAccounts();
+      },
+      error: (error) => {
+        console.error('Failed to load user branch', error);
+        this.loadCurrentAccounts(); // Still load CIFs without branch filter
+      }
+    });
+
+    // If user data isn't loaded yet, trigger a refresh
+    if (!this.userService.currentUserSubject.value) {
+      this.userService.getCurrentUser().subscribe();
     }
   }
 
@@ -71,7 +94,7 @@ export class DealerEditComponent implements OnInit {
   }
 
   loadCurrentAccounts(): void {
-    this.dealerService.getCurrentAccounts().subscribe({
+    this.accountService.getAllCurrentAccountByBranch(this.branchId!).subscribe({
       next: (accounts) => {
         this.currentAccounts = accounts;
       },

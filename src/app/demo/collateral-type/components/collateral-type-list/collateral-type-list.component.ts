@@ -52,35 +52,40 @@ export class CollateralTypeListComponent implements OnInit {
     }
   }
 
-  loadCollateralTypes( branchId?: number): void {
+  loadCollateralTypes(branchId?: number): void {
     this.loading = true;
     const serviceCall = this.showDeleted
-      ? this.collateralService.getAllActiveCollateralTyp(branchId)
-      : this.collateralService.getAllInactiveCollateralTyp(branchId);
+        ? this.collateralService.getAllInactiveCollateralTyp(branchId)
+        : this.collateralService.getAllActiveCollateralTyp(branchId);
 
     serviceCall.subscribe({
-      next: (data) => {
-        this.dataSource.data = data;
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.errorMessage = `Failed to load collateral types: ${err.message}`;
-        this.loading = false;
-      }
+        next: (data) => {
+            this.dataSource.data = data;
+            this.dataSource.paginator = this.paginator;
+            this.dataSource.sort = this.sort;
+            this.loading = false;
+        },
+        error: (err) => {
+            this.errorMessage = `Failed to load collateral types: ${err.message}`;
+            this.loading = false;
+        }
     });
-  }
+}
 
   toggleDeletedList(): void {
     this.showDeleted = !this.showDeleted;
-    this.loadCollateralTypes();
-  }
+    this.loadCollateralTypes(); // Reload data after toggle
+}
 
-  applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+applyFilter(event: Event): void {
+  const filterValue = (event.target as HTMLInputElement).value;
+  this.dataSource.filter = filterValue.trim().toLowerCase();
+
+  if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
   }
+}
+
 
   editCollateralType(row: CollateralType): void {
     const dialogRef = this.dialog.open(CollateralTypeEditComponent, {

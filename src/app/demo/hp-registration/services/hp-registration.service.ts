@@ -11,6 +11,9 @@ export class HpRegistrationService {
  
   private apiUrl = 'http://localhost:8080/api/hp-registrations'; // Adjust if needed
   private http = inject(HttpClient);
+  
+  private scheduleUrl = 'http://localhost:8080/api/hp-schedule';
+
 
   getAll(): Observable<HpRegistration[]> {
     return this.http.get<HpRegistration[]>(this.apiUrl); 
@@ -72,6 +75,13 @@ getDeletedHpRegistrations(): Observable<{ content: HpRegistration[]; totalPages:
     return this.http.put<void>(`${this.apiUrl}/${id}/status`, { status });
   }
 
+  getSchedules(hpRegistrationId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.scheduleUrl}/list/${hpRegistrationId}`);
+  }
+
+  generateSchedule(hpRegistrationId: number): Observable<any[]> {
+    return this.http.post<any[]>(`${this.scheduleUrl}/generate/${hpRegistrationId}`, {});
+  }
   
 
 }

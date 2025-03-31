@@ -53,6 +53,11 @@ import { UserService } from 'src/app/demo/users/services/user.service';
     showSuccessAlert: boolean = false;
 
     Math = Math;
+    activeCount: number = 0;
+incompleteCount: number = 0;
+deletedCount: number = 0;
+searchQuery: string = '';
+
     // Client-side pagination variables
     pageSize = 10;
     currentPage = 0;
@@ -75,6 +80,7 @@ import { UserService } from 'src/app/demo/users/services/user.service';
 
     ngOnInit(): void {
       this.loadCurrentUserBranch();
+      document.addEventListener('click', this.handleDocumentClick.bind(this));
     
       const navigation = this.router.getCurrentNavigation();
       if (navigation?.extras.state?.['success']) {
@@ -84,6 +90,17 @@ import { UserService } from 'src/app/demo/users/services/user.service';
         }, 5000);
       }
     }
+
+    ngOnDestroy(): void {
+      document.removeEventListener('click', this.handleDocumentClick.bind(this));
+    }
+
+    handleDocumentClick(event: MouseEvent): void {
+      if (!(event.target as Element).closest('.dropdown')) {
+        this.closeDropdowns();
+      }
+    }
+  
 
     loadCurrentUserBranch(): void {
       this.authService.currentUser$.subscribe({
@@ -109,6 +126,17 @@ import { UserService } from 'src/app/demo/users/services/user.service';
       this.branchId = storedBranch ? JSON.parse(storedBranch).id : null;
       this.loadCIFs();
     }
+
+    applySearch(): void {
+      // Your search implementation
+      this.loadCIFs();
+    }
+
+    
+clearSearch(): void {
+  this.searchQuery = '';
+  this.applySearch();
+}
 
     dismissAlert() {
       this.showSuccessAlert = false;
@@ -153,11 +181,30 @@ import { UserService } from 'src/app/demo/users/services/user.service';
       this.updatePaginatedData();
     }
 
-    toggleDropdown(cifId: number): void {
-      this.dataSource.data.forEach(item => {
-        item.isDropdownOpen = item.id === cifId ? !item.isDropdownOpen : false;
-      });
-    }
+    // Update your toggle method to handle positioning
+toggleDropdown(event: MouseEvent, cifId: number): void {
+  event.stopPropagation();
+  
+  // Close all other dropdowns first
+  this.closeDropdowns();
+  
+  // Find the clicked row
+  const clickedRow = this.dataSource.data.find(item => item.id === cifId);
+  if (clickedRow) {
+    clickedRow.isDropdownOpen = true;
+    
+    // Optional: Scroll into view if near bottom
+    setTimeout(() => {
+      const dropdownElement = (event.target as HTMLElement).closest('td')?.querySelector('.dropdown-menu');
+      if (dropdownElement) {
+        const rect = dropdownElement.getBoundingClientRect();
+        if (rect.bottom > window.innerHeight) {
+          dropdownElement.scrollIntoView({ block: 'nearest' });
+        }
+      }
+    });
+  }
+}
     
     isDropdownActive(cifId: number): boolean {
       const cif = this.dataSource.data.find(item => item.id === cifId);
@@ -169,6 +216,7 @@ import { UserService } from 'src/app/demo/users/services/user.service';
         item.isDropdownOpen = false;
       });
     }
+  
     
     toggleView(): void {
       this.isDeletedView = !this.isDeletedView;

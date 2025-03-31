@@ -1,160 +1,240 @@
-<div class="container mx-auto p-4" @fadeIn>
-  <mat-card class="shadow-lg border-0">
-    <mat-card-header class="bg-primary text-white p-4 rounded-t-lg">
-      <div class="flex justify-between items-center w-full">
-        <mat-card-title class="text-white">
-          <i class="bi bi-calendar-check mr-2"></i>
-          Repayment Schedule for Loan #{{loanId}}
-        </mat-card-title>
-        <div class="flex space-x-2">
-          <button mat-raised-button color="accent" (click)="exportReport('pdf')" class="flex items-center">
-            <i class="bi bi-file-earmark-pdf mr-2"></i>PDF
-          </button>
-          <button mat-raised-button color="accent" (click)="exportReport('excel')" class="flex items-center">
-            <i class="bi bi-file-earmark-excel mr-2"></i>Excel
-          </button>
-          <button mat-raised-button color="warn" (click)="goBack()" class="flex items-center">
-            <i class="bi bi-arrow-left mr-2"></i>Back
-          </button>
-        </div>
-      </div>
-    </mat-card-header>
-    
-    <mat-card-content class="p-0">
-      <div class="bg-gray-50 p-4 border-b">
-        <div class="flex flex-wrap gap-2 justify-center">
-          <div class="status-legend bg-success">
-            <i class="bi bi-check-circle-fill"></i> Completed
+<div class="container-fluid px-4 py-5 animate__animated animate__fadeIn">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-lg border-0 rounded-lg">
+        <div class="card-header bg-gradient-primary text-white py-3 d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-calendar-check-fill fs-3 me-3"></i>
+            <h2 class="h4 mb-0">Repayment Schedule for Loan #{{loanId}}</h2>
           </div>
-          <div class="status-legend bg-warning">
-            <i class="bi bi-exclamation-triangle-fill"></i> Overdue
-          </div>
-          <div class="status-legend bg-info">
-            <i class="bi bi-pie-chart-fill"></i> Partial
-          </div>
-          <div class="status-legend bg-secondary">
-            <i class="bi bi-hourglass-split"></i> Processing
-          </div>
-          <div class="status-legend bg-primary">
-            <i class="bi bi-calendar-event"></i> Upcoming
-          </div>
-          <div class="status-legend bg-light text-dark">
-            <i class="bi bi-clock-history"></i> Pending
+          <div class="btn-group" role="group">
+            <button mat-raised-button color="accent" (click)="exportReport('pdf')" class="btn btn-light btn-sm me-2 d-flex align-items-center">
+              <i class="bi bi-file-earmark-pdf-fill me-2"></i>PDF
+            </button>
+            <button mat-raised-button color="accent" (click)="exportReport('excel')" class="btn btn-light btn-sm me-2 d-flex align-items-center">
+              <i class="bi bi-file-earmark-excel-fill me-2"></i>Excel
+            </button>
+            <button mat-raised-button color="warn" (click)="goBack()" class="btn btn-light btn-sm d-flex align-items-center">
+              <i class="bi bi-arrow-left-circle-fill me-2"></i>Back
+            </button>
           </div>
         </div>
-      </div>
 
-      <div class="overflow-x-auto">
-        <table mat-table [dataSource]="repaymentSchedule" class="w-full">
-          <!-- Status Column -->
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef class="bg-gray-100">Status</th>
-            <td mat-cell *matCellDef="let item" [class]="getStatusClass(item.status)">
-              <i class="bi {{getStatusIcon(item.status)}} mr-1"></i>
-              {{getStatusText(item.status)}}
-            </td>
-          </ng-container>
-
-          <!-- Installment Number Column -->
-          <ng-container matColumnDef="installmentNumber">
-            <th mat-header-cell *matHeaderCellDef class="bg-gray-100">#</th>
-            <td mat-cell *matCellDef="let item" class="font-medium">
-              {{ item.installmentNumber }}
-            </td>
-          </ng-container>
-
-          <!-- Due Date Column -->
-          <ng-container matColumnDef="dueDate">
-            <th mat-header-cell *matHeaderCellDef class="bg-gray-100">Due Date</th>
-            <td mat-cell *matCellDef="let item" [class.text-danger]="isPastDue(item.dueDate, item.status)">
-              {{ item.dueDate | date:'mediumDate' }}
-              <span *ngIf="isPastDue(item.dueDate, item.status)" class="badge bg-danger ml-2">
-                <i class="bi bi-exclamation-circle"></i> Past Due
+        <div class="card-body p-0">
+          <!-- Status Legend -->
+          <div class="alert alert-light border-bottom rounded-0 mb-0 py-3">
+            <div class="d-flex flex-wrap justify-content-center gap-2">
+              <span class="badge bg-success rounded-pill px-3 py-2">
+                <i class="bi bi-check-circle-fill me-1"></i> Completed
               </span>
-            </td>
-          </ng-container>
-
-          <!-- Principal Amount Column -->
-          <ng-container matColumnDef="principalAmount">
-            <th mat-header-cell *matHeaderCellDef class="bg-gray-100">Principal</th>
-            <td mat-cell *matCellDef="let item">
-              {{ item.principalAmount | currency }}
-            </td>
-          </ng-container>
-
-          <!-- Interest Amount Column -->
-          <ng-container matColumnDef="interestAmount">
-            <th mat-header-cell *matHeaderCellDef class="bg-gray-100">Interest</th>
-            <td mat-cell *matCellDef="let item">
-              {{ item.interestAmount | currency }}
-            </td>
-          </ng-container>
-
-          <!-- Total Payment Column -->
-          <ng-container matColumnDef="totalPayment">
-            <th mat-header-cell *matHeaderCellDef class="bg-gray-100">Total</th>
-            <td mat-cell *matCellDef="let item" class="font-bold">
-              {{ item.totalPayment | currency }}
-            </td>
-          </ng-container>
-
-          <!-- Remaining Principal Column -->
-          <ng-container matColumnDef="remainingPrincipal">
-            <th mat-header-cell *matHeaderCellDef class="bg-gray-100">Balance</th>
-            <td mat-cell *matCellDef="let item">
-              {{ item.remainingPrincipal | currency }}
-            </td>
-          </ng-container>
-
-          <!-- Actions Column -->
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef class="bg-gray-100">Actions</th>
-            <td mat-cell *matCellDef="let item">
-              <button *ngIf="item.status !== 6" mat-raised-button color="primary" 
-                      class="btn-sm">
-                <i class="bi bi-credit-card mr-1"></i> Pay
-              </button>
-              <span *ngIf="item.status === 6" class="text-success">
-                <i class="bi bi-check-circle"></i> Paid
+              <span class="badge bg-danger rounded-pill px-3 py-2">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i> Overdue
               </span>
-            </td>
-          </ng-container>
+              <span class="badge bg-secondary rounded-pill px-3 py-2">
+                <i class="bi bi-clock-history me-1"></i> Pending
+              </span>
+            </div>
+          </div>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-gray-100"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
-              [@rowHover]="row.hoverState" 
-              (mouseenter)="row.hoverState = 'hover'"
-              (mouseleave)="row.hoverState = 'void'"
-              [class.bg-light]="row.status === 6"
-              [class.bg-warning-light]="row.status === 5"
-              [class.bg-info-light]="row.status === 4"></tr>
-          
-          <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell text-center p-8" colspan="8">
-              <div class="flex flex-col items-center justify-center py-12">
-                <i class="bi bi-calendar-x text-4xl text-gray-400 mb-4"></i>
-                <h4 class="text-xl font-medium text-gray-600">No repayment schedule found</h4>
-                <p class="text-gray-500 mt-2">This loan doesn't have any repayment schedule yet.</p>
+          <!-- Summary Cards -->
+          <div class="row g-4 p-4 border-bottom">
+            <div class="col-md-4">
+              <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                  <h6 class="card-subtitle mb-2 text-muted">Total Amount</h6>
+                  <h3 class="card-title text-primary">{{totalLoanAmount | currency}}</h3>
+                  <div class="d-flex justify-content-around mt-3">
+                    <div>
+                      <small class="text-muted">Principal</small>
+                      <div class="fw-bold">{{totalPrincipal | currency}}</div>
+                    </div>
+                    <div>
+                      <small class="text-muted">Interest</small>
+                      <div class="fw-bold">{{totalInterest | currency}}</div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </td>
-          </tr>
-        </table>
-      </div>
-    </mat-card-content>
+            </div>
+            <div class="col-md-4">
+              <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                  <h6 class="card-subtitle mb-2 text-muted">Paid Amount</h6>
+                  <h3 class="card-title text-success">{{totalPaidAmount | currency}}</h3>
+                  <div class="d-flex justify-content-around mt-3">
+                    <div>
+                      <small class="text-muted">Principal</small>
+                      <div class="fw-bold">{{totalPaidPrincipal | currency}}</div>
+                    </div>
+                    <div>
+                      <small class="text-muted">Interest</small>
+                      <div class="fw-bold">{{totalPaidInterest | currency}}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                  <h6 class="card-subtitle mb-2 text-muted">Remaining</h6>
+                  <h3 class="card-title text-danger">{{totalRemainingAmount | currency}}</h3>
+                  <div class="d-flex justify-content-around mt-3">
+                    <div>
+                      <small class="text-muted">Principal</small>
+                      <div class="fw-bold">{{totalRemainingPrincipal | currency}}</div>
+                    </div>
+                    <div>
+                      <small class="text-muted">Interest</small>
+                      <div class="fw-bold">{{totalRemainingInterest | currency}}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-    <mat-card-actions class="bg-gray-50 p-4 rounded-b-lg flex justify-between">
-      <div class="text-muted">
-        <i class="bi bi-info-circle mr-1"></i>
-        Total Installments: {{repaymentSchedule.data.length}}
+          <!-- Repayment Schedule Table -->
+          <div class="table-responsive">
+            <table mat-table [dataSource]="repaymentSchedule" class="table table-hover mb-0">
+              <!-- Status Column -->
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef class="bg-light">Status</th>
+                <td mat-cell *matCellDef="let item" [class]="getStatusClass(item.status)">
+                  <div class="d-flex align-items-center">
+                    <i class="bi {{getStatusIcon(item.status)}} me-2 fs-5"></i>
+                    <span>{{getStatusText(item.status)}}</span>
+                    <span *ngIf="item.interestOverDue > 0" class="badge bg-danger ms-2">
+                      <i class="bi bi-exclamation-circle me-1"></i> Overdue Interest
+                    </span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Installment Column -->
+              <ng-container matColumnDef="installmentNumber">
+                <th mat-header-cell *matHeaderCellDef class="bg-light">#</th>
+                <td mat-cell *matCellDef="let item" class="fw-bold">
+                  {{ item.installmentNumber }}
+                </td>
+              </ng-container>
+
+              <!-- Due Date Column -->
+              <ng-container matColumnDef="dueDate">
+                <th mat-header-cell *matHeaderCellDef class="bg-light">Due Date</th>
+                <td mat-cell *matCellDef="let item" [class.text-danger]="isOverdue(item)">
+                  <div class="d-flex flex-column">
+                    <span>{{ item.dueDate | date:'mediumDate' }}</span>
+                    <small *ngIf="isOverdue(item)" class="text-danger fw-bold">
+                      <i class="bi bi-exclamation-circle"></i> {{daysOverdue(item.dueDate)}} days overdue
+                    </small>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Payment Details Columns -->
+              <ng-container matColumnDef="paymentDetails">
+                <th mat-header-cell *matHeaderCellDef class="bg-light">Payment Details</th>
+                <td mat-cell *matCellDef="let item">
+                  <div class="d-flex flex-column">
+                    <div class="d-flex justify-content-between">
+                      <span>Principal:</span>
+                      <span class="fw-bold">{{ item.principalAmount | currency }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                      <span>Interest:</span>
+                      <span class="fw-bold">{{ item.interestAmount | currency }}</span>
+                    </div>
+                    <div *ngIf="item.interestOverDue > 0" class="d-flex justify-content-between text-danger">
+                      <span>Overdue Interest:</span>
+                      <span class="fw-bold">{{ item.interestOverDue | currency }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-top mt-1 pt-1">
+                      <span>Total:</span>
+                      <span class="fw-bold text-primary">{{ item.totalPayment | currency }}</span>
+                    </div>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Balance Column -->
+              <ng-container matColumnDef="balance">
+                <th mat-header-cell *matHeaderCellDef class="bg-light">Balance</th>
+                <td mat-cell *matCellDef="let item">
+                  <div class="d-flex flex-column">
+                    <div class="d-flex justify-content-between">
+                      <span>Principal:</span>
+                      <span class="fw-bold">{{ item.remainingPrincipal | currency }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                      <span>Interest:</span>
+                      <span class="fw-bold">{{ item.remainingInterest | currency }}</span>
+                    </div>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Actions Column -->
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="bg-light text-end">Actions</th>
+                <td mat-cell *matCellDef="let item" class="text-end">
+                  <div class="d-flex justify-content-end gap-2">
+                    <button *ngIf="item.status !== 2" mat-raised-button color="primary" 
+                            class="btn btn-primary btn-sm d-flex align-items-center"
+                            (click)="openPaymentDialog(item)">
+                      <i class="bi bi-credit-card me-1"></i> Pay
+                    </button>
+                    <button mat-raised-button color="secondary" 
+                            class="btn btn-secondary btn-sm d-flex align-items-center"
+                            (click)="viewPaymentHistory(item)">
+                      <i class="bi bi-clock-history me-1"></i> History
+                    </button>
+                    <span *ngIf="item.status === 2" class="badge bg-success d-flex align-items-center">
+                      <i class="bi bi-check-circle me-1"></i> Paid
+                    </span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-light"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
+                  [@rowAnimation]="row.state"
+                  [class.table-success]="row.status === 2"
+                  [class.table-danger]="row.status === 1"
+                  (mouseenter)="row.state = 'hover'"
+                  (mouseleave)="row.state = 'default'"></tr>
+              
+              <tr class="mat-row" *matNoDataRow>
+                <td class="mat-cell text-center p-5" colspan="6">
+                  <div class="d-flex flex-column align-items-center justify-content-center py-5">
+                    <i class="bi bi-calendar-x text-muted fs-1 mb-3"></i>
+                    <h4 class="h5 text-muted mb-2">No repayment schedule found</h4>
+                    <p class="text-muted">This loan doesn't have any repayment schedule yet.</p>
+                    <button mat-raised-button color="primary" class="mt-3" (click)="generateSchedule()">
+                      <i class="bi bi-plus-circle me-2"></i>Generate Schedule
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="card-footer bg-light d-flex justify-content-between align-items-center">
+          <div class="text-muted">
+            <i class="bi bi-info-circle me-1"></i>
+            Showing {{repaymentSchedule.data?.length || 0}} installments
+          </div>
+          <div class="d-flex gap-2">
+            <button mat-raised-button color="primary" (click)="exportReport('pdf')" class="btn btn-sm btn-outline-primary d-flex align-items-center">
+              <i class="bi bi-download me-1"></i> Export
+            </button>
+            <button mat-raised-button (click)="goBack()" class="btn btn-sm btn-outline-secondary d-flex align-items-center">
+              <i class="bi bi-arrow-left me-1"></i> Back to Loans
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="flex space-x-2">
-        <button mat-raised-button color="primary" (click)="exportReport('pdf')" class="flex items-center">
-          <i class="bi bi-download mr-1"></i> Export
-        </button>
-        <button mat-raised-button (click)="goBack()" class="flex items-center">
-          <i class="bi bi-arrow-left mr-1"></i> Back to Loans
-        </button>
-      </div>
-    </mat-card-actions>
-  </mat-card>
+    </div>
+  </div>
 </div>

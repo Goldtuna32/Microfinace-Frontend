@@ -1,36 +1,96 @@
-<h2 class="text-2xl font-bold mb-4 text-center">Create Current Account</h2>
+<!-- current-account.component.html -->
+<div class="modal-backdrop fade show"></div>
+<div @fadeIn class="modal fade show d-block" tabindex="-1" aria-modal="true" role="dialog">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <!-- Header with animated gradient -->
+      <div class="modal-header bg-primary text-white">
+        <div class="w-100 position-relative">
+          <h2 class="modal-title fs-4 fw-bold mb-0">
+            <i class="bi bi-bank me-2 animate-pulse"></i>
+            {{ isEditMode ? 'Edit Current Account' : 'Create New Account' }}
+          </h2>
+          <p class="mb-0 text-white-50 small">
+            <i class="bi bi-info-circle me-1"></i>
+            Manage your account details
+          </p>
+          <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-1" 
+                  (click)="closeDialog()" aria-label="Close"></button>
+        </div>
+      </div>
 
-<form [formGroup]="accountForm" (ngSubmit)="saveAccount()" class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
-    <div class="mb-4">
-        <label class="form-label text-gray-700">CIF ID</label>
-        <div class="relative">
-            <input type="text" class="form-control border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500" formControlName="cifId">
-            <i class="bi bi-person absolute right-3 top-2 text-gray-400"></i>
-        </div>
-    </div>      
+      <!-- Form body -->
+      <div class="modal-body p-4">
+        <form [formGroup]="accountForm" (ngSubmit)="saveAccount()" class="needs-validation" novalidate>
+          <!-- CIF ID -->
+          <div class="mb-4">
+            <label for="cifId" class="form-label fw-medium text-muted">
+              <i class="bi bi-person-badge me-2"></i>CIF ID
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-light">
+                <i class="bi bi-lock text-muted"></i>
+              </span>
+              <input type="text" class="form-control form-control-lg" id="cifId" 
+                     formControlName="cifId" readonly>
+            </div>
+          </div>
 
-    <div class="mb-4">
-        <label class="form-label text-gray-700">Maximum Balance</label>
-        <div class="relative">
-            <input type="number" class="form-control border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500" formControlName="maximumBalance" step="0.01">
-            <i class="bi bi-cash-coin absolute right-3 top-2 text-gray-400"></i>
-        </div>
+          <!-- Balance -->
+          <div class="mb-4">
+            <label for="balance" class="form-label fw-medium text-muted">
+              <i class="bi bi-wallet2 me-2"></i>Initial Balance (Display Only)
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-light">$</span>
+              <input type="number" class="form-control form-control-lg" id="balance" 
+                     formControlName="balance" step="0.01">
+              <span class="input-group-text bg-light">.00</span>
+            </div>
+            <div @fadeIn *ngIf="showBalanceWarning" class="alert alert-warning mt-2 animate-shake">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              Initial balance should not be less than minimum balance
+            </div>
+          </div>
+
+          <!-- Maximum Balance -->
+          <div class="mb-4">
+            <label for="maximumBalance" class="form-label fw-medium text-muted">
+              <i class="bi bi-arrow-up me-2"></i>Maximum Balance
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-light">$</span>
+              <input type="number" class="form-control form-control-lg" id="maximumBalance" 
+                     formControlName="maximumBalance" step="0.01">
+            </div>
+          </div>
+
+          <!-- Minimum Balance -->
+          <div class="mb-4">
+            <label for="minimumBalance" class="form-label fw-medium text-muted">
+              <i class="bi bi-arrow-down me-2"></i>Minimum Balance
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-light">$</span>
+              <input type="number" class="form-control form-control-lg" id="minimumBalance" 
+                     formControlName="minimumBalance" step="0.01">
+            </div>
+          </div>
+
+          <!-- Form actions -->
+          <div class="modal-footer border-0 pt-4 px-0">
+            <button type="button" class="btn btn-outline-secondary rounded-pill px-4" 
+                    (click)="closeDialog()">
+              <i class="bi bi-x-circle me-2"></i>Cancel
+            </button>
+            <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm"
+                    [disabled]="accountForm.invalid || showBalanceWarning">
+              <i class="bi bi-check-circle me-2"></i>
+              {{ isEditMode ? 'Update Account' : 'Create Account' }}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-    
-    <div class="mb-4">
-        <label class="form-label text-gray-700">Minimum Balance</label>
-        <div class="relative">
-            <input type="number" class="form-control border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500" formControlName="minimumBalance" step="0.01">
-            <i class="bi bi-cash-coin absolute right-3 top-2 text-gray-400"></i>
-        </div>
-    </div>
-    
-    <div class="flex justify-end">
-        <button type="button" class="btn btn-secondary me-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded" (click)="closeDialog()">
-            <i class="bi bi-x-circle"></i> Cancel
-        </button>
-        <button type="submit" class="btn btn-success bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
-            <i class="bi bi-check-circle"></i> Create Account
-        </button>
-    </div>
-</form>
+  </div>
+</div>

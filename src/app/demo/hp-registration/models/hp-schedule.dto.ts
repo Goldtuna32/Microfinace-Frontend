@@ -6,6 +6,7 @@ export interface HpScheduleDTO {
     principalAmount: number;
     lateDay: number | null;
     lateFee: number | null;
+    dueDate: Date;
     principalOd: string;
     interestOd: string;
     installmentNo: string;

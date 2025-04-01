@@ -27,11 +27,11 @@
               <span class="badge bg-success rounded-pill px-3 py-2">
                 <i class="bi bi-check-circle-fill me-1"></i> Completed
               </span>
+              <span class="badge bg-warning rounded-pill px-3 py-2">
+                <i class="bi bi-clock-history me-1"></i> Pending
+              </span>
               <span class="badge bg-danger rounded-pill px-3 py-2">
                 <i class="bi bi-exclamation-triangle-fill me-1"></i> Overdue
-              </span>
-              <span class="badge bg-secondary rounded-pill px-3 py-2">
-                <i class="bi bi-clock-history me-1"></i> Pending
               </span>
             </div>
           </div>
@@ -100,10 +100,10 @@
               <!-- Status Column -->
               <ng-container matColumnDef="status">
                 <th mat-header-cell *matHeaderCellDef class="bg-light">Status</th>
-                <td mat-cell *matCellDef="let item" [class]="getStatusClass(item.status)">
+                <td mat-cell *matCellDef="let item" [class]="getStatusClass(item)">
                   <div class="d-flex align-items-center">
-                    <i class="bi {{getStatusIcon(item.status)}} me-2 fs-5"></i>
-                    <span>{{getStatusText(item.status)}}</span>
+                    <i class="bi {{getStatusIcon(item)}} me-2 fs-5"></i>
+                    <span>{{getStatusText(item)}}</span>
                     <span *ngIf="item.interestOverDue > 0" class="badge bg-danger ms-2">
                       <i class="bi bi-exclamation-circle me-1"></i> Overdue Interest
                     </span>
@@ -198,11 +198,12 @@
 
               <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-light"></tr>
               <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
-                  [@rowAnimation]="row.state"
-                  [class.table-success]="row.status === 2"
-                  [class.table-danger]="row.status === 1"
-                  (mouseenter)="row.state = 'hover'"
-                  (mouseleave)="row.state = 'default'"></tr>
+    [@rowAnimation]="row.state"
+    [class.table-success]="row.status === 6"
+    [class.table-warning]="row.status === 1 && !isOverdue(row)"
+    [class.table-danger]="isOverdue(row)"
+    (mouseenter)="row.state = 'hover'"
+    (mouseleave)="row.state = 'default'"></tr>
               
               <tr class="mat-row" *matNoDataRow>
                 <td class="mat-cell text-center p-5" colspan="6">

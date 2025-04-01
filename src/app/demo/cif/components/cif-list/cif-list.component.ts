@@ -235,26 +235,8 @@ toggleDropdown(event: MouseEvent, cifId: number): void {
       this.loadCIFs();
     }
 
-    // Pagination methods
-    previousPage(): void {
-      if (this.currentPage > 0) {
-        this.currentPage--;
-        this.updatePaginatedData();
-      }
-    }
-
-    nextPage(): void {
-      if ((this.currentPage + 1) * this.pageSize < this.totalItems) {
-        this.currentPage++;
-        this.updatePaginatedData();
-      }
-    }
-
-    goToPage(page: number): void {
-      this.currentPage = page - 1;
-      this.updatePaginatedData();
-    }
-
+    
+    
     get totalPages(): number {
       return Math.ceil(this.totalItems / this.pageSize);
     }
@@ -372,5 +354,39 @@ toggleDropdown(event: MouseEvent, cifId: number): void {
 
     openCifDetail(cif: CIF): void {
       this.router.navigate(['/cif-detail', cif.id]);
+    }
+
+    getStatusText(status: number): string {
+      switch(status) {
+        case 1: return 'Active';
+        case 2: return 'Deleted';
+        case 3: return 'Pending';
+        default: return 'Unknown';
+      }
+    }
+    
+    getPages(): number[] {
+      const totalPages = Math.ceil(this.dataSource.data.length / this.pageSize);
+      return Array.from({length: totalPages}, (_, i) => i);
+    }
+    
+    getLastPage(): number {
+      return Math.ceil(this.dataSource.data.length / this.pageSize) - 1;
+    }
+    
+    previousPage(): void {
+      if (this.currentPage > 0) {
+        this.currentPage--;
+      }
+    }
+    
+    nextPage(): void {
+      if (this.currentPage < this.getLastPage()) {
+        this.currentPage++;
+      }
+    }
+    
+    goToPage(page: number): void {
+      this.currentPage = page;
     }
   }

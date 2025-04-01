@@ -114,40 +114,52 @@ export class RepaymentScheduleComponent implements OnInit {
   }
 
   isOverdue(item: any): boolean {
-    if (item.status === 2) return false; // Completed payments are never overdue
+    if (item.status === 6) return false; // Completed payments are never overdue
     
+    // Check if there's overdue interest or if payment is late
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Compare just dates
+    today.setHours(0, 0, 0, 0);
     
     const due = typeof item.dueDate === 'string' ? new Date(item.dueDate) : item.dueDate;
     due.setHours(0, 0, 0, 0);
     
-    return due < today || item.interestOverDue > 0;
+    return (item.interestOverDue > 0) || (due < today && item.status !== 6);
   }
 
-  getStatusClass(status: number | undefined): string {
-    switch(status) {
-      case 2: return 'text-success fw-bold'; // Completed
-      case 1: return 'text-danger fw-bold'; // Overdue
-      default: return 'text-secondary'; // Pending
+  getStatusClass(item: any): string {
+    if (item.status === 6) return 'text-success fw-bold'; // Completed
+    
+    // Check if it's overdue
+    if (this.isOverdue(item)) {
+      return 'text-danger fw-bold'; // Overdue
     }
+    
+    return 'text-secondary'; // Pending (status = 1)
   }
 
-  getStatusText(status: number | undefined): string {
-    switch(status) {
-      case 2: return 'Completed';
-      case 1: return 'Overdue';
-      default: return 'Pending';
+  getStatusText(item: any): string {
+    if (item.status === 6) return 'Completed';
+    
+    // Check if it's overdue
+    if (this.isOverdue(item)) {
+      return 'Overdue';
     }
+    
+    return 'Pending';
   }
+  
 
-  getStatusIcon(status: number | undefined): string {
-    switch(status) {
-      case 2: return 'bi-check-circle-fill';
-      case 1: return 'bi-exclamation-triangle-fill';
-      default: return 'bi-clock-history';
-    }
+  
+getStatusIcon(item: any): string {
+  if (item.status === 6) return 'bi-check-circle-fill';
+  
+  // Check if it's overdue
+  if (this.isOverdue(item)) {
+    return 'bi-exclamation-triangle-fill';
   }
+  
+  return 'bi-clock-history';
+}
 
   openPaymentDialog(item: any): void {
     // const dialogRef = this.dialog.open(PaymentDialogComponent, {

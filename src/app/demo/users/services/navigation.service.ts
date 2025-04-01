@@ -80,14 +80,14 @@ export class NavigationService {
 
   private getRequiredPermission(url: string): string | null {
     const permissionMap: { [key: string]: string | null } = {
-      '/analytics': 'BRANCH_CREATE', // Frontend-only, no permission check
-      '/create-user': 'BRANCH_CREATE',
-      '/users': 'BRANCH_CREATE',
-      '/hp-registration': 'BRANCH_CREATE',
-      '/hp-registration/list': 'BRANCH_CREATE',
+      '/analytics': 'USER_CREATE', // Frontend-only, no permission check
+      '/create-user': 'USER_CREATE',
+      '/users': 'USER_READ',
+      '/hp-registration': 'HP_REGISTER_CREATE',
+      '/hp-registration/list': 'HP_REGISTER_CREATE',
       '/create-role': 'ROLE_CREATE',
-      '/branch/create': 'BRANCH_CREATE',
-      '/branch/list': 'BRANCH_READ',
+      // '/branch/create': 'BRANCH_CREATE',
+      // '/branch/list': 'BRANCH_READ',
       '/cif/list': 'CIF_READ',
       '/cif/create': 'CIF_CREATE',
       '/current-account/list': 'CURRENT_ACCOUNT_READ',
@@ -102,22 +102,22 @@ export class NavigationService {
       '/loan/create': 'LOAN_CREATE',
       '/dealer-list': 'DEALER_READ',
       '/dealer-registration': 'DEALER_CREATE',
-      '/product-types': 'BRANCH_CREATE',
-      '/create-product-type': 'BRANCH_CREATE',
-      '/hp-product/list': 'BRANCH_CREATE',
-      '/add-hp-product': 'BRANCH_CREATE',
-      '/component/button': 'BRANCH_CREATE', //frontend only
-      '/component/badges': 'BRANCH_CREATE', //frontend only
-      '/component/breadcrumb-paging': 'BRANCH_CREATE', //frontend only
-      '/component/collapse': 'BRANCH_CREATE', //frontend only
-      '/component/tabs-pills': 'BRANCH_CREATE', //frontend only
-      '/component/typography': 'BRANCH_CREATE', //frontend only
+      '/product-types': 'PRODUCT_TYPE_CREATE',
+      '/create-product-type': 'PRODUCT_TYPE_CREATE',
+      '/hp-product/list': 'HP_PRODUCT_READ',
+      '/add-hp-product': 'HP_PRODUCT_CREATE',
+      '/component/button': '', //frontend only
+      '/component/badges': '', //frontend only
+      '/component/breadcrumb-paging': '', //frontend only
+      '/component/collapse': '', //frontend only
+      '/component/tabs-pills': '', //frontend only
+      '/component/typography': '', //frontend only
       '/auth/signup': null, //frontend only
       '/auth/signin': null, //frontend only
-      '/chart': 'BRANCH_CREATE', //frontend only
-      '/forms': 'BRANCH_CREATE', //frontend only
-      '/tables': 'BRANCH_CREATE', //frontend only
-      '/sample-page': 'BRANCH_CREATE', //frontend only
+      '/chart': '', //frontend only
+      '/forms': '', //frontend only
+      '/tables': '', //frontend only
+      '/sample-page': '', //frontend only
       'javascript:': null //frontend only
     };
     return permissionMap[url] || 'UNKNOWN';

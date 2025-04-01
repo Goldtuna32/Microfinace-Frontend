@@ -131,7 +131,7 @@ export class CollateralFormComponent implements OnInit {
   }
 
   private loadCollateralTypes(branchId?: number): void {
-    this.clTypeService.getAllActiveCollateralTyp(branchId).subscribe({
+    this.clTypeService.getActiveCollateralTypes().subscribe({
       next: (data) => {
         this.collateralTypes = data;
         this.filteredCollateralTypes = data.slice(0, 10);

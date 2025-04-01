@@ -84,6 +84,18 @@ export class HpRegistrationComponent implements OnInit {
     });
   }
 
+  onProductChange(event: Event): void {
+    const productId = +(event.target as HTMLSelectElement).value;
+    const selectedProduct = this.hpProducts.find(p => p.id === productId);
+    
+    if (selectedProduct) {
+      this.hp.loanAmount = selectedProduct.price;
+    } else {
+      this.hp.loanAmount = 0;
+    }
+  }
+
+
   fetchHpProducts(branchId?: number): void {
     this.loading.set(true);
     this.error.set(null);

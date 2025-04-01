@@ -1,340 +1,177 @@
-<!-- Enhanced CIF Dashboard Component -->
-<div class="dashboard-container">
-  <!-- Header with animated background -->
-  <header class="dashboard-header animate__animated animate__fadeIn">
-    <div class="header-content container-fluid">
-      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-        <div class="header-title">
-          <h1 class="display-6 fw-bold mb-2">
-            <i class="bi bi-people-fill me-3 text-primary-gradient"></i>
-            Customer Information Files
-          </h1>
-          <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a href="#" class="text-decoration-none"><i class="bi bi-house-door-fill"></i> Home</a></li>
-              <li class="breadcrumb-item active" aria-current="page">CIF Management</li>
-            </ol>
-          </nav>
-        </div>
-        
-        <div class="header-actions mt-3 mt-md-0">
-          <div class="btn-group" role="group">
-            <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
-              <span class="visually-hidden">Toggle Dropdown</span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li><button class="dropdown-item" (click)="downloadReport('pdf')"><i class="bi bi-file-earmark-pdf-fill text-danger me-2"></i> Export PDF</button></li>
-              <li><button class="dropdown-item" (click)="downloadReport('excel')"><i class="bi bi-file-earmark-excel-fill text-success me-2"></i> Export Excel</button></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><button class="dropdown-item" (click)="toggleView()"><i class="bi me-2" [ngClass]="{'bi-eye-slash-fill': isDeletedView, 'bi-eye-fill': !isDeletedView}"></i> {{ isDeletedView ? 'View Active' : 'View Deleted' }}</button></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Dashboard Content -->
-  <main class="dashboard-main container-fluid mt-4">
-    <!-- Stats Cards Row -->
-    <div class="row g-4 mb-4">
-      <div class="col-md-6 col-lg-3">
-        <div class="stat-card bg-primary bg-opacity-10 rounded-4 p-4 h-100 animate__animated animate__fadeInLeft">
-          <div class="d-flex align-items-center">
-            <div class="stat-icon bg-primary rounded-3 p-3 me-3">
-              <i class="bi bi-people-fill fs-3 text-white"></i>
-            </div>
-            <div>
-              <h6 class="text-uppercase text-muted mb-1">Total CIFs</h6>
-              <h3 class="mb-0">{{ totalItems | number }}</h3>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-6 col-lg-3">
-        <div class="stat-card bg-success bg-opacity-10 rounded-4 p-4 h-100 animate__animated animate__fadeInLeft animate__delay-1s">
-          <div class="d-flex align-items-center">
-            <div class="stat-icon bg-success rounded-3 p-3 me-3">
-              <i class="bi bi-check-circle-fill fs-3 text-white"></i>
-            </div>
-            <div>
-              <h6 class="text-uppercase text-muted mb-1">Active</h6>
-              <h3 class="mb-0">{{ activeCount | number }}</h3>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-6 col-lg-3">
-        <div class="stat-card bg-warning bg-opacity-10 rounded-4 p-4 h-100 animate__animated animate__fadeInLeft animate__delay-2s">
-          <div class="d-flex align-items-center">
-            <div class="stat-icon bg-warning rounded-3 p-3 me-3">
-              <i class="bi bi-exclamation-triangle-fill fs-3 text-white"></i>
-            </div>
-            <div>
-              <h6 class="text-uppercase text-muted mb-1">Incomplete</h6>
-              <h3 class="mb-0">{{ incompleteCount | number }}</h3>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-6 col-lg-3">
-        <div class="stat-card bg-danger bg-opacity-10 rounded-4 p-4 h-100 animate__animated animate__fadeInLeft animate__delay-3s">
-          <div class="d-flex align-items-center">
-            <div class="stat-icon bg-danger rounded-3 p-3 me-3">
-              <i class="bi bi-trash-fill fs-3 text-white"></i>
-            </div>
-            <div>
-              <h6 class="text-uppercase text-muted mb-1">Deleted</h6>
-              <h3 class="mb-0">{{ deletedCount | number }}</h3>
-            </div>
-          </div>
+<div class="table-container">
+  <div *ngIf="!loading && !errorMessage">
+    <div class="table-header d-flex justify-content-between align-items-center mb-3">
+      <h3 class="fw-bold text-primary mb-0">
+        <i class="bi bi-people-fill me-2"></i>Customer Management
+      </h3>
+      <div class="d-flex">
+        <div class="search-box me-2">
+          <i class="bi bi-search search-icon"></i>
+          <input type="text" class="form-control search-input" placeholder="Search customers...">
         </div>
       </div>
     </div>
 
-    <!-- Main Card -->
-    <div class="card border-0 shadow-lg rounded-4 overflow-hidden animate__animated animate__fadeInUp">
-      <!-- Card Header -->
-      <div class="card-header bg-white py-3 border-0">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-          <div class="d-flex align-items-center mb-3 mb-md-0">
-            <div class="icon-shape bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3">
-              <i class="bi bi-table fs-3"></i>
-            </div>
-            <div>
-              <h5 class="mb-0 fw-bold">{{ isDeletedView ? 'Deleted CIF Records' : 'Active CIF Records' }}</h5>
-              <p class="text-muted mb-0 small">{{ totalItems }} records found</p>
-            </div>
-          </div>
-          
-          <div class="search-filter-container">
-            <div class="input-group">
-              <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-              <input type="text" class="form-control border-start-0" 
-                     [(ngModel)]="searchQuery" 
-                     (input)="applySearch()" 
-                     placeholder="Search customers...">
-              <button class="btn btn-outline-secondary" type="button" (click)="clearSearch()">
-                <i class="bi bi-x"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="table-responsive rounded-3 shadow-sm">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-primary">
+          <tr>
+            <th width="60" class="ps-4">#</th>
+            <th width="120">Serial Code</th>
+            <th>Customer</th>
+            <th>NRC Number</th>
+            <th>Date of Birth</th>
+            <th>Contact</th>
+            <th>Status</th>
+            <th class="text-end pe-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="dataSource.data.length === 0" class="no-data-row">
+            <td colspan="8" class="text-center py-5">
+              <div class="empty-state animate__animated animate__fadeIn">
+                <i class="bi bi-people display-4 text-primary opacity-25 mb-3"></i>
+                <h5 class="fw-semibold">No Customers Found</h5>
+                <p class="text-muted mb-4">Try adjusting your search or add a new customer</p>
+              </div>
+            </td>
+          </tr>
 
-      <!-- Card Body -->
-      <div class="card-body p-0">
-        <!-- Loading State -->
-        <div *ngIf="loading" class="loading-state text-center py-5">
-          <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem;" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <h5 class="mt-4 mb-2 animate__animated animate__pulse animate__infinite">Loading Customer Data</h5>
-          <p class="text-muted">Please wait while we fetch the latest records</p>
-        </div>
-
-        <!-- Error State -->
-        <div *ngIf="errorMessage" class="error-state p-4 animate__animated animate__shakeX">
-          <div class="alert alert-danger d-flex align-items-center border-0 shadow-sm">
-            <i class="bi bi-exclamation-octagon-fill fs-3 me-3"></i>
-            <div>
-              <h5 class="alert-heading mb-1">Error Loading Data</h5>
-              <p class="mb-0">{{ errorMessage }}</p>
-            </div>
-            <button type="button" class="btn-close ms-auto" (click)="errorMessage = ''" aria-label="Close"></button>
-          </div>
-        </div>
-
-        <!-- Data Table -->
-        <div *ngIf="!loading && !errorMessage" class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-              <tr>
-                <th width="60" class="ps-4">#</th>
-                <th>Customer</th>
-                <th>NRC Number</th>
-                <th>Date of Birth</th>
-                <th>Contact</th>
-                <th>Status</th>
-                <th class="text-end pe-4">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngIf="dataSource.data.length === 0" class="no-data-row">
-                <td colspan="7" class="text-center py-5">
-                  <div class="empty-state animate__animated animate__fadeIn">
-                    <i class="bi bi-people display-4 text-muted opacity-25 mb-3"></i>
-                    <h5>No Customers Found</h5>
-                    <p class="text-muted mb-4">Try adjusting your search query</p>
-                  </div>
-                </td>
-              </tr>
-              
-              <tr *ngFor="let row of dataSource.data; let i = index" 
-                  class="animate__animated animate__fadeIn" 
-                  [ngClass]="{'animate__delay-1s': i % 2 === 0}">
-                <td class="ps-4">
-                  <span class="badge bg-secondary rounded-pill">{{ (currentPage * pageSize) + i + 1 }}</span>
-                </td>
-                <td>
-                  <div class="d-flex align-items-center">
-                    <div class="avatar avatar-md bg-primary bg-opacity-10 text-primary rounded-circle me-3">
-                      {{ row.name.charAt(0) }}
-                    </div>
-                    <div>
-                      <h6 class="mb-0 fw-semibold">{{ row.name }}</h6>
-                      <small class="text-muted">{{ row.email || 'No email' }}</small>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <span class="badge bg-light text-dark font-monospace">{{ row.nrcNumber }}</span>
-                </td>
-                <td>
-                  <span class="d-inline-block" data-bs-toggle="tooltip" [title]="row.dob | date:'fullDate'">
-                    {{ row.dob | date:'mediumDate' }}
-                  </span>
-                </td>
-                <td>
-                  <div class="d-flex flex-column">
-                    <a href="tel:{{row.phoneNumber}}" class="text-decoration-none">
-                      <i class="bi bi-telephone me-1"></i> {{ row.phoneNumber }}
-                    </a>
-                    
-                  </div>
-                </td>
-                <td>
-                  <span class="badge rounded-pill" 
-                        [ngClass]="{
-                          'bg-success': row.status === 1,
-                          'bg-danger': row.status === 2
-                        }">
-                    <i class="bi me-1" 
-                       [ngClass]="{
-                         'bi-check-circle': row.status === 1,
-                         'bi-trash': row.status === 2
-                       }"></i>
-{{ row.status === 1 ? 'Active' : 'Deleted' }}
-                  </span>
-                </td>
-                <td class="text-end pe-4">
-                  <div class="dropdown" #dropdown>
-                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" 
-                            type="button" 
-                            (click)="toggleDropdown($event, row.id)"
-                            [attr.aria-expanded]="isDropdownActive(row.id)">
-                      <i class="bi bi-three-dots-vertical"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" [class.show]="isDropdownActive(row.id)">
-                      <ng-container *ngIf="!isDeletedView">
-                        <li>
-                          <button class="dropdown-item" (click)="editCIF(row); $event.stopPropagation()">
-                            <i class="bi bi-pencil-square text-primary me-2"></i> Edit
-                          </button>
-                        </li>
-                        <li>
-                          <button class="dropdown-item" (click)="openCifDetail(row); $event.stopPropagation()">
-                            <i class="bi bi-eye-fill text-info me-2"></i> View Details
-                          </button>
-                        </li>
-                        <li>
-                          <button class="dropdown-item text-danger" (click)="deleteCIF(row.id); $event.stopPropagation()">
-                            <i class="bi bi-trash-fill me-2"></i> Delete
-                          </button>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                          <button class="dropdown-item" 
-                                  [disabled]="row.hasCurrentAccount"
-                                  (click)="openCurrentAccountDialog(row); $event.stopPropagation()">
-                            <i class="bi me-2" 
-                              [ngClass]="{
-                                'bi-check-circle-fill text-success': row.hasCurrentAccount, 
-                                'bi-bank text-primary': !row.hasCurrentAccount
-                              }"></i>
-                            {{ row.hasCurrentAccount ? 'Account Exists' : 'Create Account' }}
-                          </button>
-                        </li>
-                      </ng-container>
-                
-                      <ng-container *ngIf="isDeletedView">
-                        <li>
-                          <button class="dropdown-item text-success" (click)="restoreCIF(row.id); $event.stopPropagation()">
-                            <i class="bi bi-arrow-counterclockwise me-2"></i> Restore
-                          </button>
-                        </li>
-                        <li>
-                          <button class="dropdown-item" (click)="openCifDetail(row); $event.stopPropagation()">
-                            <i class="bi bi-eye-fill text-info me-2"></i> View Details
-                          </button>
-                        </li>
-                      </ng-container>
-                    </ul>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Pagination -->
-        <div *ngIf="totalPages > 1" class="pagination-container p-4 border-top">
-          <div class="row align-items-center">
-            <div class="col-md-6 mb-3 mb-md-0">
+          <tr
+            *ngFor="let row of paginatedData; let i = index"
+            class="animate__animated animate__fadeInUp table-row"
+            [ngClass]="{'animate__delay-1s': i % 2 === 0}"
+            [class.table-row-hover]="i % 2 === 0"
+          >
+            <td class="ps-4">
+              <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill fw-semibold">
+                {{ (currentPage * pageSize) + i + 1 }}
+              </span>
+            </td>
+            <td>
+              <span class="font-monospace text-primary fw-semibold">{{ row.serialNumber }}</span>
+            </td>
+            <td>
               <div class="d-flex align-items-center">
-                <span class="me-2 text-muted">Rows per page:</span>
-                <select class="form-select form-select-sm w-auto" 
-                        [(ngModel)]="pageSize" 
-                        (ngModelChange)="loadCIFs()">
-                  <option value="5">5</option>
-                  <option value="10">10</option>
-                  <option value="25">25</option>
-                  <option value="50">50</option>
-                </select>
-                <span class="ms-3 text-muted">
-                  {{ (currentPage * pageSize) + 1 }}-{{ Math.min((currentPage + 1) * pageSize, totalItems) }} of {{ totalItems }}
+                <div class="avatar avatar-md bg-primary bg-opacity-10 text-primary rounded-circle me-3 d-flex align-items-center justify-content-center">
+                  <span class="fw-semibold">{{ row.name.charAt(0) }}</span>
+                </div>
+                <div>
+                  <h6 class="mb-0 fw-semibold">{{ row.name }}</h6>
+                  <small class="text-muted d-flex align-items-center">
+                    <i class="bi bi-envelope me-1"></i> {{ row.email || 'No email' }}
+                  </small>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="badge bg-light text-dark font-monospace px-3 py-2">
+                <i class="bi bi-credit-card me-1"></i> {{ row.nrcNumber }}
+              </span>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <i class="bi bi-calendar3 me-2 text-muted"></i>
+                <span class="d-inline-block" [matTooltip]="row.dob | date:'fullDate'">
+                  {{ row.dob | date:'mediumDate' }}
                 </span>
               </div>
-            </div>
-            <div class="col-md-6">
-              <nav aria-label="Pagination">
-                <ul class="pagination justify-content-end mb-0">
-                  <li class="page-item" [class.disabled]="currentPage === 0">
-                    <button class="page-link" (click)="goToPage(1)" aria-label="First">
-                      <i class="bi bi-chevron-double-left"></i>
-                    </button>
-                  </li>
-                  <li class="page-item" [class.disabled]="currentPage === 0">
-                    <button class="page-link" (click)="previousPage()" aria-label="Previous">
-                      <i class="bi bi-chevron-left"></i>
-                    </button>
-                  </li>
-                  
-                  <ng-container *ngFor="let page of getPageNumbers()">
-                    <li class="page-item" [class.active]="page === currentPage + 1">
-                      <button class="page-link" (click)="goToPage(page)">{{ page }}</button>
-                    </li>
-                  </ng-container>
-                  
-                  <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
-                    <button class="page-link" (click)="nextPage()" aria-label="Next">
-                      <i class="bi bi-chevron-right"></i>
-                    </button>
-                  </li>
-                  <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
-                    <button class="page-link" (click)="goToPage(totalPages)" aria-label="Last">
-                      <i class="bi bi-chevron-double-right"></i>
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            </div>
-          </div>
-        </div>
-      </div>
+            </td>
+            <td>
+              <div class="d-flex flex-column">
+                <a href="tel:{{row.phoneNumber}}" class="text-decoration-none text-dark">
+                  <i class="bi bi-telephone me-1"></i> {{ row.phoneNumber }}
+                </a>
+                <small class="text-muted mt-1">
+                  <i class="bi bi-geo-alt me-1"></i> {{ row.address || 'No address' }}
+                </small>
+              </div>
+            </td>
+            <td>
+              <span
+                class="badge rounded-pill py-2 px-3 d-inline-flex align-items-center"
+                [ngClass]="{
+                  'bg-success bg-opacity-10 text-success': row.status === 1,
+                  'bg-danger bg-opacity-10 text-danger': row.status === 2,
+                  'bg-warning bg-opacity-10 text-warning': row.status === 3
+                }"
+              >
+                <i
+                  class="bi me-1"
+                  [ngClass]="{
+                    'bi-check-circle-fill': row.status === 1,
+                    'bi-trash-fill': row.status === 2,
+                    'bi-exclamation-circle-fill': row.status === 3
+                  }"
+                ></i>
+                {{ getStatusText(row.status) }}
+              </span>
+            </td>
+            <td class="text-end pe-4">
+              <div class="btn-group">
+                <button class="btn btn-sm btn-outline-primary" (click)="editCIF(row)">
+                  <i class="bi bi-pencil-square"></i> Edit
+                </button>
+                <button class="btn btn-sm btn-outline-info" (click)="openCifDetail(row)">
+                  <i class="bi bi-eye-fill"></i> Details
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteCIF(row.id)">
+                  <i class="bi bi-trash-fill"></i> Delete
+                </button>
+                <button class="btn btn-sm btn-outline-success" 
+                [disabled]="row.hasCurrentAccount" 
+                (click)="openCurrentAccountDialog(row); $event.stopPropagation()">
+          <i [ngClass]="{
+            'bi-check-circle-fill': row.hasCurrentAccount,
+            'bi-bank': !row.hasCurrentAccount
+          }"></i>
+          {{ row.hasCurrentAccount ? 'Account Exists' : 'Create Account' }}
+        </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-  </main>
+
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <div class="text-muted">
+        Showing {{ (currentPage * pageSize) + 1 }} to {{ (currentPage * pageSize) + paginatedData.length }}
+        of {{ dataSource.data.length }} entries
+      </div>
+      <nav>
+        <ul class="pagination pagination-sm">
+          <li class="page-item" [class.disabled]="currentPage === 0">
+            <a class="page-link" (click)="previousPage()">
+              <i class="bi bi-chevron-left"></i>
+            </a>
+          </li>
+          <li
+            class="page-item"
+            *ngFor="let page of getPages()"
+            [class.active]="page === currentPage"
+          >
+            <a class="page-link" (click)="goToPage(page)">{{ page + 1 }}</a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === getLastPage()">
+            <a class="page-link" (click)="nextPage()">
+              <i class="bi bi-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-overlay d-flex justify-content-center align-items-center">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <span class="ms-3 fw-semibold">Loading customers...</span>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger animate__animated animate__shakeX">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    {{ errorMessage }}
+  </div>
 </div>

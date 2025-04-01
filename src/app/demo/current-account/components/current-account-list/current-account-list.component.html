@@ -72,7 +72,7 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header class="bg-primary text-white">Balance</th>
             <td mat-cell *matCellDef="let row" class="fw-bold" 
                 [ngClass]="{'text-success': row.balance >= 0, 'text-danger': row.balance < 0}">
-              {{ row.balance | currency }}
+              {{ row.balance + row.minimumBalance | currency }}
             </td>
           </ng-container>
 

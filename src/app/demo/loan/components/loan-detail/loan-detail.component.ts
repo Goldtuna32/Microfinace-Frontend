@@ -19,6 +19,7 @@ export class LoanDetailComponent implements OnInit{
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private loanService: LoanService
   ) { }
 
@@ -96,5 +97,9 @@ export class LoanDetailComponent implements OnInit{
         this.error = 'Failed to download report';
       }
     });
+  }
+
+  goBack(): void {
+    this.router.navigate(['/loan/list']);
   }
 }

@@ -82,42 +82,37 @@ export class ProductTypeListComponent {
 
   loadProductTypes(branchId?: number): void {
     this.loading = true;
-    const serviceCall = this.showDeleted // Use showDeleted correctly
-        ? this.productTypeService.getAllInactiveTyp(branchId) // Corrected logic
-        : this.productTypeService.getAllActiveProductTyp(branchId);
-
-    serviceCall.subscribe({
-        next: (data) => {
-            this.dataSource.data = data;
-            this.productTypes = data;
-            this.dataSource.paginator = this.paginator;
-            this.dataSource.sort = this.sort;
-            this.loading = false;
-            this.updateFilteredProductTypes(); // Update after loading
-        },
-        error: (err) => {
-            this.errorMessage = `Failed to load product types: ${err.message}`;
-            this.loading = false;
-        }
+  
+    this.productTypeService.getAllProductTypes().subscribe({
+      next: (data) => {
+        this.dataSource.data = data;
+        this.productTypes = data;
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+        this.loading = false;
+        this.updateFilteredProductTypes();
+      },
+      error: (err) => {
+        this.errorMessage = `Failed to load product types: ${err.message}`;
+        this.loading = false;
+      }
     });
-}
-
+  }
 
   updateFilteredProductTypes(): void {
     this.filteredProductTypes = this.productTypes.filter(pt => {
-        const matchesStatus = this.isInactiveView 
-            ? pt.status === 0 || pt.status === 2
-            : pt.status === 1;
-        const matchesFilter = this.searchTerm 
-            ? pt.name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ?? true
-            : true;
-        return matchesStatus && matchesFilter;
+      const matchesStatus = this.isInactiveView
+        ? pt.status === 0 || pt.status === 2
+        : pt.status === 1;
+      const matchesFilter = this.searchTerm
+        ? pt.name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ?? true
+        : true;
+      return matchesStatus && matchesFilter;
     });
 
-    // Reset to first page when filtering
     this.currentPage = 0;
     this.updatePaginator();
-}
+  }
 
   updatePaginator(): void {
     if (this.paginator) {
@@ -153,11 +148,11 @@ export class ProductTypeListComponent {
 
   toggleView(): void {
     this.isInactiveView = !this.isInactiveView;
-    this.showDeleted = this.isInactiveView;  // Synchronize showDeleted
-    this.loadProductTypes();             // Reload data after toggling
+    this.showDeleted = this.isInactiveView;
+    this.loadProductTypes();
     this.updateFilteredProductTypes();
-}
-
+  }
+  
   getPageNumbers(): number[] {
     const totalPages = this.getTotalPages();
     return Array.from({ length: totalPages }, (_, i) => i);

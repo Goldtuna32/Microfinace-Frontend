@@ -11,23 +11,8 @@ export class ProductTypeService {
 
   constructor(private http: HttpClient) {}
 
-  getAllActiveProductTyp(branchId?: number): Observable<ProductType[]> {
-    let params = new HttpParams();
-    if (branchId !== undefined && branchId !== null) {
-      params = params.set('branchId', branchId.toString());
-    }
-
-    return this.http.get<ProductType[]>(`${this.apiUrl}/activeProductType`, { params });
-  }
-
-  getAllInactiveTyp(branchId?: number): Observable<ProductType[]> {
-    let params = new HttpParams();
-    if (branchId !== undefined && branchId !== null) {
-      params = params.set('branchId', branchId.toString());
-    }
-   
-
-    return this.http.get<ProductType[]>(`${this.apiUrl}/InactiveProductType`, { params });
+  getAllProductTypes(): Observable<ProductType[]> {
+    return this.http.get<ProductType[]>(this.apiUrl);
   }
 
   getProductTypeById(id: number): Observable<ProductType> {

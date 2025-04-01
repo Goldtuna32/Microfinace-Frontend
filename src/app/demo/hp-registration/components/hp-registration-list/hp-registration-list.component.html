@@ -1,182 +1,129 @@
-<div class="container-fluid px-4 py-4 animate__animated animate__fadeIn">
-  <div class="card shadow-lg border-0 rounded-lg">
-    <div class="card-header bg-primary text-white rounded-top">
-      <div class="d-flex justify-content-between align-items-center">
-        <h3 class="mb-0">
-          <i class="bi bi-file-earmark-text me-2"></i>HP Registrations Management
-        </h3>
-        <div class="badge bg-light text-dark fs-6 p-2">
-          <i class="bi bi-info-circle me-1"></i>
-          Total: {{pendingCount + approvedCount}} | Pending: {{pendingCount}} | Approved: {{approvedCount}}
-        </div>
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5>HP Registrations</h5>
+    <div>
+      <button class="btn btn-primary" [routerLink]="['/hp-registration']">
+        <i class="bi bi-plus-lg me-1"></i> Add New HP
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    <!-- Error message display -->
+    <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+    <!-- Loading indicator -->
+    <div *ngIf="loading" class="text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
       </div>
-      
-      <ul class="nav nav-pills card-header-pills mt-3">
-        <li class="nav-item me-2">
-          <a class="nav-link d-flex align-items-center" 
-             [class.active]="currentTab === 'pending'" 
-             (click)="setTab('pending')">
-            <i class="bi bi-hourglass-split me-2"></i>
-            Pending <span class="badge bg-danger ms-2">{{pendingCount}}</span>
-          </a>
+    </div>
+
+    <!-- Tab navigation -->
+    <ul class="nav nav-tabs mb-4">
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="currentTab === 'pending'" (click)="setTab('pending')">
+          Pending <span class="badge bg-warning ms-1">{{ pendingCount }}</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="currentTab === 'approved'" (click)="setTab('approved')">
+          Approved <span class="badge bg-success ms-1">{{ approvedCount }}</span>
+        </a>
+      </li>
+    </ul>
+
+    <!-- Toggle deleted items -->
+    <div class="form-check form-switch mb-3">
+      <input class="form-check-input" type="checkbox" id="showDeletedToggle" [(ngModel)]="showDeleted" (change)="toggleDeletedList()">
+      <label class="form-check-label" for="showDeletedToggle">Show Deleted Registrations</label>
+    </div>
+
+    <!-- HP Registrations Table -->
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th (click)="sort('hpNumber')">HP Number</th>
+            <th (click)="sort('loanAmount')">Loan Amount</th>
+            <th (click)="sort('downPayment')">Down Payment</th>
+            <th (click)="sort('bankPortion')">Bank Portion</th>
+            <th (click)="sort('status')">Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let hp of paginatedHpRegistrations">
+            <td>{{ hp.hpNumber }}</td>
+            <td>{{ hp.loanAmount | currency }}</td>
+            <td>{{ hp.downPayment | currency }}</td>
+            <td>{{ hp.bankPortion | currency }}</td>
+            <td>
+              <span [ngClass]="{
+                'badge bg-warning': hp.status === 3,
+                'badge bg-success': hp.status === 4,
+                'badge bg-danger': hp.status === 2
+              }">
+                {{ getStatusText(hp.status) }}
+              </span>
+            </td>
+            <td>
+              <div class="btn-group" role="group">
+                <!-- Approve button for pending registrations -->
+                <button *ngIf="hp.status === 3" 
+                        class="btn btn-success btn-sm d-flex align-items-center"
+                        (click)="approveHpRegistration(hp)">
+                  <i class="bi bi-check-lg me-1"></i> Approve
+                </button>
+                
+                <!-- View button -->
+                <button class="btn btn-info btn-sm d-flex align-items-center"
+                        [routerLink]="['/hp-registrations', hp.id]">
+                  <i class="bi bi-eye me-1"></i> View
+                </button>
+                
+                <!-- View Schedule button for approved registrations -->
+                <button *ngIf="hp.status === 4" 
+                        class="btn btn-primary btn-sm d-flex align-items-center"
+                        [routerLink]="['/hp-schedule', hp.id]">
+                  <i class="bi bi-calendar-check me-1"></i> View Schedule
+                </button>
+                
+                <!-- Delete button for active registrations -->
+                <button *ngIf="hp.status === 1" 
+                        class="btn btn-outline-danger btn-sm d-flex align-items-center"
+                        (click)="hp.id && softDelete(hp.id)">
+                  <i class="bi bi-trash me-1"></i> Delete
+                </button>
+                
+                <!-- Restore button for deleted registrations -->
+                <button *ngIf="hp.status === 2" 
+                        class="btn btn-warning btn-sm d-flex align-items-center"
+                        (click)="hp.id && restoreHpRegistration(hp.id)">
+                  <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="paginatedHpRegistrations.length === 0 && !loading">
+            <td colspan="9" class="text-center">No HP registrations found</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination controls -->
+    <nav *ngIf="currentDataSource.length > pageSize">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <a class="page-link" (click)="goToPreviousPage()">Previous</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link d-flex align-items-center" 
-             [class.active]="currentTab === 'approved'" 
-             (click)="setTab('approved')">
-            <i class="bi bi-check-circle me-2"></i>
-            Approved <span class="badge bg-success ms-2">{{approvedCount}}</span>
-          </a>
+        <li *ngFor="let page of getPageNumbers()" class="page-item" [class.active]="page + 1 === currentPage">
+          <a class="page-link" (click)="goToPage(page + 1)">{{ page + 1 }}</a>
+        </li>
+        <li class="page-item" [class.disabled]="currentPage === getTotalPages()">
+          <a class="page-link" (click)="goToNextPage()">Next</a>
         </li>
       </ul>
-    </div>
-
-    <div class="card-body p-0">
-      <div *ngIf="loading" class="d-flex justify-content-center align-items-center py-5">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-        <span class="ms-3">Loading registrations...</span>
-      </div>
-
-      <div *ngIf="!loading && error" class="alert alert-danger m-4 animate__animated animate__shakeX">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{error}}
-      </div>
-
-      <div *ngIf="!loading && !hpRegistrations.length" class="text-center py-5">
-        <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
-        <h4 class="mt-3 text-muted">No registrations found</h4>
-        <p class="text-muted">There are currently no {{currentTab}} HP registrations</p>
-      </div>
-
-      <div *ngIf="!loading && hpRegistrations.length" class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
-            <tr>
-              <th (click)="sort('id')" class="cursor-pointer">
-                ID <i class="bi bi-arrow-down-up ms-1"></i>
-              </th>
-              <th (click)="sort('hpNumber')" class="cursor-pointer">
-                HP Number <i class="bi bi-arrow-down-up ms-1"></i>
-              </th>
-              <th (click)="sort('loanAmount')" class="cursor-pointer">
-                Loan Amount <i class="bi bi-arrow-down-up ms-1"></i>
-              </th>
-              <th (click)="sort('downPayment')" class="cursor-pointer">
-                Down Payment <i class="bi bi-arrow-down-up ms-1"></i>
-              </th>
-              <th>Bank Portion</th>
-              <th (click)="sort('loanTerm')" class="cursor-pointer">
-                Term <i class="bi bi-arrow-down-up ms-1"></i>
-              </th>
-              <th (click)="sort('interestRate')" class="cursor-pointer">
-                Rate <i class="bi bi-arrow-down-up ms-1"></i>
-              </th>
-              <th>Status</th>
-              <th class="text-end">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let hp of paginatedHpRegistrations" 
-                class="animate__animated animate__fadeIn" 
-                [ngClass]="{'table-warning': hp.status === 3, 'table-success': hp.status === 4}">
-              <td class="fw-bold">#{{ hp.id }}</td>
-              <td>
-                <span class="badge bg-primary bg-opacity-10 text-primary">{{ hp.hpNumber }}</span>
-              </td>
-              <td class="fw-bold">{{ hp.loanAmount | currency:'USD':'symbol':'1.0-0' }}</td>
-              <td>{{ hp.downPayment | currency:'USD':'symbol':'1.0-0' }}</td>
-              <td>
-                <div *ngIf="hp.status === 4" class="fw-bold text-success">
-                  {{ hp.loanAmount - hp.downPayment | currency:'USD':'symbol':'1.0-0' }}
-                </div>
-                <div *ngIf="hp.status === 3" class="input-group input-group-sm">
-                  <span class="input-group-text">$</span>
-                  <input type="number" class="form-control" 
-                         [(ngModel)]="hp.bankPortion" 
-                         [value]="hp.loanAmount - hp.downPayment"
-                         style="width: 100px;">
-                </div>
-              </td>
-              <td>{{ hp.loanTerm }} mos</td>
-              <td>{{ hp.interestRate }}%</td>
-              <td>
-                <span class="badge rounded-pill d-flex align-items-center" 
-                      [ngClass]="{
-                        'bg-success': hp.status === 4,
-                        'bg-warning': hp.status === 3,
-                        'bg-danger': hp.status === 2
-                      }">
-                  <i *ngIf="hp.status === 4" class="bi bi-check-circle me-1"></i>
-                  <i *ngIf="hp.status === 3" class="bi bi-hourglass-split me-1"></i>
-                  <i *ngIf="hp.status === 2" class="bi bi-trash me-1"></i>
-                  {{ getStatusText(hp.status) }}
-                </span>
-              </td>
-              <td class="text-end">
-                <div class="d-flex justify-content-end gap-2">
-                  <button *ngIf="hp.status === 3" 
-                          class="btn btn-success btn-sm d-flex align-items-center"
-                          (click)="approveHpRegistration(hp)">
-                    <i class="bi bi-check-lg me-1"></i> Approve
-                  </button>
-                  <button class="btn btn-info btn-sm d-flex align-items-center"
-                          [routerLink]="['/hp-registrations', hp.id]">
-                      <i class="bi bi-eye me-1"></i> View
-                    </button>
-                    <button *ngIf="hp.status === 4" 
-                            class="btn btn-primary btn-sm d-flex align-items-center"
-                          [routerLink]="['/hp-schedule', hp.id]">
-                      <i class="bi bi-calendar-check me-1"></i> View Schedule
-                   </button>
-                    
-                  <button *ngIf="hp.status === 1" 
-                          class="btn btn-outline-danger btn-sm d-flex align-items-center"
-                          (click)="hp.id && softDelete(hp.id)">
-                    <i class="bi bi-trash me-1"></i> Delete
-                  </button>
-                  <button *ngIf="hp.status !== 1" 
-                          class="btn btn-outline-primary btn-sm d-flex align-items-center"
-                          (click)="restoreHpRegistration(hp.id)">
-                    <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Pagination -->
-      <div *ngIf="!loading && getTotalPages() > 1" class="card-footer bg-light d-flex justify-content-between align-items-center">
-        <div>
-          Showing {{(currentPage - 1) * pageSize + 1}} to 
-          {{Math.min(currentPage * pageSize, hpRegistrations.length)}} of 
-          {{hpRegistrations.length}} entries
-        </div>
-        <nav>
-          <ul class="pagination pagination-sm mb-0">
-            <li class="page-item" [class.disabled]="currentPage === 1">
-              <a class="page-link" (click)="goToPreviousPage()">
-                <i class="bi bi-chevron-left"></i>
-              </a>
-            </li>
-            
-            <li *ngFor="let page of getPageNumbers()" class="page-item" 
-                [class.active]="currentPage === page + 1">
-              <a class="page-link" (click)="goToPage(page + 1)">
-                {{ page + 1 }}
-              </a>
-            </li>
-            
-            <li class="page-item" [class.disabled]="currentPage === getTotalPages()">
-              <a class="page-link" (click)="goToNextPage()">
-                <i class="bi bi-chevron-right"></i>
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </div>
+    </nav>
   </div>
 </div>

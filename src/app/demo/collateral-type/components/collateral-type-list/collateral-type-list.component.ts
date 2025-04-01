@@ -52,11 +52,11 @@ export class CollateralTypeListComponent implements OnInit {
     }
   }
 
-  loadCollateralTypes(branchId?: number): void {
+  loadCollateralTypes(): void {
     this.loading = true;
     const serviceCall = this.showDeleted
-        ? this.collateralService.getAllInactiveCollateralTyp(branchId)
-        : this.collateralService.getAllActiveCollateralTyp(branchId);
+        ? this.collateralService.getActiveCollateralTypes()
+        : this.collateralService.getDeletedCollateralTypes();
 
     serviceCall.subscribe({
         next: (data) => {

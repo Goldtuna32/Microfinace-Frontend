@@ -29,7 +29,7 @@
           <div class="col-md-4">
             <div class="form-floating">
               <input type="number" id="loanAmount" class="form-control" [(ngModel)]="hp.loanAmount" 
-                     name="loanAmount" required placeholder="Loan Amount">
+                     name="loanAmount" readonly placeholder="Loan Amount">
               <label for="loanAmount" class="text-primary">
                 <i class="bi bi-currency-dollar me-2"></i>Loan Amount
               </label>
@@ -102,25 +102,6 @@
           </div>
         </div>
 
-        <!-- Fourth Row - Dates -->
-        <div class="row mb-4">
-         
-          
-          <div class="col-md-4">
-            <div class="form-floating">
-              <select id="status" class="form-select" [(ngModel)]="hp.status" name="status" required>
-                <option [value]="1">Pending</option>
-                <option [value]="2">Approved</option>
-                <option [value]="3">Rejected</option>
-                <option [value]="4">Active</option>
-              </select>
-              <label for="status" class="text-primary">
-                <i class="bi bi-list-check me-2"></i>Status
-              </label>
-            </div>
-          </div>
-        </div>
-
         <!-- Fifth Row - Dropdowns -->
         <div class="row mb-4">
           <div class="col-md-6">
@@ -141,10 +122,10 @@
           <div class="col-md-6">
             <div class="form-floating">
               <select id="hpProduct" class="form-select" [(ngModel)]="hp.hpProductId" 
-                      name="hpProductId" required>
+                      name="hpProductId" required (change)="onProductChange($event)">
                 <option value="" disabled selected>Select a product</option>
                 <option *ngFor="let product of hpProducts" [value]="product.id">
-                  {{ product.name }} - {{ product.category }}
+                  {{ product.name }} - {{ product.price | currency }}
                 </option>
               </select>
               <label for="hpProduct" class="text-primary">

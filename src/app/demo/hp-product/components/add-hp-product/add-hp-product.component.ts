@@ -7,6 +7,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { UserService } from 'src/app/demo/users/services/user.service';
 import { DealerRegistrationService } from 'src/app/demo/dealer-registration/services/dealer-registration.service';
+import { ProductTypeService } from 'src/app/demo/product-type/services/product-type.service';
 
 @Component({
   selector: 'app-add-hp-product',
@@ -36,7 +37,8 @@ export class AddHpProductComponent {
     private dealerService: DealerRegistrationService,
     private router: Router,
     private userService: UserService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private productTypeSer: ProductTypeService
   ) {}
 
   ngOnInit() {
@@ -73,10 +75,16 @@ export class AddHpProductComponent {
   }
 
   loadProductTypes() {
-    this.hpProductService.getAllActiveProducts().subscribe({
+    this.productTypeSer.getAllProductTypes().subscribe({
       next: (types) => {
-        this.productTypes = types;
-        if (types.length > 0) this.hpProduct.productTypeId = types[0].id;
+        // Ensure all product types have required properties before assignment
+        this.productTypes = types.map(type => ({
+          id: type.id,
+          name: type.name || ''
+        }));
+        if (this.productTypes.length > 0) {
+          this.hpProduct.productTypeId = this.productTypes[0].id;
+        }
       },
       error: (error) => console.error('Error loading product types:', error)
     });

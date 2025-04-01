@@ -12,23 +12,12 @@ export class CollateralTypeService {
 
   constructor(private http: HttpClient) {}
 
-  getAllActiveCollateralTyp(branchId?: number): Observable<CollateralType[]> {
-    let params = new HttpParams();
-    if (branchId !== undefined && branchId !== null) {
-      params = params.set('branchId', branchId.toString());
-    }
-
-    return this.http.get<CollateralType[]>(`${this.baseUrl}/activeCollateralType`, { params });
+  getActiveCollateralTypes(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/active`);
   }
 
-  getAllInactiveCollateralTyp(branchId?: number): Observable<CollateralType[]> {
-    let params = new HttpParams();
-    if (branchId !== undefined && branchId !== null) {
-      params = params.set('branchId', branchId.toString());
-    }
-   
-
-    return this.http.get<CollateralType[]>(`${this.baseUrl}/inactiveCollateralType`, { params });
+  getDeletedCollateralTypes(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/deleted`);
   }
   
   softDeleteCollateralType(id: number): Observable<void> {

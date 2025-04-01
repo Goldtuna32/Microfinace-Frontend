@@ -9,6 +9,10 @@ import { AlertService } from 'src/app/alertservice/alert.service';
 import { FlowbiteService } from 'src/app/flowbite services/flowbit.service';
 import { initFlowbite } from 'flowbite';
 import { EmailService } from 'src/app/emailservice/email.service';
+import { AuthService } from 'src/app/auth/auth.service';
+import { User } from 'src/app/demo/users/models/User.model';
+import { Subscription } from 'rxjs';
+import { UserService } from 'src/app/demo/users/services/user.service';
 
 @Component({
   selector: 'app-nav-right',
@@ -40,6 +44,8 @@ export class NavRightComponent implements OnInit, OnDestroy {
   emailTo: string = '';
   emailSubject: string = '';
   emailBody: string = '';
+  currentUser: User | null = null;
+  private userSubscription: Subscription | undefined; 
   
 
   constructor(
@@ -48,10 +54,13 @@ export class NavRightComponent implements OnInit, OnDestroy {
     private alertService: AlertService,
     private flowbiteService: FlowbiteService,
     private emailService: EmailService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService,
+    private userService: UserService
   ) {}
 
   ngOnInit() {
+    this.loadCurrentUser();
     this.loadNotifications();
     this.connectWebSocket();
     this.loadEmailList();
@@ -64,6 +73,17 @@ export class NavRightComponent implements OnInit, OnDestroy {
         this.showSuccessAlert = false;
       }, 5000);
     });
+  }
+
+  loadCurrentUser() {
+    this.userSubscription = this.userService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+    });
+  }
+
+  logout() {
+    this.authService.logout(); // Call your AuthService's logout method
+    this.router.navigate(['/auth/signin']); // Redirect to login
   }
 
   toggleComposeForm(event: Event) {

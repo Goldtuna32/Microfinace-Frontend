@@ -1,10 +1,10 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { Branch, PermissionDTO, UserDTO, UserService } from '../../services/user.service';
+import { Component, OnInit } from '@angular/core';
+import { Branch, UserDTO, UserService } from '../../services/user.service';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { BranchService } from 'src/app/demo/branch/services/branch.service';
-import {RoleService } from 'src/app/demo/role/services/role.service';
+import { RoleService } from 'src/app/demo/role/services/role.service';
 import { RoleDTO } from 'src/app/demo/role/models/role-permission';
 
 @Component({
@@ -27,7 +27,7 @@ import { RoleDTO } from 'src/app/demo/role/models/role-permission';
     ])
   ]
 })
-export class UserCreateComponent implements OnInit{
+export class UserCreateComponent implements OnInit {
   userForm: FormGroup;
   profilePicturePreview: string | ArrayBuffer | null = null;
   roles: RoleDTO[] = [];
@@ -46,11 +46,15 @@ export class UserCreateComponent implements OnInit{
     this.userForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
+      password: ['', [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/)
+      ]],
       phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10,15}$/)]],
       dob: [''],
-      roleId: [0, [Validators.required, Validators.min(1)]],
-      branchId: [0, [Validators.required, Validators.min(1)]],
+      roleId: [null, [Validators.required, Validators.min(1)]],
+      branchId: [null, [Validators.required, Validators.min(1)]],
       profilePicture: [null]
     });
   }
@@ -83,7 +87,6 @@ export class UserCreateComponent implements OnInit{
     this.loading = true;
     this.branchService.getBranches().subscribe({
       next: (branches) => {
-        console.log('Branches:', branches);
         this.branches = branches;
         this.loading = false;
       },
@@ -101,7 +104,6 @@ export class UserCreateComponent implements OnInit{
       const file = input.files[0];
       this.userForm.patchValue({ profilePicture: file });
       
-      // Create preview
       const reader = new FileReader();
       reader.onload = () => {
         this.profilePicturePreview = reader.result;
@@ -132,19 +134,27 @@ export class UserCreateComponent implements OnInit{
     this.errorMessage = '';
     this.successMessage = '';
 
-    const formData = new FormData();
     const formValue = this.userForm.value;
+    const formData = new FormData();
 
-    // Append all form values except profilePicture
-    Object.keys(formValue).forEach(key => {
-      if (key !== 'profilePicture' && formValue[key] !== null) {
-        formData.append(key, formValue[key]);
-      }
-    });
+    // Prepare user data
+    const userData = {
+      username: formValue.username,
+      email: formValue.email,
+      password: formValue.password,
+      phoneNumber: formValue.phoneNumber,
+      dob: formValue.dob ? new Date(formValue.dob).toISOString() : null,
+      roleId: Number(formValue.roleId),
+      branchId: Number(formValue.branchId)
+    };
 
-    // Append profile picture if exists
+    // Append JSON data
+    const userBlob = new Blob([JSON.stringify(userData)], { type: 'application/json' });
+    formData.append('user', userBlob);
+
+    // Append profile picture
     if (formValue.profilePicture) {
-      formData.append('profilePicture', formValue.profilePicture);
+      formData.append('file', formValue.profilePicture);
     }
 
     this.userService.createUser(formData).subscribe({
@@ -156,8 +166,13 @@ export class UserCreateComponent implements OnInit{
       },
       error: (err) => {
         console.error('Error creating user:', err);
-        this.errorMessage = err.error?.message || 'Failed to create user. Please try again.';
         this.loading = false;
+        
+        if (err.status === 409) {
+          this.errorMessage = err.error.message;
+        } else {
+          this.errorMessage = 'Failed to create user. Please check your inputs and try again.';
+        }
       }
     });
   }
@@ -179,8 +194,8 @@ export class UserCreateComponent implements OnInit{
       password: '',
       phoneNumber: '',
       dob: '',
-      roleId: 0,
-      branchId: 0,
+      roleId: null,
+      branchId: null,
       profilePicture: null
     });
     this.profilePicturePreview = null;

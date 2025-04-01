@@ -37,9 +37,11 @@
                 </label>
                 <select class="form-select" formControlName="nrcPrefix" (change)="onNrcPrefixChange($event)">
                   <option value="" disabled>Select NRC</option>
-                  <option *ngFor="let nrc of nrcFormats" [value]="nrc.nrc_code + '/' + nrc.name_en + '(N)'">
-                    {{ nrc.nrc_code }} / {{ nrc.name_en }}
-                  </option>
+             <!-- Change the NRC Prefix option value -->
+<option *ngFor="let nrc of nrcFormats" 
+[value]="nrc.nrc_code + '/' + nrc.code + '(N)'"> <!-- Use code instead of name_en -->
+{{ nrc.nrc_code }} / {{ nrc.name_en }} ({{ nrc.code }})
+</option>
                 </select>
                 <div *ngIf="cifForm.get('nrcPrefix')?.touched && cifForm.get('nrcPrefix')?.errors" class="error-message text-danger">
                   <i class="bi bi-exclamation-circle-fill"></i>

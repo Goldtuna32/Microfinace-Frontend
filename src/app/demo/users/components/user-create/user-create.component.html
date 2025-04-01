@@ -166,12 +166,8 @@
                 <label class="form-label fw-bold">
                   <i class="bi bi-person-gear text-primary me-1"></i> Role <span class="text-danger">*</span>
                 </label>
-                <select formControlName="roleId" class="form-select"
-                        [ngClass]="{
-                          'is-invalid': formControls['roleId'].touched && formControls['roleId'].invalid,
-                          'is-valid': formControls['roleId'].touched && formControls['roleId'].valid
-                        }">
-                  <option value="0" disabled selected>Select Role</option>
+                <select formControlName="roleId" class="form-select">
+                  <option [ngValue]="null" disabled selected>Select Role</option>
                   <option *ngFor="let role of roles" [value]="role.id">
                     {{ role.name }}
                   </option>
@@ -187,12 +183,8 @@
                 <label class="form-label fw-bold">
                   <i class="bi bi-building text-primary me-1"></i> Branch <span class="text-danger">*</span>
                 </label>
-                <select formControlName="branchId" class="form-select"
-                        [ngClass]="{
-                          'is-invalid': formControls['branchId'].touched && formControls['branchId'].invalid,
-                          'is-valid': formControls['branchId'].touched && formControls['branchId'].valid
-                        }">
-                  <option value="0" disabled selected>Select Branch</option>
+                <select formControlName="branchId" class="form-select">
+                  <option [ngValue]="null" disabled selected>Select Branch</option>
                   <option *ngFor="let branch of branches" [value]="branch.id">
                     {{ branch.branchName }} ({{ branch.branchCode }})
                   </option>

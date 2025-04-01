@@ -145,7 +145,17 @@ export const routes: Routes = [
         loadComponent: () => import('./demo/dealer-registration/components/dealar-edit/dealar-edit.component')
           .then(m => m.DealerEditComponent)
       },
-      
+      {
+        path: 'hp-registration',
+        loadComponent: () => import('./demo/hp-registration/components/hp-registration/hp-registration.component')
+          .then(m => m.HpRegistrationComponent)
+      },
+
+      {
+        path: 'hp-registration/list',
+        loadComponent: () => import('./demo/hp-registration/components/hp-registration-list/hp-registration-list.component')
+          .then(m => m.HpRegistrationListComponent)
+      },
 
       {
         path: 'create-product-type',
